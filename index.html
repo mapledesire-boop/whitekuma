@@ -275,7 +275,7 @@
     </div>
 
     <script>
-        // 請將下方改為您的 Google Apps Script 部署 URL
+        // 請替換為您在 Apps Script 部署得到的網頁應用程式 URL
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec";
 
         const presetNames = [
@@ -328,28 +328,42 @@
             });
         }
 
-        // 從 Google 試算表載入歷史紀錄
+        // 從 Google 試算表載入歷史紀錄（含轉址跟隨與防呆解析）
         function loadCloudHistory() {
             if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
                 document.getElementById('historyList').innerHTML = '<div class="empty-text">請先設定 Google Apps Script URL</div>';
                 return;
             }
 
-            fetch(GOOGLE_SCRIPT_URL)
+            fetch(GOOGLE_SCRIPT_URL, { redirect: "follow" })
                 .then(response => response.json())
                 .then(data => {
-                    historyRounds = data.map(row => ({
-                        roundNum: row[0],
-                        eventDate: row[1] || '未指定日期',
-                        time: row[2] || '',
-                        teams: JSON.parse(row[3] || '[]'),
-                        bye: row[4] || null
-                    }));
+                    historyRounds = [];
+                    if (Array.isArray(data)) {
+                        data.forEach(row => {
+                            if (row && row.length >= 4 && row[0] !== "") {
+                                let parsedTeams = [];
+                                try {
+                                    parsedTeams = typeof row[3] === 'string' ? JSON.parse(row[3]) : row[3];
+                                } catch (e) {
+                                    console.warn("解析組隊資料失敗：", row);
+                                }
+
+                                historyRounds.push({
+                                    roundNum: row[0],
+                                    eventDate: row[1] || '未指定日期',
+                                    time: row[2] || '',
+                                    teams: Array.isArray(parsedTeams) ? parsedTeams : [],
+                                    bye: row[4] || null
+                                });
+                            }
+                        });
+                    }
                     renderHistory();
                 })
                 .catch(err => {
-                    console.error(err);
-                    document.getElementById('historyList').innerHTML = '<div class="empty-text">讀取紀錄失敗</div>';
+                    console.error("讀取失敗：", err);
+                    document.getElementById('historyList').innerHTML = '<div class="empty-text">讀取紀錄失敗，請檢查網路或網址設定</div>';
                 });
         }
 
