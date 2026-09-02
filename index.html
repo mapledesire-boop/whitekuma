@@ -56,6 +56,20 @@
             color: #555;
         }
 
+        .date-input-group {
+            margin-bottom: 12px;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-top: 6px;
+            background-color: #fff;
+        }
+
         textarea { 
             width: 100%; 
             min-height: 120px; 
@@ -67,7 +81,7 @@
             margin-top: 8px;
         }
 
-        textarea:focus {
+        textarea:focus, input[type="date"]:focus {
             outline: none;
             border-color: #008CBA;
         }
@@ -125,6 +139,18 @@
         
         .btn-secondary { background-color: #8e8e93; color: white; }
         .btn-secondary:active { background-color: #6c6c70; }
+
+        .btn-danger { 
+            background-color: #ff3b30; 
+            color: white; 
+            padding: 6px 12px; 
+            font-size: 0.85rem; 
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            min-height: 32px;
+        }
+        .btn-danger:active { background-color: #c72c23; }
 
         .btn-copy {
             background-color: #008CBA;
@@ -188,7 +214,13 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 6px;
+            margin-bottom: 4px;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: #666;
+            margin-bottom: 8px;
         }
 
         .history-teams { line-height: 1.6; }
@@ -209,6 +241,11 @@
     </div>
 
     <div class="box">
+        <div class="date-input-group">
+            <label for="eventDate"><strong>📅 活動日期：</strong></label>
+            <input type="date" id="eventDate">
+        </div>
+
         <label><strong>點擊加入/移除成員：</strong></label>
         <div class="tag-container" id="tagContainer"></div>
 
@@ -232,13 +269,14 @@
     <div class="box">
         <div class="section-header">
             <h3>歷史紀錄 (雲端同步)</h3>
+            <button class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
         <div id="historyList"><div class="empty-text">載入歷史紀錄中...</div></div>
     </div>
 
     <script>
         // 請將下方改為您的 Google Apps Script 部署 URL
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzL3q37TT-TMqiZCKJm8DWRDUDA4q5QfDFczfjXBSEgDMI4uG5dfbshdxcFypN_DozN2Q/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec";
 
         const presetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
@@ -247,6 +285,9 @@
         ];
 
         let historyRounds = [];
+
+        // 初始化預設今天的日期
+        document.getElementById('eventDate').valueAsDate = new Date();
 
         function initNameTags() {
             const container = document.getElementById('tagContainer');
@@ -289,7 +330,7 @@
 
         // 從 Google 試算表載入歷史紀錄
         function loadCloudHistory() {
-            if (GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL") {
+            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
                 document.getElementById('historyList').innerHTML = '<div class="empty-text">請先設定 Google Apps Script URL</div>';
                 return;
             }
@@ -299,9 +340,10 @@
                 .then(data => {
                     historyRounds = data.map(row => ({
                         roundNum: row[0],
-                        time: row[1],
-                        teams: JSON.parse(row[2] || '[]'),
-                        bye: row[3] || null
+                        eventDate: row[1] || '未指定日期',
+                        time: row[2] || '',
+                        teams: JSON.parse(row[3] || '[]'),
+                        bye: row[4] || null
                     }));
                     renderHistory();
                 })
@@ -311,9 +353,36 @@
                 });
         }
 
+        // 清空雲端歷史紀錄
+        function clearCloudHistory() {
+            if (historyRounds.length === 0) return;
+            if (!confirm("確定要清空所有人的雲端歷史紀錄嗎？此動作無法復原。")) return;
+
+            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'clear' })
+                }).then(() => {
+                    historyRounds = [];
+                    document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
+                    document.getElementById('copyCurrentBtn').style.display = 'none';
+                    renderHistory();
+                    alert("歷史紀錄已清空！");
+                });
+            }
+        }
+
         function generateTeams() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            const eventDateVal = document.getElementById('eventDate').value;
+            if (!eventDateVal) {
+                alert("請選擇活動日期！");
+                return;
+            }
 
             if (players.length < 2) {
                 alert("請至少選擇 2 位參與者！");
@@ -389,21 +458,26 @@
                 if (validMatchFound) break;
             }
 
+            const now = new Date();
+            const timeString = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
+
             const currentRound = {
                 roundNum: historyRounds.length + 1,
+                eventDate: eventDateVal,
+                time: timeString,
                 teams: bestTeams,
-                bye: bestBye,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                bye: bestBye
             };
 
             // 上傳至 Google 試算表
-            if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL") {
+            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         roundNum: currentRound.roundNum,
+                        eventDate: currentRound.eventDate,
                         time: currentRound.time,
                         teams: JSON.stringify(currentRound.teams),
                         bye: currentRound.bye || ''
@@ -421,7 +495,11 @@
         }
 
         function formatRoundText(round) {
-            let lines = [`#第 ${round.roundNum} 輪`];
+            let lines = [
+                `#第 ${round.roundNum} 輪`,
+                `📅 活動日期：${round.eventDate}`,
+                `🕒 抽選時間：${round.time}`
+            ];
             round.teams.forEach((team, index) => {
                 lines.push(`第 ${index + 1} 組：${team[0]} & ${team[1]}`);
             });
@@ -483,8 +561,11 @@
 
                 html += `<div class="history-item">
                     <div class="history-header">
-                        <strong>#第 ${round.roundNum} 輪 [${round.time}]</strong>
+                        <strong>#第 ${round.roundNum} 輪</strong>
                         <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                    </div>
+                    <div class="history-meta">
+                        📅 活動日期：${round.eventDate} | 🕒 抽選時間：${round.time}
                     </div>
                     <div class="history-teams">
                         ${teamsHtml}
