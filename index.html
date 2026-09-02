@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>白熊保齡球之不能黑箱的秘密</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            max-width: 600px; 
+            margin: 0 auto; 
+            padding: 16px; 
+            background-color: #f4f6f8;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        /* 標題區域排版 */
+        .header-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 16px 0 24px 0;
+        }
+
+        h2 {
+            text-align: center;
+            margin: 0;
+            font-size: 1.4rem;
+            color: #1a1a1a;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 4px;
+        }
+
+        .box { 
+            border: none;
+            padding: 16px; 
+            border-radius: 12px; 
+            margin-bottom: 16px; 
+            background-color: #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        label {
+            font-size: 0.95rem;
+            color: #555;
+        }
+
+        textarea { 
+            width: 100%; 
+            min-height: 120px; 
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px; /* 防止 iOS 自動放大 */
+            resize: vertical;
+            margin-top: 8px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #008CBA;
+        }
+
+        /* 手機適合點擊的人名標籤 */
+        .tag-container { 
+            display: flex; 
+            flex-wrap: wrap; 
+            gap: 8px; 
+            margin: 10px 0 16px 0; 
+        }
+
+        .name-tag { 
+            padding: 8px 14px; 
+            border: 1px solid #008CBA; 
+            background-color: #f0f9ff; 
+            color: #008CBA; 
+            border-radius: 20px; 
+            cursor: pointer; 
+            font-size: 0.95rem; 
+            font-weight: 500;
+            transition: all 0.15s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+        }
+
+        .name-tag:active { 
+            transform: scale(0.96); 
+        }
+
+        .name-tag.active { 
+            background-color: #008CBA; 
+            color: #ffffff; 
+        }
+
+        /* 按鈕組排版 (手機上自動延伸滿寬) */
+        .btn-action { 
+            margin-top: 12px; 
+            display: flex; 
+            gap: 10px; 
+        }
+
+        button.action-btn { 
+            flex: 1;
+            padding: 12px 16px; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: bold;
+            min-height: 48px; /* 手機最佳觸控高度 */
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
+        }
+
+        .btn-primary { background-color: #4CAF50; color: white; }
+        .btn-primary:active { background-color: #3d8b40; }
+        
+        .btn-secondary { background-color: #8e8e93; color: white; }
+        .btn-secondary:active { background-color: #6c6c70; }
+        
+        .btn-danger { 
+            background-color: #ff3b30; 
+            color: white; 
+            padding: 6px 12px; 
+            font-size: 0.85rem; 
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            min-height: 32px;
+        }
+        .btn-danger:active { background-color: #c72c23; }
+
+        .btn-copy {
+            background-color: #008CBA;
+            color: white;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        .btn-copy:active { background-color: #005f73; }
+
+        .section-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 12px; 
+        }
+
+        .section-header h3 { 
+            margin: 0; 
+            font-size: 1.15rem;
+            color: #222;
+        }
+
+        /* 結果顯示樣式 */
+        .result-item {
+            padding: 8px 12px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 1rem;
+        }
+
+        .team-badge { 
+            background: #e0f7fa; 
+            color: #006064;
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-weight: bold;
+        }
+
+        .bye-badge { 
+            background: #fff3cd; 
+            color: #856404; 
+            padding: 3px 8px; 
+            border-radius: 6px; 
+            font-weight: bold;
+        }
+
+        .history-item { 
+            border-bottom: 1px solid #eee; 
+            padding: 10px 0; 
+            font-size: 0.9rem;
+            color: #444;
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .history-teams {
+            line-height: 1.6;
+        }
+
+        .empty-text {
+            color: #8e8e93;
+            font-size: 0.95rem;
+            text-align: center;
+            padding: 12px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <h2>白熊保齡球之不能黑箱的秘密 🎳</h2>
+        <div class="subtitle">願賭服輸 不准賭安素 </div>
+    </div>
+
+    <div class="box">
+        <label><strong>點擊加入/移除成員：</strong></label>
+        <div class="tag-container" id="tagContainer"></div>
+
+        <label for="nameInput"><strong>目前名單（每行一位）：</strong></label>
+        <textarea id="nameInput" placeholder="點擊上方按鈕，或在此輸入人名..."></textarea>
+        
+        <div class="btn-action">
+            <button class="action-btn btn-primary" onclick="generateTeams()">🎲 開始組隊</button>
+            <button class="action-btn btn-secondary" onclick="clearAll()">清空名單</button>
+        </div>
+    </div>
+
+    <div class="box">
+        <div class="section-header">
+            <h3>本次組隊結果</h3>
+            <button id="copyCurrentBtn" class="btn-copy" style="display: none;" onclick="copyCurrentResult()">📋 複製結果</button>
+        </div>
+        <div id="currentResult"><div class="empty-text">尚未開始抽籤</div></div>
+    </div>
+
+    <div class="box">
+        <div class="section-header">
+            <h3>歷史紀錄</h3>
+            <button class="btn-danger" onclick="clearHistory()">🗑️ 清除紀錄</button>
+        </div>
+        <div id="historyList"><div class="empty-text">尚無歷史紀錄</div></div>
+    </div>
+
+    <script>
+        const presetNames = [
+            "團團", "圓圓", "圓仔", "花", "破鳳", 
+            "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡"
+        ];
+
+        function initNameTags() {
+            const container = document.getElementById('tagContainer');
+            container.innerHTML = '';
+            presetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '+ ' + name;
+                tag.onclick = () => toggleName(name, tag);
+                container.appendChild(tag);
+            });
+        }
+
+        function toggleName(name, element) {
+            const textarea = document.getElementById('nameInput');
+            let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            const index = currentList.indexOf(name);
+            if (index === -1) {
+                currentList.push(name);
+                element.classList.add('active');
+                element.innerText = '✓ ' + name;
+            } else {
+                currentList.splice(index, 1);
+                element.classList.remove('active');
+                element.innerText = '+ ' + name;
+            }
+
+            textarea.value = currentList.join('\n');
+        }
+
+        function clearAll() {
+            document.getElementById('nameInput').value = '';
+            const tags = document.querySelectorAll('.name-tag');
+            tags.forEach((tag, index) => {
+                tag.classList.remove('active');
+                tag.innerText = '+ ' + presetNames[index];
+            });
+        }
+
+        function clearHistory() {
+            if (historyRounds.length === 0) return;
+            if (confirm("確定要清除所有歷史紀錄嗎？")) {
+                historyRounds = [];
+                document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
+                document.getElementById('copyCurrentBtn').style.display = 'none';
+                renderHistory();
+            }
+        }
+
+        document.getElementById('nameInput').addEventListener('input', function() {
+            const currentList = this.value.split('\n').map(n => n.trim());
+            const tags = document.querySelectorAll('.name-tag');
+            presetNames.forEach((name, index) => {
+                if (currentList.includes(name)) {
+                    tags[index].classList.add('active');
+                    tags[index].innerText = '✓ ' + name;
+                } else {
+                    tags[index].classList.remove('active');
+                    tags[index].innerText = '+ ' + name;
+                }
+            });
+        });
+
+        let historyRounds = [];
+
+        function generateTeams() {
+            const rawText = document.getElementById('nameInput').value;
+            let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            if (players.length < 2) {
+                alert("請至少選擇 2 位參與者！");
+                return;
+            }
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function isPairInRecentHistory(p1, p2, recentRoundsCount) {
+                const recentRounds = historyRounds.slice(-recentRoundsCount);
+                return recentRounds.some(round => {
+                    return round.teams.some(team => 
+                        (team[0] === p1 && team[1] === p2) || (team[0] === p2 && team[1] === p1)
+                    );
+                });
+            }
+
+            function isByeInRecentHistory(player, recentRoundsCount) {
+                const recentRounds = historyRounds.slice(-recentRoundsCount);
+                return recentRounds.some(round => round.bye === player);
+            }
+
+            let validMatchFound = false;
+            let bestTeams = [];
+            let bestBye = null;
+
+            const constraintLevels = [
+                { pairHistory: 2, byeHistory: 2 },
+                { pairHistory: 1, byeHistory: 1 },
+                { pairHistory: 0, byeHistory: 0 }
+            ];
+
+            for (let level of constraintLevels) {
+                for (let attempt = 0; attempt < 200; attempt++) {
+                    let currentPlayers = shuffle([...players]);
+                    let currentBye = null;
+
+                    if (currentPlayers.length % 2 !== 0) {
+                        let candidateIndex = currentPlayers.findIndex(p => !isByeInRecentHistory(p, level.byeHistory));
+                        if (candidateIndex !== -1) {
+                            currentBye = currentPlayers.splice(candidateIndex, 1)[0];
+                        } else {
+                            currentBye = currentPlayers.pop();
+                        }
+                    }
+
+                    let tempTeams = [];
+                    let isValid = true;
+                    for (let i = 0; i < currentPlayers.length; i += 2) {
+                        let p1 = currentPlayers[i];
+                        let p2 = currentPlayers[i + 1];
+
+                        if (isPairInRecentHistory(p1, p2, level.pairHistory)) {
+                            isValid = false;
+                            break;
+                        }
+                        tempTeams.push([p1, p2]);
+                    }
+
+                    if (isValid) {
+                        bestTeams = tempTeams;
+                        bestBye = currentBye;
+                        validMatchFound = true;
+                        break;
+                    }
+                }
+                if (validMatchFound) break;
+            }
+
+            const currentRound = {
+                roundNum: historyRounds.length + 1,
+                teams: bestTeams,
+                bye: bestBye,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            historyRounds.push(currentRound);
+
+            renderCurrentResult(currentRound);
+            renderHistory();
+        }
+
+        function formatRoundText(round) {
+            let lines = [`#第 ${round.roundNum} 輪`];
+            round.teams.forEach((team, index) => {
+                lines.push(`第 ${index + 1} 組：${team[0]} & ${team[1]}`);
+            });
+            if (round.bye) {
+                lines.push(`本日爽打：${round.bye}`);
+            }
+            return lines.join('\n');
+        }
+
+        function copyCurrentResult() {
+            if (historyRounds.length === 0) return;
+            const latestRound = historyRounds[historyRounds.length - 1];
+            copyToClipboard(formatRoundText(latestRound));
+        }
+
+        function copyRoundByIndex(index) {
+            if (historyRounds[index]) {
+                copyToClipboard(formatRoundText(historyRounds[index]));
+            }
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert("已成功複製到剪貼簿！");
+            }).catch(err => {
+                const textarea = document.createElement("textarea");
+                textarea.value = text;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textarea);
+                alert("已複製到剪貼簿！");
+            });
+        }
+
+        function renderCurrentResult(round) {
+            let html = "";
+            round.teams.forEach((team, index) => {
+                html += `<div class="result-item">第 ${index + 1} 組：<span class="team-badge">${team[0]}</span> & <span class="team-badge">${team[1]}</span></div>`;
+            });
+            if (round.bye) {
+                html += `<div class="result-item">本日爽打：<span class="bye-badge">${round.bye}</span></div>`;
+            }
+            document.getElementById('currentResult').innerHTML = html;
+            document.getElementById('copyCurrentBtn').style.display = 'inline-block';
+        }
+
+        function renderHistory() {
+            let html = "";
+            if (historyRounds.length === 0) {
+                document.getElementById('historyList').innerHTML = '<div class="empty-text">尚無歷史紀錄</div>';
+                return;
+            }
+            [...historyRounds].reverse().forEach((round, reverseIndex) => {
+                const originalIndex = historyRounds.length - 1 - reverseIndex;
+                
+                let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
+                let byeHtml = round.bye ? `<div>本日爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+
+                html += `<div class="history-item">
+                    <div class="history-header">
+                        <strong>#第 ${round.roundNum} 輪 [${round.time}]</strong>
+                        <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                    </div>
+                    <div class="history-teams">
+                        ${teamsHtml}
+                        ${byeHtml}
+                    </div>
+                </div>`;
+            });
+            document.getElementById('historyList').innerHTML = html;
+        }
+
+        initNameTags();
+    </script>
+</body>
+</html>
