@@ -20,7 +20,6 @@
             line-height: 1.5;
         }
 
-        /* 標題區域排版 */
         .header-container {
             display: flex;
             flex-direction: column;
@@ -63,7 +62,7 @@
             padding: 10px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            font-size: 16px; /* 防止 iOS 自動放大 */
+            font-size: 16px;
             resize: vertical;
             margin-top: 8px;
         }
@@ -73,7 +72,6 @@
             border-color: #008CBA;
         }
 
-        /* 手機適合點擊的人名標籤 */
         .tag-container { 
             display: flex; 
             flex-wrap: wrap; 
@@ -98,16 +96,9 @@
             min-height: 38px;
         }
 
-        .name-tag:active { 
-            transform: scale(0.96); 
-        }
+        .name-tag:active { transform: scale(0.96); }
+        .name-tag.active { background-color: #008CBA; color: #ffffff; }
 
-        .name-tag.active { 
-            background-color: #008CBA; 
-            color: #ffffff; 
-        }
-
-        /* 按鈕組排版 (手機上自動延伸滿寬) */
         .btn-action { 
             margin-top: 12px; 
             display: flex; 
@@ -122,7 +113,7 @@
             cursor: pointer; 
             font-size: 1rem; 
             font-weight: bold;
-            min-height: 48px; /* 手機最佳觸控高度 */
+            min-height: 48px;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -134,18 +125,6 @@
         
         .btn-secondary { background-color: #8e8e93; color: white; }
         .btn-secondary:active { background-color: #6c6c70; }
-        
-        .btn-danger { 
-            background-color: #ff3b30; 
-            color: white; 
-            padding: 6px 12px; 
-            font-size: 0.85rem; 
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            min-height: 32px;
-        }
-        .btn-danger:active { background-color: #c72c23; }
 
         .btn-copy {
             background-color: #008CBA;
@@ -172,7 +151,6 @@
             color: #222;
         }
 
-        /* 結果顯示樣式 */
         .result-item {
             padding: 8px 12px;
             background-color: #f8f9fa;
@@ -204,9 +182,7 @@
             color: #444;
         }
 
-        .history-item:last-child {
-            border-bottom: none;
-        }
+        .history-item:last-child { border-bottom: none; }
 
         .history-header {
             display: flex;
@@ -215,9 +191,7 @@
             margin-bottom: 6px;
         }
 
-        .history-teams {
-            line-height: 1.6;
-        }
+        .history-teams { line-height: 1.6; }
 
         .empty-text {
             color: #8e8e93;
@@ -231,7 +205,7 @@
 
     <div class="header-container">
         <h2>白熊保齡球之不能黑箱的秘密 🎳</h2>
-        <div class="subtitle">願賭服輸 不准賭安素 </div>
+        <div class="subtitle">願賭服輸 不准賭安素</div>
     </div>
 
     <div class="box">
@@ -257,17 +231,22 @@
 
     <div class="box">
         <div class="section-header">
-            <h3>歷史紀錄</h3>
-            <button class="btn-danger" onclick="clearHistory()">🗑️ 清除紀錄</button>
+            <h3>歷史紀錄 (雲端同步)</h3>
         </div>
-        <div id="historyList"><div class="empty-text">尚無歷史紀錄</div></div>
+        <div id="historyList"><div class="empty-text">載入歷史紀錄中...</div></div>
     </div>
 
     <script>
+        // 請將下方改為您的 Google Apps Script 部署 URL
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzL3q37TT-TMqiZCKJm8DWRDUDA4q5QfDFczfjXBSEgDMI4uG5dfbshdxcFypN_DozN2Q/exec";
+
         const presetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
-            "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡"
+            "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡",
+            "陳彤", "楷雲"
         ];
+
+        let historyRounds = [];
 
         function initNameTags() {
             const container = document.getElementById('tagContainer');
@@ -308,31 +287,29 @@
             });
         }
 
-        function clearHistory() {
-            if (historyRounds.length === 0) return;
-            if (confirm("確定要清除所有歷史紀錄嗎？")) {
-                historyRounds = [];
-                document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
-                document.getElementById('copyCurrentBtn').style.display = 'none';
-                renderHistory();
+        // 從 Google 試算表載入歷史紀錄
+        function loadCloudHistory() {
+            if (GOOGLE_SCRIPT_URL === "YOUR_GOOGLE_APPS_SCRIPT_URL") {
+                document.getElementById('historyList').innerHTML = '<div class="empty-text">請先設定 Google Apps Script URL</div>';
+                return;
             }
+
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(response => response.json())
+                .then(data => {
+                    historyRounds = data.map(row => ({
+                        roundNum: row[0],
+                        time: row[1],
+                        teams: JSON.parse(row[2] || '[]'),
+                        bye: row[3] || null
+                    }));
+                    renderHistory();
+                })
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('historyList').innerHTML = '<div class="empty-text">讀取紀錄失敗</div>';
+                });
         }
-
-        document.getElementById('nameInput').addEventListener('input', function() {
-            const currentList = this.value.split('\n').map(n => n.trim());
-            const tags = document.querySelectorAll('.name-tag');
-            presetNames.forEach((name, index) => {
-                if (currentList.includes(name)) {
-                    tags[index].classList.add('active');
-                    tags[index].innerText = '✓ ' + name;
-                } else {
-                    tags[index].classList.remove('active');
-                    tags[index].innerText = '+ ' + name;
-                }
-            });
-        });
-
-        let historyRounds = [];
 
         function generateTeams() {
             const rawText = document.getElementById('nameInput').value;
@@ -418,10 +395,29 @@
                 bye: bestBye,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
             };
-            historyRounds.push(currentRound);
 
-            renderCurrentResult(currentRound);
-            renderHistory();
+            // 上傳至 Google 試算表
+            if (GOOGLE_SCRIPT_URL !== "YOUR_GOOGLE_APPS_SCRIPT_URL") {
+                fetch(GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        roundNum: currentRound.roundNum,
+                        time: currentRound.time,
+                        teams: JSON.stringify(currentRound.teams),
+                        bye: currentRound.bye || ''
+                    })
+                }).then(() => {
+                    historyRounds.push(currentRound);
+                    renderCurrentResult(currentRound);
+                    renderHistory();
+                });
+            } else {
+                historyRounds.push(currentRound);
+                renderCurrentResult(currentRound);
+                renderHistory();
+            }
         }
 
         function formatRoundText(round) {
@@ -500,6 +496,7 @@
         }
 
         initNameTags();
+        loadCloudHistory();
     </script>
 </body>
 </html>
