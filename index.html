@@ -3,239 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>白熊保齡球之不能黑箱的秘密</title>
+    <title>白熊保齡球之不能黑箱的秘密 🎳</title>
     <style>
-        * {
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            max-width: 600px; 
-            margin: 0 auto; 
-            padding: 16px; 
-            background-color: #f4f6f8;
-            color: #333;
-            line-height: 1.5;
+            max-width: 600px; margin: 0 auto; padding: 16px; 
+            background-color: #f4f6f8; color: #333; line-height: 1.5;
         }
-
-        .header-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin: 16px 0 24px 0;
-        }
-
-        h2 {
-            text-align: center;
-            margin: 0;
-            font-size: 1.4rem;
-            color: #1a1a1a;
-            font-weight: 700;
-        }
-
-        .subtitle {
-            font-size: 0.85rem;
-            color: #666;
-            margin-top: 4px;
-        }
-
-        .box { 
-            border: none;
-            padding: 16px; 
-            border-radius: 12px; 
-            margin-bottom: 16px; 
-            background-color: #ffffff;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-        }
-
-        label {
-            font-size: 0.95rem;
-            color: #555;
-        }
-
-        .date-input-group {
-            margin-bottom: 12px;
-        }
-
-        input[type="date"] {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            margin-top: 6px;
-            background-color: #fff;
-        }
-
-        textarea { 
-            width: 100%; 
-            min-height: 120px; 
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-            resize: vertical;
-            margin-top: 8px;
-        }
-
-        textarea:focus, input[type="date"]:focus {
-            outline: none;
-            border-color: #008CBA;
-        }
-
-        .tag-container { 
-            display: flex; 
-            flex-wrap: wrap; 
-            gap: 8px; 
-            margin: 10px 0 16px 0; 
-        }
-
+        .header-container { display: flex; flex-direction: column; align-items: center; margin: 16px 0 24px 0; }
+        h2 { text-align: center; margin: 0; font-size: 1.4rem; color: #1a1a1a; font-weight: 700; }
+        .subtitle { font-size: 0.85rem; color: #666; margin-top: 4px; }
+        .box { border: none; padding: 16px; border-radius: 12px; margin-bottom: 16px; background-color: #ffffff; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); }
+        label { font-size: 0.95rem; color: #555; }
+        .date-input-group { margin-bottom: 12px; }
+        input[type="date"] { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-top: 6px; background-color: #fff; }
+        textarea { width: 100%; min-height: 120px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; resize: vertical; margin-top: 8px; }
+        textarea:focus, input[type="date"]:focus { outline: none; border-color: #008CBA; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 16px 0; }
         .name-tag { 
-            padding: 8px 14px; 
-            border: 1px solid #008CBA; 
-            background-color: #f0f9ff; 
-            color: #008CBA; 
-            border-radius: 20px; 
-            cursor: pointer; 
-            font-size: 0.95rem; 
-            font-weight: 500;
-            transition: all 0.15s ease;
-            user-select: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-height: 38px;
+            padding: 8px 14px; border: 1px solid #008CBA; background-color: #f0f9ff; color: #008CBA; 
+            border-radius: 20px; cursor: pointer; font-size: 0.95rem; font-weight: 500;
+            transition: all 0.15s ease; user-select: none; display: inline-flex; align-items: center; justify-content: center; min-height: 38px;
         }
-
         .name-tag:active { transform: scale(0.96); }
         .name-tag.active { background-color: #008CBA; color: #ffffff; }
-
-        .btn-action { 
-            margin-top: 12px; 
-            display: flex; 
-            gap: 10px; 
-        }
-
+        .btn-action { margin-top: 12px; display: flex; gap: 10px; }
         button.action-btn { 
-            flex: 1;
-            padding: 12px 16px; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 1rem; 
-            font-weight: bold;
-            min-height: 48px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
+            flex: 1; padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; 
+            font-size: 1rem; font-weight: bold; min-height: 48px; display: inline-flex; align-items: center; justify-content: center;
         }
-
-        button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-
         .btn-primary { background-color: #4CAF50; color: white; }
         .btn-primary:active { background-color: #3d8b40; }
-        
         .btn-secondary { background-color: #8e8e93; color: white; }
         .btn-secondary:active { background-color: #6c6c70; }
-
-        .btn-danger { 
-            background-color: #ff3b30; 
-            color: white; 
-            padding: 6px 12px; 
-            font-size: 0.85rem; 
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            min-height: 32px;
-        }
+        .btn-danger { background-color: #ff3b30; color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; border: none; cursor: pointer; }
         .btn-danger:active { background-color: #c72c23; }
-
-        .btn-copy {
-            background-color: #008CBA;
-            color: white;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            margin-left: 8px;
-        }
-        .btn-copy:active { background-color: #005f73; }
-
-        .section-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 12px; 
-        }
-
-        .section-header h3 { 
-            margin: 0; 
-            font-size: 1.15rem;
-            color: #222;
-        }
-
-        .result-item {
-            padding: 8px 12px;
-            background-color: #f8f9fa;
-            border-radius: 6px;
-            margin-bottom: 8px;
-            font-size: 1rem;
-        }
-
-        .team-badge { 
-            background: #e0f7fa; 
-            color: #006064;
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            font-weight: bold;
-        }
-
-        .bye-badge { 
-            background: #fff3cd; 
-            color: #856404; 
-            padding: 3px 8px; 
-            border-radius: 6px; 
-            font-weight: bold;
-        }
-
-        .history-item { 
-            border-bottom: 1px solid #eee; 
-            padding: 10px 0; 
-            font-size: 0.9rem;
-            color: #444;
-        }
-
+        .btn-copy { background-color: #008CBA; color: white; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; margin-left: 8px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .section-header h3 { margin: 0; font-size: 1.15rem; color: #222; }
+        .result-item { padding: 8px 12px; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 8px; font-size: 1rem; }
+        .team-badge { background: #e0f7fa; color: #006064; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+        .bye-badge { background: #fff3cd; color: #856404; padding: 3px 8px; border-radius: 6px; font-weight: bold; }
+        .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; color: #444; }
         .history-item:last-child { border-bottom: none; }
-
-        .history-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .history-meta {
-            font-size: 0.8rem;
-            color: #666;
-            margin-bottom: 8px;
-        }
-
+        .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .history-meta { font-size: 0.8rem; color: #666; margin-bottom: 8px; }
         .history-teams { line-height: 1.6; }
-
-        .empty-text {
-            color: #8e8e93;
-            font-size: 0.95rem;
-            text-align: center;
-            padding: 12px 0;
-        }
+        .empty-text { color: #8e8e93; font-size: 0.95rem; text-align: center; padding: 12px 0; }
     </style>
 </head>
 <body>
@@ -273,15 +88,29 @@
 
     <div class="box">
         <div class="section-header">
-            <h3>歷史紀錄 (雲端同步)</h3>
+            <h3>歷史紀錄</h3>
             <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
-        <div id="historyList"><div class="empty-text">載入歷史紀錄中...</div></div>
+        <div id="historyList"><div class="empty-text">連線至 Firebase 中...</div></div>
     </div>
 
-    <script>
-        // 更換後的 Google Apps Script URL
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec";
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKmizSfVR7fJU4DnCkK51hxkxnCNsHg54",
+            authDomain: "bowling-team.firebaseapp.com",
+            databaseURL: "https://bowling-team-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "bowling-team",
+            storageBucket: "bowling-team.firebasestorage.app",
+            messagingSenderId: "469257467016",
+            appId: "1:469257467016:web:dd9f37953cf33ef4bf1b3d"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const historyRef = ref(db, 'historyRounds');
 
         const presetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
@@ -291,7 +120,6 @@
 
         let historyRounds = [];
 
-        // 初始化預設今天的日期
         document.getElementById('eventDate').valueAsDate = new Date();
 
         function initNameTags() {
@@ -324,118 +152,44 @@
             textarea.value = currentList.join('\n');
         }
 
-        function clearAll() {
+        window.clearAll = function() {
             document.getElementById('nameInput').value = '';
             const tags = document.querySelectorAll('.name-tag');
             tags.forEach((tag, index) => {
                 tag.classList.remove('active');
                 tag.innerText = '+ ' + presetNames[index];
             });
-        }
+        };
 
-        // =================【 Google 雲端通訊核心部分 】=================
-
-        // 1. 從 Google 試算表載入歷史紀錄
-        function loadCloudHistory() {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("你的部署ID")) {
-                document.getElementById('historyList').innerHTML = '<div class="empty-text">請設定正確的 GOOGLE_SCRIPT_URL</div>';
-                return;
-            }
-
-            document.getElementById('historyList').innerHTML = '<div class="empty-text">⏳ 正在與 Google 試算表同步資料...</div>';
-
-            fetch(GOOGLE_SCRIPT_URL, { 
-                method: 'GET',
-                redirect: 'follow' 
-            })
-            .then(response => {
-                if (!response.ok) throw new Error("網路回應不正常");
-                return response.json();
-            })
-            .then(data => {
-                historyRounds = [];
-                if (Array.isArray(data)) {
-                    data.forEach(row => {
-                        if (row && row.length >= 4 && row[0] !== "") {
-                            let parsedTeams = [];
-                            try {
-                                parsedTeams = typeof row[3] === 'string' ? JSON.parse(row[3]) : row[3];
-                            } catch (e) {
-                                console.warn("解析隊伍失敗：", row[3]);
-                            }
-
-                            historyRounds.push({
-                                roundNum: row[0],
-                                eventDate: row[1] || '未指定日期',
-                                time: row[2] || '',
-                                teams: Array.isArray(parsedTeams) ? parsedTeams : [],
-                                bye: row[4] || null
-                            });
-                        }
-                    });
-                }
-                renderHistory();
-            })
-            .catch(err => {
-                console.error("讀取歷史紀錄失敗：", err);
-                document.getElementById('historyList').innerHTML = '<div class="empty-text" style="color:red;">⚠️ 讀取失敗，請確認 Apps Script 部署權限設定為「所有人」</div>';
-            });
-        }
-
-        // 2. 清空 Google 試算表歷史紀錄
-        function clearCloudHistory() {
-            if (historyRounds.length === 0) {
-                alert("目前沒有可清空的紀錄。");
-                return;
-            }
-            if (!confirm("確定要清空雲端試算表上的所有紀錄嗎？此動作無法復原！")) return;
-
-            const btn = document.getElementById('btnClearCloud');
-            btn.disabled = true;
-            btn.innerText = "清空中...";
-
-            const payload = JSON.stringify({ action: 'clear' });
-
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: payload
-            })
-            .then(res => res.json())
-            .then(res => {
-                historyRounds = [];
+        // 即時同步 Firebase 資料
+        onValue(historyRef, (snapshot) => {
+            const data = snapshot.val();
+            historyRounds = data ? Object.values(data) : [];
+            renderHistory();
+            
+            if (historyRounds.length > 0) {
+                renderCurrentResult(historyRounds[historyRounds.length - 1]);
+            } else {
                 document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
                 document.getElementById('copyCurrentBtn').style.display = 'none';
-                renderHistory();
-                alert("雲端歷史紀錄已順利清空！");
-            })
-            .catch(err => {
-                console.error("清空失敗：", err);
-                alert("清空請求已發送（若無回應請重新整理網頁查看結果）");
-                loadCloudHistory();
-            })
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerText = "🗑️ 清空紀錄";
-            });
-        }
+            }
+        });
 
-        // 3. 抽籤並寫入 Google 試算表
-        function generateTeams() {
+        // 清空紀錄
+        window.clearCloudHistory = function() {
+            if (historyRounds.length === 0) return;
+            if (!confirm("確定要清空 Firebase 上的所有紀錄嗎？")) return;
+            remove(historyRef);
+        };
+
+        // 抽籤組隊，最高保留最新 10 筆
+        window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-
             const eventDateVal = document.getElementById('eventDate').value;
-            if (!eventDateVal) {
-                alert("請選擇活動日期！");
-                return;
-            }
 
-            if (players.length < 2) {
-                alert("請至少選擇 2 位參與者！");
-                return;
-            }
+            if (!eventDateVal) return alert("請選擇活動日期！");
+            if (players.length < 2) return alert("請至少選擇 2 位參與者！");
 
             function shuffle(array) {
                 for (let i = array.length - 1; i > 0; i--) {
@@ -447,11 +201,9 @@
 
             function isPairInRecentHistory(p1, p2, recentRoundsCount) {
                 const recentRounds = historyRounds.slice(-recentRoundsCount);
-                return recentRounds.some(round => {
-                    return round.teams.some(team => 
-                        (team[0] === p1 && team[1] === p2) || (team[0] === p2 && team[1] === p1)
-                    );
-                });
+                return recentRounds.some(round => 
+                    round.teams.some(team => (team[0] === p1 && team[1] === p2) || (team[0] === p2 && team[1] === p1))
+                );
             }
 
             function isByeInRecentHistory(player, recentRoundsCount) {
@@ -460,8 +212,7 @@
             }
 
             let validMatchFound = false;
-            let bestTeams = [];
-            let bestBye = null;
+            let bestTeams = [], bestBye = null;
 
             const constraintLevels = [
                 { pairHistory: 2, byeHistory: 2 },
@@ -476,22 +227,14 @@
 
                     if (currentPlayers.length % 2 !== 0) {
                         let candidateIndex = currentPlayers.findIndex(p => !isByeInRecentHistory(p, level.byeHistory));
-                        if (candidateIndex !== -1) {
-                            currentBye = currentPlayers.splice(candidateIndex, 1)[0];
-                        } else {
-                            currentBye = currentPlayers.pop();
-                        }
+                        currentBye = candidateIndex !== -1 ? currentPlayers.splice(candidateIndex, 1)[0] : currentPlayers.pop();
                     }
 
-                    let tempTeams = [];
-                    let isValid = true;
+                    let tempTeams = [], isValid = true;
                     for (let i = 0; i < currentPlayers.length; i += 2) {
-                        let p1 = currentPlayers[i];
-                        let p2 = currentPlayers[i + 1];
-
+                        let p1 = currentPlayers[i], p2 = currentPlayers[i + 1];
                         if (isPairInRecentHistory(p1, p2, level.pairHistory)) {
-                            isValid = false;
-                            break;
+                            isValid = false; break;
                         }
                         tempTeams.push([p1, p2]);
                     }
@@ -509,52 +252,22 @@
             const now = new Date();
             const timeString = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
-            const currentRound = {
-                roundNum: historyRounds.length + 1,
+            const newRound = {
+                roundNum: historyRounds.length > 0 ? historyRounds[historyRounds.length - 1].roundNum + 1 : 1,
                 eventDate: eventDateVal,
                 time: timeString,
                 teams: bestTeams,
-                bye: bestBye
+                bye: bestBye || ''
             };
 
-            // 停用按鈕並顯示處理中
-            const btnGen = document.getElementById('btnGenerate');
-            btnGen.disabled = true;
-            btnGen.innerText = "⏳ 寫入雲端中...";
+            let updatedHistory = [...historyRounds, newRound];
+            
+            if (updatedHistory.length > 10) {
+                updatedHistory = updatedHistory.slice(-10);
+            }
 
-            const payload = JSON.stringify({
-                roundNum: currentRound.roundNum,
-                eventDate: currentRound.eventDate,
-                time: currentRound.time,
-                teams: JSON.stringify(currentRound.teams),
-                bye: currentRound.bye || ''
-            });
-
-            fetch(GOOGLE_SCRIPT_URL, {
-                method: 'POST',
-                redirect: 'follow',
-                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-                body: payload
-            })
-            .then(res => res.json())
-            .then(res => {
-                historyRounds.push(currentRound);
-                renderCurrentResult(currentRound);
-                renderHistory();
-            })
-            .catch(err => {
-                console.error("上傳失敗：", err);
-                historyRounds.push(currentRound);
-                renderCurrentResult(currentRound);
-                renderHistory();
-            })
-            .finally(() => {
-                btnGen.disabled = false;
-                btnGen.innerText = "🎲 開始組隊";
-            });
-        }
-
-        // =================【 畫面渲染與複製工具 】=================
+            set(historyRef, updatedHistory);
+        };
 
         function formatRoundText(round) {
             let lines = [
@@ -565,23 +278,18 @@
             round.teams.forEach((team, index) => {
                 lines.push(`第 ${index + 1} 組：${team[0]} & ${team[1]}`);
             });
-            if (round.bye) {
-                lines.push(`本日爽打：${round.bye}`);
-            }
+            if (round.bye) lines.push(`本日爽打：${round.bye}`);
             return lines.join('\n');
         }
 
-        function copyCurrentResult() {
+        window.copyCurrentResult = function() {
             if (historyRounds.length === 0) return;
-            const latestRound = historyRounds[historyRounds.length - 1];
-            copyToClipboard(formatRoundText(latestRound));
-        }
+            copyToClipboard(formatRoundText(historyRounds[historyRounds.length - 1]));
+        };
 
-        function copyRoundByIndex(index) {
-            if (historyRounds[index]) {
-                copyToClipboard(formatRoundText(historyRounds[index]));
-            }
-        }
+        window.copyRoundByIndex = function(index) {
+            if (historyRounds[index]) copyToClipboard(formatRoundText(historyRounds[index]));
+        };
 
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
@@ -602,9 +310,7 @@
             round.teams.forEach((team, index) => {
                 html += `<div class="result-item">第 ${index + 1} 組：<span class="team-badge">${team[0]}</span> & <span class="team-badge">${team[1]}</span></div>`;
             });
-            if (round.bye) {
-                html += `<div class="result-item">本日爽打：<span class="bye-badge">${round.bye}</span></div>`;
-            }
+            if (round.bye) html += `<div class="result-item">本日爽打：<span class="bye-badge">${round.bye}</span></div>`;
             document.getElementById('currentResult').innerHTML = html;
             document.getElementById('copyCurrentBtn').style.display = 'inline-block';
         }
@@ -617,7 +323,6 @@
             }
             [...historyRounds].reverse().forEach((round, reverseIndex) => {
                 const originalIndex = historyRounds.length - 1 - reverseIndex;
-                
                 let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
                 let byeHtml = round.bye ? `<div>本日爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
 
@@ -638,9 +343,7 @@
             document.getElementById('historyList').innerHTML = html;
         }
 
-        // 初始化
         initNameTags();
-        loadCloudHistory();
     </script>
 </body>
 </html>
