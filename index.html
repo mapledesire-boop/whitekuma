@@ -134,6 +134,11 @@
             transition: background-color 0.2s;
         }
 
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
         .btn-primary { background-color: #4CAF50; color: white; }
         .btn-primary:active { background-color: #3d8b40; }
         
@@ -253,7 +258,7 @@
         <textarea id="nameInput" placeholder="點擊上方按鈕，或在此輸入人名..."></textarea>
         
         <div class="btn-action">
-            <button class="action-btn btn-primary" onclick="generateTeams()">🎲 開始組隊</button>
+            <button id="btnGenerate" class="action-btn btn-primary" onclick="generateTeams()">🎲 開始組隊</button>
             <button class="action-btn btn-secondary" onclick="clearAll()">清空名單</button>
         </div>
     </div>
@@ -269,13 +274,13 @@
     <div class="box">
         <div class="section-header">
             <h3>歷史紀錄 (雲端同步)</h3>
-            <button class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
+            <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
         <div id="historyList"><div class="empty-text">載入歷史紀錄中...</div></div>
     </div>
 
     <script>
-        // 請替換為您在 Apps Script 部署得到的網頁應用程式 URL
+        // 更換後的 Google Apps Script URL
         const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec";
 
         const presetNames = [
@@ -328,66 +333,95 @@
             });
         }
 
-        // 從 Google 試算表載入歷史紀錄（含轉址跟隨與防呆解析）
+        // =================【 Google 雲端通訊核心部分 】=================
+
+        // 1. 從 Google 試算表載入歷史紀錄
         function loadCloudHistory() {
-            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
-                document.getElementById('historyList').innerHTML = '<div class="empty-text">請先設定 Google Apps Script URL</div>';
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("你的部署ID")) {
+                document.getElementById('historyList').innerHTML = '<div class="empty-text">請設定正確的 GOOGLE_SCRIPT_URL</div>';
                 return;
             }
 
-            fetch(GOOGLE_SCRIPT_URL, { redirect: "follow" })
-                .then(response => response.json())
-                .then(data => {
-                    historyRounds = [];
-                    if (Array.isArray(data)) {
-                        data.forEach(row => {
-                            if (row && row.length >= 4 && row[0] !== "") {
-                                let parsedTeams = [];
-                                try {
-                                    parsedTeams = typeof row[3] === 'string' ? JSON.parse(row[3]) : row[3];
-                                } catch (e) {
-                                    console.warn("解析組隊資料失敗：", row);
-                                }
+            document.getElementById('historyList').innerHTML = '<div class="empty-text">⏳ 正在與 Google 試算表同步資料...</div>';
 
-                                historyRounds.push({
-                                    roundNum: row[0],
-                                    eventDate: row[1] || '未指定日期',
-                                    time: row[2] || '',
-                                    teams: Array.isArray(parsedTeams) ? parsedTeams : [],
-                                    bye: row[4] || null
-                                });
+            fetch(GOOGLE_SCRIPT_URL, { 
+                method: 'GET',
+                redirect: 'follow' 
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不正常");
+                return response.json();
+            })
+            .then(data => {
+                historyRounds = [];
+                if (Array.isArray(data)) {
+                    data.forEach(row => {
+                        if (row && row.length >= 4 && row[0] !== "") {
+                            let parsedTeams = [];
+                            try {
+                                parsedTeams = typeof row[3] === 'string' ? JSON.parse(row[3]) : row[3];
+                            } catch (e) {
+                                console.warn("解析隊伍失敗：", row[3]);
                             }
-                        });
-                    }
-                    renderHistory();
-                })
-                .catch(err => {
-                    console.error("讀取失敗：", err);
-                    document.getElementById('historyList').innerHTML = '<div class="empty-text">讀取紀錄失敗，請檢查網路或網址設定</div>';
-                });
+
+                            historyRounds.push({
+                                roundNum: row[0],
+                                eventDate: row[1] || '未指定日期',
+                                time: row[2] || '',
+                                teams: Array.isArray(parsedTeams) ? parsedTeams : [],
+                                bye: row[4] || null
+                            });
+                        }
+                    });
+                }
+                renderHistory();
+            })
+            .catch(err => {
+                console.error("讀取歷史紀錄失敗：", err);
+                document.getElementById('historyList').innerHTML = '<div class="empty-text" style="color:red;">⚠️ 讀取失敗，請確認 Apps Script 部署權限設定為「所有人」</div>';
+            });
         }
 
-        // 清空雲端歷史紀錄
+        // 2. 清空 Google 試算表歷史紀錄
         function clearCloudHistory() {
-            if (historyRounds.length === 0) return;
-            if (!confirm("確定要清空所有人的雲端歷史紀錄嗎？此動作無法復原。")) return;
-
-            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'clear' })
-                }).then(() => {
-                    historyRounds = [];
-                    document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
-                    document.getElementById('copyCurrentBtn').style.display = 'none';
-                    renderHistory();
-                    alert("歷史紀錄已清空！");
-                });
+            if (historyRounds.length === 0) {
+                alert("目前沒有可清空的紀錄。");
+                return;
             }
+            if (!confirm("確定要清空雲端試算表上的所有紀錄嗎？此動作無法復原！")) return;
+
+            const btn = document.getElementById('btnClearCloud');
+            btn.disabled = true;
+            btn.innerText = "清空中...";
+
+            const payload = JSON.stringify({ action: 'clear' });
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payload
+            })
+            .then(res => res.json())
+            .then(res => {
+                historyRounds = [];
+                document.getElementById('currentResult').innerHTML = '<div class="empty-text">尚未開始抽籤</div>';
+                document.getElementById('copyCurrentBtn').style.display = 'none';
+                renderHistory();
+                alert("雲端歷史紀錄已順利清空！");
+            })
+            .catch(err => {
+                console.error("清空失敗：", err);
+                alert("清空請求已發送（若無回應請重新整理網頁查看結果）");
+                loadCloudHistory();
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "🗑️ 清空紀錄";
+            });
         }
 
+        // 3. 抽籤並寫入 Google 試算表
         function generateTeams() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
@@ -483,30 +517,44 @@
                 bye: bestBye
             };
 
-            // 上傳至 Google 試算表
-            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
-                fetch(GOOGLE_SCRIPT_URL, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        roundNum: currentRound.roundNum,
-                        eventDate: currentRound.eventDate,
-                        time: currentRound.time,
-                        teams: JSON.stringify(currentRound.teams),
-                        bye: currentRound.bye || ''
-                    })
-                }).then(() => {
-                    historyRounds.push(currentRound);
-                    renderCurrentResult(currentRound);
-                    renderHistory();
-                });
-            } else {
+            // 停用按鈕並顯示處理中
+            const btnGen = document.getElementById('btnGenerate');
+            btnGen.disabled = true;
+            btnGen.innerText = "⏳ 寫入雲端中...";
+
+            const payload = JSON.stringify({
+                roundNum: currentRound.roundNum,
+                eventDate: currentRound.eventDate,
+                time: currentRound.time,
+                teams: JSON.stringify(currentRound.teams),
+                bye: currentRound.bye || ''
+            });
+
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                redirect: 'follow',
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+                body: payload
+            })
+            .then(res => res.json())
+            .then(res => {
                 historyRounds.push(currentRound);
                 renderCurrentResult(currentRound);
                 renderHistory();
-            }
+            })
+            .catch(err => {
+                console.error("上傳失敗：", err);
+                historyRounds.push(currentRound);
+                renderCurrentResult(currentRound);
+                renderHistory();
+            })
+            .finally(() => {
+                btnGen.disabled = false;
+                btnGen.innerText = "🎲 開始組隊";
+            });
         }
+
+        // =================【 畫面渲染與複製工具 】=================
 
         function formatRoundText(round) {
             let lines = [
@@ -536,9 +584,9 @@
         }
 
         function copyToClipboard(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert("已成功複製到剪貼簿！");
-            }).catch(err => {
+            if (navigator.clipboard && window.isSecureContext) {
+                navigator.clipboard.writeText(text).then(() => alert("已成功複製到剪貼簿！"));
+            } else {
                 const textarea = document.createElement("textarea");
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -546,7 +594,7 @@
                 document.execCommand("copy");
                 document.body.removeChild(textarea);
                 alert("已複製到剪貼簿！");
-            });
+            }
         }
 
         function renderCurrentResult(round) {
@@ -590,6 +638,7 @@
             document.getElementById('historyList').innerHTML = html;
         }
 
+        // 初始化
         initNameTags();
         loadCloudHistory();
     </script>
