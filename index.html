@@ -120,7 +120,25 @@
 
         let historyRounds = [];
 
-        document.getElementById('eventDate').valueAsDate = new Date();
+        // 自動推算最近的禮拜三或禮拜六
+        function getNextTargetDay() {
+            const today = new Date();
+            const dayOfWeek = today.getDay(); // 0: 週日, 1: 週一, ..., 3: 週三, ..., 6: 週六
+
+            if (dayOfWeek === 3 || dayOfWeek === 6) {
+                return today;
+            }
+
+            const daysUntilWednesday = (3 - dayOfWeek + 7) % 7;
+            const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
+            const minDaysToAdd = Math.min(daysUntilWednesday, daysUntilSaturday);
+
+            const targetDate = new Date(today);
+            targetDate.setDate(today.getDate() + minDaysToAdd);
+            return targetDate;
+        }
+
+        document.getElementById('eventDate').valueAsDate = getNextTargetDay();
 
         function initNameTags() {
             const container = document.getElementById('tagContainer');
@@ -161,7 +179,7 @@
             });
         };
 
-        // 即時同步 Firebase 資料
+        // 即時讀取 Firebase 資料庫
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
@@ -175,14 +193,14 @@
             }
         });
 
-        // 清空紀錄
+        // 清空歷史紀錄
         window.clearCloudHistory = function() {
             if (historyRounds.length === 0) return;
             if (!confirm("確定要清空 Firebase 上的所有紀錄嗎？")) return;
             remove(historyRef);
         };
 
-        // 抽籤組隊，最高保留最新 10 筆
+        // 抽籤組隊，保留最新 10 筆
         window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
