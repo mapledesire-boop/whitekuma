@@ -39,7 +39,7 @@
         .btn-secondary:active { background-color: #6c6c70; }
         .btn-danger { background-color: #ff3b30; color: white; padding: 6px 12px; font-size: 0.85rem; border-radius: 6px; border: none; cursor: pointer; }
         .btn-danger:active { background-color: #c72c23; }
-        .btn-copy { background-color: #008CBA; color: white; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; margin-left: 8px; }
+        .btn-copy { background-color: #008CBA; color: white; padding: 4px 10px; font-size: 0.8rem; border-radius: 6px; border: none; cursor: pointer; }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
         .section-header h3 { margin: 0; font-size: 1.15rem; color: #222; }
         .result-item { padding: 8px 12px; background-color: #f8f9fa; border-radius: 6px; margin-bottom: 8px; font-size: 1rem; }
@@ -48,7 +48,7 @@
         .history-item { border-bottom: 1px solid #eee; padding: 10px 0; font-size: 0.9rem; color: #444; }
         .history-item:last-child { border-bottom: none; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
-        .history-meta { font-size: 0.8rem; color: #666; margin-bottom: 8px; }
+        .history-meta { font-size: 0.85rem; color: #666; margin-bottom: 8px; }
         .history-teams { line-height: 1.6; }
         .empty-text { color: #8e8e93; font-size: 0.95rem; text-align: center; padding: 12px 0; }
     </style>
@@ -271,7 +271,6 @@
             const timeString = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
 
             const newRound = {
-                roundNum: historyRounds.length > 0 ? historyRounds[historyRounds.length - 1].roundNum + 1 : 1,
                 eventDate: eventDateVal,
                 time: timeString,
                 teams: bestTeams,
@@ -287,9 +286,9 @@
             set(historyRef, updatedHistory);
         };
 
+        // 格式化複製文字
         function formatRoundText(round) {
             let lines = [
-                `#第 ${round.roundNum} 輪`,
                 `📅 活動日期：${round.eventDate}`,
                 `🕒 抽選時間：${round.time}`
             ];
@@ -346,11 +345,8 @@
 
                 html += `<div class="history-item">
                     <div class="history-header">
-                        <strong>#第 ${round.roundNum} 輪</strong>
+                        <div class="history-meta">📅 活動日期：${round.eventDate} | 🕒 抽選時間：${round.time}</div>
                         <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
-                    </div>
-                    <div class="history-meta">
-                        📅 活動日期：${round.eventDate} | 🕒 抽選時間：${round.time}
                     </div>
                     <div class="history-teams">
                         ${teamsHtml}
