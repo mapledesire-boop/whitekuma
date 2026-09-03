@@ -276,7 +276,7 @@
 
     <script>
         // 請替換為您在 Apps Script 部署得到的網頁應用程式 URL
-        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec";
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec";
 
         const presetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
@@ -330,7 +330,7 @@
 
         // 從 Google 試算表載入歷史紀錄（含轉址跟隨與防呆解析）
         function loadCloudHistory() {
-            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
+            if (GOOGLE_SCRIPT_URL === "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
                 document.getElementById('historyList').innerHTML = '<div class="empty-text">請先設定 Google Apps Script URL</div>';
                 return;
             }
@@ -372,7 +372,7 @@
             if (historyRounds.length === 0) return;
             if (!confirm("確定要清空所有人的雲端歷史紀錄嗎？此動作無法復原。")) return;
 
-            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
+            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
@@ -484,7 +484,7 @@
             };
 
             // 上傳至 Google 試算表
-            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycby_3MkzhxdbzIXH5GTY2hPEEFPWi3aqSiezwTSoLj8R6PtXkiKy1xiYnnF59KbzqUx7/exec") {
+            if (GOOGLE_SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbxorYCJrUqVW0jikkqVkaLNRKnGBlIZmRaPNAhnQYp4Nucts6IcLuDRR6qdtOkuduX5-w/exec") {
                 fetch(GOOGLE_SCRIPT_URL, {
                     method: 'POST',
                     mode: 'no-cors',
