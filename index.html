@@ -70,7 +70,7 @@
 
         label { font-size: 0.88rem; color: #333; font-weight: 800; display: block; margin-bottom: 6px; }
 
-        .input-group { margin-bottom: 14px; }
+        .input-group { margin-bottom: 14px; position: relative; }
 
         /* 輸入框風格 */
         input[type="date"], input[type="text"], textarea { 
@@ -93,6 +93,27 @@
             transition: var(--transition); white-space: nowrap; display: flex; align-items: center;
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
+
+        /* 餐廳歷史下拉建議選單 */
+        .dropdown-menu {
+            position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+            background: #FFFFFF; border: 2px solid #E0E0E0; border-radius: var(--radius-sm);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12); z-index: 100; max-height: 200px; overflow-y: auto;
+            display: none;
+        }
+        .dropdown-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid #F0F0F0; font-size: 0.85rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition);
+        }
+        .dropdown-item:last-child { border-bottom: none; }
+        .dropdown-item:hover { background-color: #F8F9FA; }
+        .dropdown-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dropdown-item .btn-del-rest {
+            background: none; border: none; color: #FF5350; cursor: pointer; padding: 2px 6px;
+            font-size: 0.85rem; border-radius: 4px; transition: var(--transition);
+        }
+        .dropdown-item .btn-del-rest:hover { background-color: #FFEAE8; }
 
         textarea { min-height: 80px; resize: vertical; }
 
@@ -127,38 +148,28 @@
         .btn-secondary { background-color: #F0F0F0; color: #555; border: 2px solid #E0E0E0; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E2E2; }
         
-        /* 徹底防止字體重疊與摺疊的按鈕樣式 */
-        .btn-danger, .btn-copy, .btn-line {
-            white-space: nowrap;
-            flex-shrink: 0;
-            font-size: 0.8rem; 
-            font-weight: 800; 
-            border-radius: 8px; 
-            padding: 6px 12px; 
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 3px;
-            line-height: 1.2;
-            min-width: 68px;
-            box-sizing: border-box;
+        /* 按鈕通用樣式 */
+        .btn-danger, .btn-copy, .btn-line, .btn-edit {
+            white-space: nowrap; flex-shrink: 0; font-size: 0.8rem; font-weight: 800; 
+            border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex;
+            align-items: center; justify-content: center; gap: 3px; line-height: 1.2;
+            min-width: 60px; box-sizing: border-box; transition: var(--transition);
         }
 
         .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
+        .btn-danger:disabled {
+            background-color: #E0E0E0; color: #888888; border-color: #CCCCCC;
+            cursor: not-allowed; opacity: 0.8;
+        }
+
         .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
         .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
+        .btn-edit { background-color: #FFF7D6; color: #8A6D00; border: 1.5px solid #FFE885; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
         .section-header h3 { margin: 0; font-size: 0.95rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         
-        .action-group { 
-            display: flex; 
-            gap: 6px; 
-            flex-wrap: nowrap; 
-            align-items: center; 
-            flex-shrink: 0;
-        }
+        .action-group { display: flex; gap: 5px; flex-wrap: nowrap; align-items: center; flex-shrink: 0; }
         
         /* 彈跳動畫 */
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -173,6 +184,9 @@
             margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #EAEAEA;
             word-break: break-all; line-height: 1.6;
         }
+        .restaurant-item-box {
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        }
         .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
         
@@ -181,21 +195,8 @@
             background: #FAFAFA; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px;
             border: 1.5px solid #EAEAEA; transition: var(--transition);
         }
-        /* 標題與按鈕區可適度換行，避免狹窄螢幕擠壓 */
-        .history-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            gap: 8px; 
-            flex-wrap: wrap; 
-        }
-        .history-meta { 
-            font-size: 0.78rem; 
-            color: var(--text-sub); 
-            font-weight: 800; 
-            white-space: nowrap; 
-            flex-grow: 1;
-        }
+        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .history-meta { font-size: 0.78rem; color: var(--text-sub); font-weight: 800; white-space: nowrap; flex-grow: 1; }
         .history-teams { 
             font-size: 0.85rem; line-height: 1.6; margin-top: 8px; padding-top: 8px;
             border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
@@ -219,7 +220,6 @@
 
     <div class="header-container">
         <div class="header-title-box">
-            <!-- 皮卡丘可愛圖示 -->
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="header-img">
             <h2 class="header-title">白熊保齡球 🎳</h2>
         </div>
@@ -238,9 +238,11 @@
         <div class="input-group">
             <label for="restaurantInput">🍽️ 用餐餐廳</label>
             <div class="input-with-btn">
-                <input type="text" id="restaurantInput" placeholder="餐廳名稱或貼上地圖短網址...">
+                <input type="text" id="restaurantInput" placeholder="餐廳名稱或貼上地圖短網址..." onfocus="showRestaurantDropdown()" oninput="filterRestaurantDropdown()">
                 <button class="btn-paste" onclick="pasteClipboard()">📋 貼上</button>
             </div>
+            <!-- 下拉選單區塊 -->
+            <div id="restaurantDropdown" class="dropdown-menu"></div>
         </div>
 
         <label>👥 選擇登場訓練家</label>
@@ -294,6 +296,7 @@
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
         const historyRef = ref(db, 'historyRounds');
+        const customRestaurantsRef = ref(db, 'customRestaurants');
 
         const presetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
@@ -302,7 +305,10 @@
         ];
 
         let historyRounds = [];
+        let customRestaurants = [];
         let isHistoryExpanded = false;
+        let clearConfirmTimer = null;
+        let clearStep = 0;
 
         function getNextTargetDay() {
             const today = new Date();
@@ -357,6 +363,7 @@
                     const text = await navigator.clipboard.readText();
                     if (text) {
                         document.getElementById('restaurantInput').value = text;
+                        showRestaurantDropdown();
                     }
                 } else {
                     alert("請手動長按輸入框貼上！");
@@ -380,6 +387,7 @@
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
             renderHistory();
+            renderRestaurantDropdown();
             
             if (historyRounds.length > 0) {
                 renderCurrentResult(historyRounds[historyRounds.length - 1]);
@@ -390,11 +398,150 @@
             }
         });
 
-        window.clearCloudHistory = function() {
-            if (historyRounds.length === 0) return;
-            if (!confirm("確定要清空 Firebase 上的所有對戰紀錄嗎？")) return;
-            remove(historyRef);
+        onValue(customRestaurantsRef, (snapshot) => {
+            const data = snapshot.val();
+            customRestaurants = data ? Object.values(data) : [];
+            renderRestaurantDropdown();
+        });
+
+        // 餐廳下拉選單邏輯
+        function getAllRestaurants() {
+            let set = new Set();
+            historyRounds.forEach(r => {
+                const name = r.restaurantName || r.restaurant;
+                if (name && name !== "Google 地圖連結") set.add(name);
+            });
+            customRestaurants.forEach(name => set.add(name));
+            return Array.from(set);
+        }
+
+        window.showRestaurantDropdown = function() {
+            renderRestaurantDropdown();
         };
+
+        window.filterRestaurantDropdown = function() {
+            const val = document.getElementById('restaurantInput').value.trim().toLowerCase();
+            renderRestaurantDropdown(val);
+        };
+
+        function renderRestaurantDropdown(filterVal = '') {
+            const dropdown = document.getElementById('restaurantDropdown');
+            const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
+
+            if (list.length === 0) {
+                dropdown.style.display = 'none';
+                return;
+            }
+
+            let html = '';
+            list.forEach(name => {
+                html += `<div class="dropdown-item" onclick="selectRestaurant('${name.replace(/'/g, "\\'")}')">
+                    <span class="rest-name">📍 ${name}</span>
+                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${name.replace(/'/g, "\\'")}')" title="刪除此紀錄">🗑️</button>
+                </div>`;
+            });
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+        }
+
+        window.selectRestaurant = function(name) {
+            document.getElementById('restaurantInput').value = name;
+            document.getElementById('restaurantDropdown').style.display = 'none';
+        };
+
+        window.deleteRestaurant = function(e, name) {
+            e.stopPropagation();
+            
+            let updatedRounds = historyRounds.map(round => {
+                if ((round.restaurantName === name) || (round.restaurant === name)) {
+                    return { ...round, restaurantName: '', restaurant: '' };
+                }
+                return round;
+            });
+
+            let updatedCustom = customRestaurants.filter(r => r !== name);
+
+            set(historyRef, updatedRounds);
+            set(customRestaurantsRef, updatedCustom);
+        };
+
+        document.addEventListener('click', (e) => {
+            const dropdown = document.getElementById('restaurantDropdown');
+            const input = document.getElementById('restaurantInput');
+            if (!dropdown.contains(e.target) && e.target !== input) {
+                dropdown.style.display = 'none';
+            }
+        });
+
+        // 編輯歷史紀錄中的用餐餐廳
+        window.editRestaurantByIndex = function(index) {
+            const currentRound = historyRounds[index];
+            if (!currentRound) return;
+
+            const oldName = currentRound.restaurantName || currentRound.restaurant || '';
+            const newName = prompt("請輸入或修改用餐餐廳名稱：", oldName === "Google 地圖連結" ? "" : oldName);
+
+            if (newName === null) return; // 使用者取消
+
+            const trimmedName = newName.trim();
+            const restaurantData = parseRestaurantInput(trimmedName);
+
+            let updatedRounds = [...historyRounds];
+            updatedRounds[index] = {
+                ...updatedRounds[index],
+                restaurantName: restaurantData.name,
+                mapUrl: restaurantData.url
+            };
+
+            // 如果有新名稱，也同步更新至自訂餐廳選單
+            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                customRestaurants.push(restaurantData.name);
+                set(customRestaurantsRef, customRestaurants);
+            }
+
+            set(historyRef, updatedRounds);
+        };
+
+        // 帶倒數 10 秒鎖定的清空歷史紀錄按鈕機制
+        window.clearCloudHistory = function() {
+            const btn = document.getElementById('btnClearCloud');
+            if (historyRounds.length === 0) return;
+
+            if (clearStep === 0) {
+                clearStep = 1;
+                let countdown = 10;
+                btn.disabled = true;
+                btn.innerText = `⏳ 等待 ${countdown}s`;
+
+                clearConfirmTimer = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) {
+                        btn.innerText = `⏳ 等待 ${countdown}s`;
+                    } else {
+                        clearInterval(clearConfirmTimer);
+                        clearStep = 2;
+                        btn.disabled = false;
+                        btn.innerText = "⚠️ 確定要清空嗎？";
+                    }
+                }, 1000);
+
+            } else if (clearStep === 2) {
+                remove(historyRef);
+                remove(customRestaurantsRef);
+                resetClearBtn();
+            }
+        };
+
+        function resetClearBtn() {
+            if (clearConfirmTimer) clearInterval(clearConfirmTimer);
+            clearStep = 0;
+            const btn = document.getElementById('btnClearCloud');
+            if (btn) {
+                btn.disabled = false;
+                btn.innerText = "🗑️ 清空紀錄";
+            }
+        }
 
         function parseRestaurantInput(inputVal) {
             if (!inputVal) return { name: '', url: '' };
@@ -424,6 +571,11 @@
             if (players.length < 2) return alert("請至少選擇 2 位訓練家！");
 
             const restaurantData = parseRestaurantInput(restaurantInputVal);
+
+            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                customRestaurants.push(restaurantData.name);
+                set(customRestaurantsRef, customRestaurants);
+            }
 
             function shuffle(array) {
                 for (let i = array.length - 1; i > 0; i--) {
@@ -498,23 +650,37 @@
 
             let updatedHistory = [...historyRounds, newRound];
             
-            if (updatedHistory.length > 10) {
-                updatedHistory = updatedHistory.slice(-10);
+            if (updatedHistory.length > 30) {
+                updatedHistory = updatedHistory.slice(-30);
             }
 
             set(historyRef, updatedHistory);
         };
 
-        function formatRestaurantHTML(round) {
+        function formatRestaurantHTML(round, originalIndex = null) {
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             const name = round.restaurantName || round.restaurant || '';
 
-            if (!url && !name) return '';
+            let content = '';
+            if (url) {
+                const isDirectUrl = name === "Google 地圖連結";
+                const linkText = isDirectUrl ? "📍 開啟 Google 地圖" : `📍 ${name}`;
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">${linkText}</a>`;
+            } else if (name) {
+                content = `🍽️ 📍 ${name}`;
+            } else {
+                content = `🍽️ 尚未設定餐廳`;
+            }
 
-            const isDirectUrl = name === "Google 地圖連結";
-            const linkText = isDirectUrl ? "📍 開啟 Google 地圖" : `📍 ${name}`;
+            let editBtnHtml = '';
+            if (originalIndex !== null) {
+                editBtnHtml = `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>`;
+            }
 
-            return `<div class="result-item full-width">🍽️ <a href="${url}" target="_blank" class="restaurant-link">${linkText}</a></div>`;
+            return `<div class="result-item full-width restaurant-item-box">
+                <div>${content}</div>
+                ${editBtnHtml}
+            </div>`;
         }
 
         function formatRoundText(round) {
@@ -534,6 +700,8 @@
                 } else {
                     lines.push(`📍 地圖連結：${url}`);
                 }
+            } else if (name) {
+                lines.push(`🍽️ 用餐餐廳：${name}`);
             }
 
             lines.push(`------------------`);
@@ -607,6 +775,7 @@
             if (historyRounds.length === 0) {
                 historyContainer.innerHTML = '<div class="empty-text">尚無對戰圖鑑紀錄</div>';
                 toggleBtn.style.display = 'none';
+                resetClearBtn();
                 return;
             }
 
@@ -616,7 +785,7 @@
             let html = "";
             displayRounds.forEach((round, reverseIndex) => {
                 const originalIndex = historyRounds.length - 1 - reverseIndex;
-                let restaurantHtml = formatRestaurantHTML(round);
+                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
                 let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
 
