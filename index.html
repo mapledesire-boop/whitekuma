@@ -16,6 +16,8 @@
             --poke-red-hover: #E04340;
             --poke-yellow: #FFCB05;        /* 皮卡丘電光黃 */
             --poke-blue: #2A75BB;          /* 寶可夢藍 */
+            --line-green: #06C755;         /* LINE 綠色 */
+            --line-green-hover: #05b34c;
             --poke-dark: #3C5AA6;
             --text-main: #2A2A2A;          /* 深灰文字 */
             --text-sub: #757575;
@@ -95,12 +97,12 @@
         textarea { min-height: 80px; resize: vertical; }
 
         /* 訓練家名牌標籤 */
-        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px 0; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px 0; }
         .name-tag { 
-            padding: 6px 12px; border: 2px solid #EAEAEA; background-color: #FAFAFA; color: #444; 
+            padding: 6px 14px; border: 2px solid #EAEAEA; background-color: #FAFAFA; color: #444; 
             border-radius: 20px; cursor: pointer; font-size: 0.82rem; font-weight: 800;
             transition: var(--transition); user-select: none; display: inline-flex; align-items: center; 
-            justify-content: center; min-height: 34px;
+            justify-content: center; min-height: 36px;
         }
         .name-tag:active { transform: scale(0.92); }
         .name-tag.active { 
@@ -127,9 +129,11 @@
         
         .btn-danger { background-color: #FFEAE8; color: #D83A37; padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #FFC4C2; font-weight: 800; cursor: pointer; }
         .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #B3D0FF; font-weight: 800; cursor: pointer; }
+        .btn-line { background-color: #E6F9ED; color: var(--line-green); padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #A3E9BC; font-weight: 800; cursor: pointer; }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .section-header h3 { margin: 0; font-size: 1rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+        .section-header h3 { margin: 0; font-size: 1rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+        .action-group { display: flex; gap: 6px; }
         
         /* 彈跳動畫 */
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -140,24 +144,25 @@
 
         /* 組隊結果卡片 */
         .result-item { 
-            padding: 8px 12px; background-color: #FAFAFA; border-radius: var(--radius-sm); 
-            margin-bottom: 6px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #EAEAEA;
+            padding: 10px 12px; background-color: #FAFAFA; border-radius: var(--radius-sm); 
+            margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #EAEAEA;
+            word-break: break-all; line-height: 1.6;
         }
-        .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; }
-        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; }
+        .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
+        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
         
         /* 歷史紀錄卡片 */
         .history-card {
             background: #FAFAFA; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px;
             border: 1.5px solid #EAEAEA; transition: var(--transition);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
         .history-meta { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; }
         .history-teams { 
-            font-size: 0.85rem; line-height: 1.5; margin-top: 8px; padding-top: 8px;
-            border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; font-weight: 700;
+            font-size: 0.85rem; line-height: 1.6; margin-top: 8px; padding-top: 8px;
+            border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
         }
-        .history-teams .full-width { grid-column: span 2; }
+        .history-teams .full-width { grid-column: span 1; }
         
         .toggle-history-btn {
             width: 100%; text-align: center; padding: 8px; background: #FFFFFF; border: 2px dashed #D0D0D0;
@@ -216,7 +221,10 @@
     <div class="box">
         <div class="section-header">
             <h3>🔴 本次對戰組合</h3>
-            <button id="copyCurrentBtn" class="btn-copy" style="display: none;" onclick="copyCurrentResult()">📋 複製戰報</button>
+            <div class="action-group">
+                <button id="lineCurrentBtn" class="btn-line" style="display: none;" onclick="shareLineCurrentResult()">💬 LINE</button>
+                <button id="copyCurrentBtn" class="btn-copy" style="display: none;" onclick="copyCurrentResult()">📋 複製</button>
+            </div>
         </div>
         <div id="currentResult"><div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div></div>
     </div>
@@ -340,6 +348,7 @@
             } else {
                 document.getElementById('currentResult').innerHTML = '<div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div>';
                 document.getElementById('copyCurrentBtn').style.display = 'none';
+                document.getElementById('lineCurrentBtn').style.display = 'none';
             }
         });
 
@@ -363,7 +372,7 @@
 
             return {
                 name: inputVal,
-                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal)}`
+                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
             };
         }
 
@@ -401,14 +410,16 @@
             let validMatchFound = false;
             let bestTeams = [], bestBye = null;
 
+            // 優先設定為檢查前 3 次紀錄，無解時依序遞減防死鎖
             const constraintLevels = [
+                { pairHistory: 3, byeHistory: 3 },
                 { pairHistory: 2, byeHistory: 2 },
                 { pairHistory: 1, byeHistory: 1 },
                 { pairHistory: 0, byeHistory: 0 }
             ];
 
             for (let level of constraintLevels) {
-                for (let attempt = 0; attempt < 200; attempt++) {
+                for (let attempt = 0; attempt < 300; attempt++) {
                     let currentPlayers = shuffle([...players]);
                     let currentBye = null;
 
@@ -471,6 +482,7 @@
 
         function formatRoundText(round) {
             let lines = [
+                `🎳 白熊保齡球戰報 🎳`,
                 `📅 活動日期：${round.eventDate}`,
                 `🕒 抽選時間：${round.time}`
             ];
@@ -483,14 +495,15 @@
                     lines.push(`🍽️ 用餐餐廳：${name}`);
                     lines.push(`📍 地圖連結：${url}`);
                 } else {
-                    lines.push(`🍽️ 用餐餐廳：${url}`);
+                    lines.push(`📍 地圖連結：${url}`);
                 }
             }
 
+            lines.push(`------------------`);
             round.teams.forEach((team, index) => {
                 lines.push(`第 ${index + 1} 組：${team[0]} & ${team[1]}`);
             });
-            if (round.bye) lines.push(`本日輪空（爽打）：${round.bye}`);
+            if (round.bye) lines.push(`此次爽打：${round.bye}`);
             return lines.join('\n');
         }
 
@@ -498,6 +511,20 @@
             if (historyRounds.length === 0) return;
             copyToClipboard(formatRoundText(historyRounds[historyRounds.length - 1]));
         };
+
+        window.shareLineCurrentResult = function() {
+            if (historyRounds.length === 0) return;
+            shareToLine(formatRoundText(historyRounds[historyRounds.length - 1]));
+        };
+
+        window.shareLineByIndex = function(index) {
+            if (historyRounds[index]) shareToLine(formatRoundText(historyRounds[index]));
+        };
+
+        function shareToLine(text) {
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+            window.open(lineUrl, '_blank');
+        }
 
         window.copyRoundByIndex = function(index) {
             if (historyRounds[index]) copyToClipboard(formatRoundText(historyRounds[index]));
@@ -523,11 +550,12 @@
             round.teams.forEach((team, index) => {
                 html += `<div class="result-item">第 ${index + 1} 組：<span class="team-badge">${team[0]}</span> & <span class="team-badge">${team[1]}</span></div>`;
             });
-            if (round.bye) html += `<div class="result-item">本日輪空：<span class="bye-badge">${round.bye}</span></div>`;
+            if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
             html += `</div>`;
 
             document.getElementById('currentResult').innerHTML = html;
             document.getElementById('copyCurrentBtn').style.display = 'inline-block';
+            document.getElementById('lineCurrentBtn').style.display = 'inline-block';
         }
 
         window.toggleHistoryExpand = function() {
@@ -553,12 +581,15 @@
                 const originalIndex = historyRounds.length - 1 - reverseIndex;
                 let restaurantHtml = formatRestaurantHTML(round);
                 let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
-                let byeHtml = round.bye ? `<div class="full-width">本日輪空：<span class="bye-badge">${round.bye}</span></div>` : '';
+                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-meta">📅 ${round.eventDate} | 🕒 ${round.time.split(' ')[1] || ''}</div>
-                        <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                        <div class="action-group">
+                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
+                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                        </div>
                     </div>
                     <div class="history-teams">
                         ${restaurantHtml}
