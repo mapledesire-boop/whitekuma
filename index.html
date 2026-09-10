@@ -192,13 +192,13 @@
         
         /* 歷史紀錄卡片優化 */
         .history-card {
-            background: #FAFAFA; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px;
+            background: #FAFAFA; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;
             border: 1.5px solid #EAEAEA; transition: var(--transition);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .history-meta { font-size: 0.78rem; color: var(--text-sub); font-weight: 800; white-space: nowrap; flex-grow: 1; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
+        .history-date-title { font-size: 1rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 4px; }
         .history-teams { 
-            font-size: 0.85rem; line-height: 1.6; margin-top: 8px; padding-top: 8px;
+            font-size: 0.85rem; line-height: 1.6; padding-top: 8px;
             border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
         }
         .history-teams .full-width { grid-column: span 1; }
@@ -238,7 +238,7 @@
         <div class="input-group">
             <label for="restaurantInput">🍽️ 用餐餐廳</label>
             <div class="input-with-btn">
-                <input type="text" id="restaurantInput" placeholder="餐廳名稱或貼上地圖短網址..." onfocus="showRestaurantDropdown()" oninput="filterRestaurantDropdown()">
+                <input type="text" id="restaurantInput" placeholder="餐廳名稱或貼上 Google Map 連結..." onfocus="showRestaurantDropdown()" oninput="filterRestaurantDropdown()">
                 <button class="btn-paste" onclick="pasteClipboard()">📋 貼上</button>
             </div>
             <!-- 下拉選單區塊 -->
@@ -404,6 +404,44 @@
             renderRestaurantDropdown();
         });
 
+        // 解析 Google Map 網址中的地點名稱
+        function extractPlaceNameFromUrl(url) {
+            try {
+                const decodedUrl = decodeURIComponent(url);
+                const placeMatch = decodedUrl.match(/\/place\/([^\/@\?]+)/);
+                if (placeMatch && placeMatch[1]) {
+                    return placeMatch[1].replace(/\+/g, ' ');
+                }
+                const queryMatch = decodedUrl.match(/[?&]query=([^&]+)/);
+                if (queryMatch && queryMatch[1]) {
+                    return queryMatch[1].replace(/\+/g, ' ').replace(/ 台灣$/, '');
+                }
+            } catch (e) {
+                console.error("解析網址失敗:", e);
+            }
+            return "Google 地圖連結";
+        }
+
+        // 解析輸入的餐廳字串或網址
+        function parseRestaurantInput(inputVal) {
+            if (!inputVal) return { name: '', url: '' };
+
+            const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
+
+            if (isUrl) {
+                const extractedName = extractPlaceNameFromUrl(inputVal);
+                return {
+                    name: extractedName,
+                    url: inputVal
+                };
+            }
+
+            return {
+                name: inputVal,
+                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
+            };
+        }
+
         // 餐廳下拉選單邏輯
         function getAllRestaurants() {
             let set = new Set();
@@ -411,7 +449,9 @@
                 const name = r.restaurantName || r.restaurant;
                 if (name && name !== "Google 地圖連結") set.add(name);
             });
-            customRestaurants.forEach(name => set.add(name));
+            customRestaurants.forEach(name => {
+                if (name && name !== "Google 地圖連結") set.add(name);
+            });
             return Array.from(set);
         }
 
@@ -480,30 +520,41 @@
             if (!currentRound) return;
 
             const oldName = currentRound.restaurantName || currentRound.restaurant || '';
-            const newName = prompt("請輸入或修改用餐餐廳名稱：", oldName === "Google 地圖連結" ? "" : oldName);
+            const searchKeyword = oldName === "Google 地圖連結" ? "" : oldName;
 
-            if (newName === null) return; // 使用者取消
+            const wantSearch = confirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`);
 
-            const trimmedName = newName.trim();
-            const restaurantData = parseRestaurantInput(trimmedName);
-
-            let updatedRounds = [...historyRounds];
-            updatedRounds[index] = {
-                ...updatedRounds[index],
-                restaurantName: restaurantData.name,
-                mapUrl: restaurantData.url
-            };
-
-            // 如果有新名稱，也同步更新至自訂餐廳選單
-            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                customRestaurants.push(restaurantData.name);
-                set(customRestaurantsRef, customRestaurants);
+            if (wantSearch) {
+                const searchUrl = searchKeyword 
+                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}`
+                    : `https://www.google.com/maps`;
+                window.open(searchUrl, '_blank');
             }
 
-            set(historyRef, updatedRounds);
+            setTimeout(() => {
+                const newName = prompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword);
+                if (newName === null) return;
+
+                const trimmedName = newName.trim();
+                const restaurantData = parseRestaurantInput(trimmedName);
+
+                let updatedRounds = [...historyRounds];
+                updatedRounds[index] = {
+                    ...updatedRounds[index],
+                    restaurantName: restaurantData.name,
+                    mapUrl: restaurantData.url
+                };
+
+                if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                    customRestaurants.push(restaurantData.name);
+                    set(customRestaurantsRef, customRestaurants);
+                }
+
+                set(historyRef, updatedRounds);
+            }, 300);
         };
 
-        // 帶倒數 10 秒鎖定的清空歷史紀錄按鈕機制
+        // 清空歷史紀錄機制
         window.clearCloudHistory = function() {
             const btn = document.getElementById('btnClearCloud');
             if (historyRounds.length === 0) return;
@@ -541,24 +592,6 @@
                 btn.disabled = false;
                 btn.innerText = "🗑️ 清空紀錄";
             }
-        }
-
-        function parseRestaurantInput(inputVal) {
-            if (!inputVal) return { name: '', url: '' };
-
-            const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
-
-            if (isUrl) {
-                return {
-                    name: "Google 地圖連結",
-                    url: inputVal
-                };
-            }
-
-            return {
-                name: inputVal,
-                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
-            };
         }
 
         window.generateTeams = function() {
@@ -636,14 +669,10 @@
                 if (validMatchFound) break;
             }
 
-            const now = new Date();
-            const timeString = `${now.getFullYear()}/${now.getMonth()+1}/${now.getDate()} ${now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-
             const newRound = {
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
                 mapUrl: restaurantData.url,
-                time: timeString,
                 teams: bestTeams,
                 bye: bestBye || ''
             };
@@ -659,13 +688,16 @@
 
         function formatRestaurantHTML(round, originalIndex = null) {
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            const name = round.restaurantName || round.restaurant || '';
+            let name = round.restaurantName || round.restaurant || '';
+
+            if (name.startsWith('http://') || name.startsWith('https://')) {
+                name = extractPlaceNameFromUrl(name);
+            }
 
             let content = '';
             if (url) {
-                const isDirectUrl = name === "Google 地圖連結";
-                const linkText = isDirectUrl ? "📍 開啟 Google 地圖" : `📍 ${name}`;
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">${linkText}</a>`;
+                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
             } else if (name) {
                 content = `🍽️ 📍 ${name}`;
             } else {
@@ -686,12 +718,14 @@
         function formatRoundText(round) {
             let lines = [
                 `Bowling 白熊保齡球戰報 🎳`,
-                `📅 活動日期：${round.eventDate}`,
-                `🕒 抽選時間：${round.time}`
+                `📅 活動日期：${round.eventDate}`
             ];
 
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            const name = round.restaurantName || round.restaurant || '';
+            let name = round.restaurantName || round.restaurant || '';
+            if (name.startsWith('http://') || name.startsWith('https://')) {
+                name = extractPlaceNameFromUrl(name);
+            }
 
             if (url) {
                 if (name && name !== "Google 地圖連結") {
@@ -791,7 +825,9 @@
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
-                        <div class="history-meta">📅 ${round.eventDate} | 🕒 ${round.time.split(' ')[1] || ''}</div>
+                        <div class="history-date-title">
+                            📅 ${round.eventDate}
+                        </div>
                         <div class="action-group">
                             <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
                             <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
