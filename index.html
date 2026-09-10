@@ -185,7 +185,7 @@
         }
         .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
 
-        .filter-btn-grid { display: flex; gap: 6px; width: 100%; }
+        .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .filter-btn-grid button { flex: 1; min-height: 40px; font-size: 0.82rem; padding: 6px 4px; }
 
         /* 彈跳動畫 */
@@ -303,7 +303,8 @@
             </div>
             <div class="filter-btn-grid">
                 <button class="btn-filter" onclick="applyDateFilter()">🔍 搜尋區間</button>
-                <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間戰報</button>
+                <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間</button>
+                <button class="btn-line" onclick="shareRangeHistoryToLine()">💬 分享區間</button>
                 <button class="btn-secondary" style="font-size:0.8rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
             </div>
         </div>
@@ -336,6 +337,8 @@
             "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡",
             "陳彤", "楷雲"
         ];
+
+        const AUTH_PASSWORD = "765765765";
 
         let historyRounds = [];
         let customRestaurants = [];
@@ -428,9 +431,7 @@
             });
         };
 
-        // 智慧型歷史排序邏輯：
-        // 1. 未來/今天（>= 今天）：最接近今天的置頂，向下依日期從近到遠 (從小到大)
-        // 2. 過去（< 今天）：移動至最底下，依日期從舊到新 (從小到大)
+        // 智慧型歷史排序邏輯
         function getSortedHistory(rounds = historyRounds) {
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
@@ -448,9 +449,7 @@
                 }
             });
 
-            // 未來日期：由近到遠 (從小到大)
             futureRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-            // 過去日期：由舊到新 (從小到大)
             pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
 
             return [...futureRounds, ...pastRounds];
@@ -479,11 +478,11 @@
             renderHistory();
         };
 
-        // 一次複製時間區間內的所有歷史戰報 (僅輸出純戰報，並以 ------------------ 做為活動間的分隔線)
-        window.copyRangeHistory = function() {
+        // 取得區間整合文字的共用函式
+        function getRangeHistoryText() {
             const filteredRounds = getFilteredHistory();
             if (filteredRounds.length === 0) {
-                return alert("所選的時間區間內沒有對戰紀錄！");
+                return null;
             }
 
             const sorted = getSortedHistory(filteredRounds);
@@ -496,7 +495,25 @@
                 }
             });
 
-            copyToClipboard(reportLines.join('\n'));
+            return reportLines.join('\n');
+        }
+
+        // 一次複製時間區間內的所有歷史戰報
+        window.copyRangeHistory = function() {
+            const text = getRangeHistoryText();
+            if (!text) {
+                return alert("所選的時間區間內沒有對戰紀錄！");
+            }
+            copyToClipboard(text);
+        };
+
+        // 一次分享時間區間內的所有歷史戰報至 LINE
+        window.shareRangeHistoryToLine = function() {
+            const text = getRangeHistoryText();
+            if (!text) {
+                return alert("所選的時間區間內沒有對戰紀錄！");
+            }
+            shareToLine(text);
         };
 
         onValue(historyRef, (snapshot) => {
@@ -505,7 +522,6 @@
             renderHistory();
             renderRestaurantDropdown();
             
-            // 僅有在使用者剛抽完籤（currentSessionResult 有值）時渲染，重新進入頁面一律保持預設空白
             if (currentSessionResult) {
                 renderCurrentResult(currentSessionResult);
             } else {
@@ -669,14 +685,32 @@
             }, 300);
         };
 
-        // 清空歷史紀錄機制
+        // 單筆刪除紀錄（需輸入密碼）
+        window.deleteSingleRoundByIndex = function(index) {
+            const round = historyRounds[index];
+            if (!round) return;
+
+            const pwd = prompt(`確定要刪除 ${round.eventDate} 的對戰紀錄嗎？\n請輸入管理密碼：`);
+            if (pwd === null) return;
+
+            if (pwd.trim() === AUTH_PASSWORD) {
+                let updatedRounds = [...historyRounds];
+                updatedRounds.splice(index, 1);
+                set(historyRef, updatedRounds);
+                alert("已成功刪除該筆戰報紀錄！");
+            } else {
+                alert("密碼錯誤，無法刪除！");
+            }
+        };
+
+        // 清空歷史紀錄機制（5秒倒數 + 密碼驗證）
         window.clearCloudHistory = function() {
             const btn = document.getElementById('btnClearCloud');
             if (historyRounds.length === 0) return;
 
             if (clearStep === 0) {
                 clearStep = 1;
-                let countdown = 10;
+                let countdown = 5;
                 btn.disabled = true;
                 btn.innerText = `⏳ 等待 ${countdown}s`;
 
@@ -693,9 +727,20 @@
                 }, 1000);
 
             } else if (clearStep === 2) {
-                remove(historyRef);
-                remove(customRestaurantsRef);
-                clearCurrentResultUI();
+                const pwd = prompt("清空所有歷史紀錄為高風險操作，請輸入管理密碼：");
+                if (pwd === null) {
+                    resetClearBtn();
+                    return;
+                }
+
+                if (pwd.trim() === AUTH_PASSWORD) {
+                    remove(historyRef);
+                    remove(customRestaurantsRef);
+                    clearCurrentResultUI();
+                    alert("已清空所有歷史紀錄！");
+                } else {
+                    alert("密碼錯誤，無法清空！");
+                }
                 resetClearBtn();
             }
         };
@@ -963,6 +1008,7 @@
                         <div class="action-group">
                             <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
                             <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                            <button class="btn-danger" style="padding: 6px 10px; min-height: 32px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
                         </div>
                     </div>
                     <div class="history-teams">
