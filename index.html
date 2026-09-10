@@ -309,6 +309,18 @@
         let isHistoryExpanded = false;
         let clearConfirmTimer = null;
         let clearStep = 0;
+        let currentSessionResult = null; // 僅在當前頁面會話保存本次抽籤結果
+
+        function clearCurrentResultUI() {
+            currentSessionResult = null;
+            document.getElementById('currentResult').innerHTML = '<div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div>';
+            document.getElementById('copyCurrentBtn').style.display = 'none';
+            document.getElementById('lineCurrentBtn').style.display = 'none';
+        }
+
+        // 離開或重新整理頁面時，自動清空本次對戰組合
+        window.addEventListener('beforeunload', clearCurrentResultUI);
+        window.addEventListener('pagehide', clearCurrentResultUI);
 
         function getNextTargetDay() {
             const today = new Date();
@@ -383,18 +395,44 @@
             });
         };
 
+        // 智慧型歷史排序邏輯：
+        // 1. 未來/今天（>= 今天）：最接近今天的置頂，向下依日期從近到遠 (從小到大)
+        // 2. 過去（< 今天）：移動至最底下，依日期從舊到新 (從小到大)
+        function getSortedHistory() {
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+            const futureRounds = [];
+            const pastRounds = [];
+
+            historyRounds.forEach((round, originalIndex) => {
+                const item = { ...round, originalIndex };
+                if (round.eventDate >= todayStr) {
+                    futureRounds.push(item);
+                } else {
+                    pastRounds.push(item);
+                }
+            });
+
+            // 未來日期：由近到遠 (從小到大)
+            futureRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+            // 過去日期：由舊到新 (從小到大)
+            pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+
+            return [...futureRounds, ...pastRounds];
+        }
+
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
             renderHistory();
             renderRestaurantDropdown();
             
-            if (historyRounds.length > 0) {
-                renderCurrentResult(historyRounds[historyRounds.length - 1]);
+            // 僅有在使用者剛抽完籤（currentSessionResult 有值）時渲染，重新進入頁面一律保持預設空白
+            if (currentSessionResult) {
+                renderCurrentResult(currentSessionResult);
             } else {
-                document.getElementById('currentResult').innerHTML = '<div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div>';
-                document.getElementById('copyCurrentBtn').style.display = 'none';
-                document.getElementById('lineCurrentBtn').style.display = 'none';
+                clearCurrentResultUI();
             }
         });
 
@@ -580,6 +618,7 @@
             } else if (clearStep === 2) {
                 remove(historyRef);
                 remove(customRestaurantsRef);
+                clearCurrentResultUI();
                 resetClearBtn();
             }
         };
@@ -677,6 +716,9 @@
                 bye: bestBye || ''
             };
 
+            currentSessionResult = newRound;
+            renderCurrentResult(newRound);
+
             let updatedHistory = [...historyRounds, newRound];
             
             if (updatedHistory.length > 30) {
@@ -747,13 +789,13 @@
         }
 
         window.copyCurrentResult = function() {
-            if (historyRounds.length === 0) return;
-            copyToClipboard(formatRoundText(historyRounds[historyRounds.length - 1]));
+            if (!currentSessionResult) return;
+            copyToClipboard(formatRoundText(currentSessionResult));
         };
 
         window.shareLineCurrentResult = function() {
-            if (historyRounds.length === 0) return;
-            shareToLine(formatRoundText(historyRounds[historyRounds.length - 1]));
+            if (!currentSessionResult) return;
+            shareToLine(formatRoundText(currentSessionResult));
         };
 
         window.shareLineByIndex = function(index) {
@@ -813,12 +855,13 @@
                 return;
             }
 
-            const reversedHistory = [...historyRounds].reverse();
-            const displayRounds = isHistoryExpanded ? reversedHistory : reversedHistory.slice(0, 1);
+            // 依據「今天/未來最接近置頂，過去移至最下且從舊到新」的邏輯排序
+            const sortedHistory = getSortedHistory();
+            const displayRounds = isHistoryExpanded ? sortedHistory : sortedHistory.slice(0, 1);
 
             let html = "";
-            displayRounds.forEach((round, reverseIndex) => {
-                const originalIndex = historyRounds.length - 1 - reverseIndex;
+            displayRounds.forEach((round) => {
+                const originalIndex = round.originalIndex;
                 let restaurantHtml = formatRestaurantHTML(round, originalIndex);
                 let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
@@ -847,7 +890,7 @@
                 toggleBtn.style.display = 'block';
                 toggleBtn.innerText = isHistoryExpanded 
                     ? `👆 收合對戰圖鑑` 
-                    : `👇 展開較舊紀錄 (共 ${historyRounds.length} 筆圖鑑紀錄)`;
+                    : `👇 展開更多紀錄 (共 ${historyRounds.length} 筆圖鑑紀錄)`;
             } else {
                 toggleBtn.style.display = 'none';
             }
