@@ -127,28 +127,38 @@
         .btn-secondary { background-color: #F0F0F0; color: #555; border: 2px solid #E0E0E0; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E2E2; }
         
-        /* 避免手機上按鈕文字換行/摺疊的修復設定 */
+        /* 徹底防止字體重疊與摺疊的按鈕樣式 */
         .btn-danger, .btn-copy, .btn-line {
-            white-space: nowrap;          /* 強制單行不換行 */
-            flex-shrink: 0;              /* 防止縮小擠壓 */
-            font-size: 0.78rem; 
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 0.8rem; 
             font-weight: 800; 
             border-radius: 8px; 
-            padding: 6px 10px; 
+            padding: 6px 12px; 
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 2px;
+            gap: 3px;
+            line-height: 1.2;
+            min-width: 68px;
+            box-sizing: border-box;
         }
 
         .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
         .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
         .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
 
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 8px; }
         .section-header h3 { margin: 0; font-size: 0.95rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
-        .action-group { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
+        
+        .action-group { 
+            display: flex; 
+            gap: 6px; 
+            flex-wrap: nowrap; 
+            align-items: center; 
+            flex-shrink: 0;
+        }
         
         /* 彈跳動畫 */
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -166,13 +176,26 @@
         .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
         
-        /* 歷史紀錄卡片 */
+        /* 歷史紀錄卡片優化 */
         .history-card {
-            background: #FAFAFA; border-radius: var(--radius-sm); padding: 10px 12px; margin-bottom: 8px;
+            background: #FAFAFA; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px;
             border: 1.5px solid #EAEAEA; transition: var(--transition);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .history-meta { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; white-space: nowrap; }
+        /* 標題與按鈕區可適度換行，避免狹窄螢幕擠壓 */
+        .history-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            gap: 8px; 
+            flex-wrap: wrap; 
+        }
+        .history-meta { 
+            font-size: 0.78rem; 
+            color: var(--text-sub); 
+            font-weight: 800; 
+            white-space: nowrap; 
+            flex-grow: 1;
+        }
         .history-teams { 
             font-size: 0.85rem; line-height: 1.6; margin-top: 8px; padding-top: 8px;
             border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
