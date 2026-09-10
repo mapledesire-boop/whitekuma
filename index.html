@@ -127,13 +127,28 @@
         .btn-secondary { background-color: #F0F0F0; color: #555; border: 2px solid #E0E0E0; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E2E2; }
         
-        .btn-danger { background-color: #FFEAE8; color: #D83A37; padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #FFC4C2; font-weight: 800; cursor: pointer; }
-        .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #B3D0FF; font-weight: 800; cursor: pointer; }
-        .btn-line { background-color: #E6F9ED; color: var(--line-green); padding: 5px 10px; font-size: 0.78rem; border-radius: 8px; border: 1.5px solid #A3E9BC; font-weight: 800; cursor: pointer; }
+        /* 避免手機上按鈕文字換行/摺疊的修復設定 */
+        .btn-danger, .btn-copy, .btn-line {
+            white-space: nowrap;          /* 強制單行不換行 */
+            flex-shrink: 0;              /* 防止縮小擠壓 */
+            font-size: 0.78rem; 
+            font-weight: 800; 
+            border-radius: 8px; 
+            padding: 6px 10px; 
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 2px;
+        }
+
+        .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
+        .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
+        .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
 
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; }
-        .section-header h3 { margin: 0; font-size: 1rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
-        .action-group { display: flex; gap: 6px; }
+        .section-header h3 { margin: 0; font-size: 0.95rem; color: #2C2C2C; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .action-group { display: flex; gap: 6px; flex-wrap: nowrap; align-items: center; }
         
         /* 彈跳動畫 */
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
@@ -157,7 +172,7 @@
             border: 1.5px solid #EAEAEA; transition: var(--transition);
         }
         .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; }
-        .history-meta { font-size: 0.78rem; color: var(--text-sub); font-weight: 700; }
+        .history-meta { font-size: 0.75rem; color: var(--text-sub); font-weight: 700; white-space: nowrap; }
         .history-teams { 
             font-size: 0.85rem; line-height: 1.6; margin-top: 8px; padding-top: 8px;
             border-top: 1px dashed #E0E0E0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
@@ -232,7 +247,7 @@
     <!-- 歷史紀錄區塊 -->
     <div class="box">
         <div class="section-header">
-            <h3>📖 訓練家對戰圖鑑 (歷史紀錄)</h3>
+            <h3>📖 訓練家對戰圖鑑</h3>
             <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
         <div id="historyList"><div class="empty-text">連線至 Firebase 中...</div></div>
@@ -410,7 +425,6 @@
             let validMatchFound = false;
             let bestTeams = [], bestBye = null;
 
-            // 優先設定為檢查前 3 次紀錄，無解時依序遞減防死鎖
             const constraintLevels = [
                 { pairHistory: 3, byeHistory: 3 },
                 { pairHistory: 2, byeHistory: 2 },
@@ -482,7 +496,7 @@
 
         function formatRoundText(round) {
             let lines = [
-                `🎳 白熊保齡球戰報 🎳`,
+                `Bowling 白熊保齡球戰報 🎳`,
                 `📅 活動日期：${round.eventDate}`,
                 `🕒 抽選時間：${round.time}`
             ];
@@ -554,8 +568,8 @@
             html += `</div>`;
 
             document.getElementById('currentResult').innerHTML = html;
-            document.getElementById('copyCurrentBtn').style.display = 'inline-block';
-            document.getElementById('lineCurrentBtn').style.display = 'inline-block';
+            document.getElementById('copyCurrentBtn').style.display = 'inline-flex';
+            document.getElementById('lineCurrentBtn').style.display = 'inline-flex';
         }
 
         window.toggleHistoryExpand = function() {
