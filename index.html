@@ -93,24 +93,33 @@
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
 
-        /* 餐廳下拉選單 */
-        .dropdown-menu {
-            position: absolute; top: calc(100% + 4px); left: 0; right: 0;
-            background: #FFFFFF; border: 2px solid #E2E8F0; border-radius: var(--radius-sm);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12); z-index: 100; max-height: 200px; overflow-y: auto;
-            display: none;
+        /* 人數選擇與主頁餐廳觸發按鈕 */
+        .btn-team-size, .btn-select-trigger {
+            width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
+            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.95rem;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            transition: var(--transition); min-height: 46px; text-align: left; flex: 1;
+            overflow: hidden;
         }
-        .dropdown-item {
+        .btn-team-size:active, .btn-select-trigger:active { background-color: #E2E8F0; }
+        .btn-select-trigger span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+        /* 餐廳彈窗列表樣式 */
+        .modal-rest-list {
+            max-height: 240px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
+            border: 1px solid #E2E8F0;
+        }
+        .modal-rest-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 700;
-            cursor: pointer; transition: var(--transition);
+            padding: 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition); background: #FFFFFF;
         }
-        .dropdown-item:last-child { border-bottom: none; }
-        .dropdown-item:active { background-color: #F1F5F9; }
-        .dropdown-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .dropdown-item .btn-del-rest {
+        .modal-rest-item:last-child { border-bottom: none; }
+        .modal-rest-item:active { background-color: #F1F5F9; }
+        .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .modal-rest-item .btn-del-rest {
             background: none; border: none; color: #FF5350; cursor: pointer; padding: 4px 8px;
-            font-size: 0.9rem; border-radius: 6px; transition: var(--transition);
+            font-size: 0.95rem; border-radius: 6px; transition: var(--transition);
         }
 
         textarea { min-height: 85px; resize: vertical; }
@@ -232,7 +241,7 @@
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
 
-        /* Modal 編輯彈出視窗 */
+        /* Modal 編輯/選擇彈出視窗 */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.55); z-index: 1000;
@@ -260,6 +269,17 @@
         .modal-close {
             background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-sub);
             padding: 4px 8px; line-height: 1;
+        }
+
+        /* 人數選擇按鈕列表 */
+        .size-option-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+        .size-option-btn {
+            padding: 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
+            font-size: 1rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
+            transition: var(--transition);
+        }
+        .size-option-btn:active, .size-option-btn.active {
+            background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155;
         }
 
         .drop-zone {
@@ -306,13 +326,22 @@
         </div>
 
         <div class="input-group">
-            <label for="restaurantInput">🍽️ 用餐餐廳</label>
+            <label>👥 對戰隊伍人數</label>
+            <button type="button" class="btn-team-size" onclick="openTeamSizeModal()">
+                <span id="selectedTeamSizeText">2 人一組</span>
+                <span>⚙️ 變更</span>
+            </button>
+        </div>
+
+        <div class="input-group">
+            <label>🍽️ 用餐餐廳</label>
             <div class="input-with-btn">
-                <input type="text" id="restaurantInput" placeholder="餐廳名稱或貼上 Google Map 連結..." oninput="filterRestaurantDropdown()">
-                <button class="btn-paste" onclick="pasteClipboard()">📋 貼上</button>
+                <button type="button" class="btn-select-trigger" onclick="openRestaurantModal()">
+                    <span id="selectedRestaurantText">尚未設定餐廳</span>
+                    <span>🔍 選擇</span>
+                </button>
+                <button class="btn-paste" onclick="pasteClipboardMain()">📋 貼上</button>
             </div>
-            <!-- 下拉選單區塊 -->
-            <div id="restaurantDropdown" class="dropdown-menu"></div>
         </div>
 
         <label>👥 選擇登場訓練家</label>
@@ -366,6 +395,48 @@
         <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
     </div>
 
+    <!-- ⚙️ 選擇隊伍人數彈出視窗 (Modal) -->
+    <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 選擇對戰隊伍人數</h3>
+                <button class="modal-close" onclick="closeTeamSizeModal()">✖</button>
+            </div>
+            <div class="size-option-list">
+                <button class="size-option-btn" onclick="selectTeamSize(2)">2 人一組</button>
+                <button class="size-option-btn" onclick="selectTeamSize(3)">3 人一組</button>
+                <button class="size-option-btn" onclick="selectTeamSize(4)">4 人一組</button>
+                <button class="size-option-btn" onclick="selectTeamSize(5)">5 人一組</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🍽️ 選擇/輸入餐廳彈出視窗 (Modal) -->
+    <div id="restaurantModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🍽️ 選擇與輸入用餐餐廳</h3>
+                <button class="modal-close" onclick="closeRestaurantModal()">✖</button>
+            </div>
+            
+            <div class="input-group">
+                <label for="restaurantModalInput">📍 輸入餐廳名稱或 Google Map 連結</label>
+                <div class="input-with-btn">
+                    <input type="text" id="restaurantModalInput" placeholder="輸入名稱或貼上連結..." oninput="filterModalRestaurants()">
+                    <button class="btn-paste" onclick="pasteClipboardModal()">📋 貼上</button>
+                </div>
+            </div>
+
+            <label style="margin-top: 12px;">歷史常用餐廳列表（點擊快速帶入）：</label>
+            <div id="modalRestaurantList" class="modal-rest-list"></div>
+
+            <div class="btn-action" style="margin-top: 16px;">
+                <button class="action-btn btn-primary" onclick="confirmRestaurantModal()">✅ 確認送出</button>
+                <button class="action-btn btn-secondary" onclick="closeRestaurantModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <!-- ✏️ 對戰圖鑑彈出編輯視窗 (Modal) -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
@@ -386,7 +457,7 @@
             </div>
 
             <div class="input-group">
-                <label>☕ 輪空人員 (Bye)</label>
+                <label>☕ 此次爽打</label>
                 <div id="editModalByeZone" class="drop-zone" data-team-index="bye"></div>
             </div>
 
@@ -438,12 +509,122 @@
         let clearConfirmTimer = null;
         let clearStep = 0;
         let currentSessionResult = null;
+        let selectedTeamSize = 2; // 預設 2 人一組
+        let selectedRestaurantRaw = ""; // 儲存主頁選擇的餐廳名稱/連結
         
         let editingIndex = null;
         let editingModalData = {
             eventDate: '',
             teams: [],
             bye: ''
+        };
+
+        /* 人數選擇彈窗邏輯 */
+        window.openTeamSizeModal = function() {
+            document.getElementById('teamSizeModal').style.display = 'flex';
+        };
+
+        window.closeTeamSizeModal = function() {
+            document.getElementById('teamSizeModal').style.display = 'none';
+        };
+
+        window.selectTeamSize = function(size) {
+            selectedTeamSize = size;
+            document.getElementById('selectedTeamSizeText').innerText = `${size} 人一組`;
+            closeTeamSizeModal();
+        };
+
+        /* 主頁餐廳設定更新 UI */
+        function updateMainRestaurantUI(val) {
+            selectedRestaurantRaw = val;
+            const parsed = parseRestaurantInput(val);
+            const displaySpan = document.getElementById('selectedRestaurantText');
+
+            if (parsed.name && parsed.name !== "Google 地圖連結") {
+                displaySpan.innerText = `📍 ${parsed.name}`;
+            } else if (val) {
+                displaySpan.innerText = `📍 已貼上連結/餐廳`;
+            } else {
+                displaySpan.innerText = `尚未設定餐廳`;
+            }
+        }
+
+        /* 主頁直接貼上功能（不開彈窗） */
+        window.pasteClipboardMain = async function() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        updateMainRestaurantUI(text.trim());
+                    }
+                } else {
+                    alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
+                }
+            } catch (err) {
+                alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
+            }
+        };
+
+        /* 餐廳彈窗邏輯 */
+        window.openRestaurantModal = function() {
+            document.getElementById('restaurantModalInput').value = selectedRestaurantRaw;
+            renderModalRestaurantList();
+            document.getElementById('restaurantModal').style.display = 'flex';
+        };
+
+        window.closeRestaurantModal = function() {
+            document.getElementById('restaurantModal').style.display = 'none';
+        };
+
+        window.confirmRestaurantModal = function() {
+            const val = document.getElementById('restaurantModalInput').value.trim();
+            updateMainRestaurantUI(val);
+            closeRestaurantModal();
+        };
+
+        window.pasteClipboardModal = async function() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        document.getElementById('restaurantModalInput').value = text;
+                        renderModalRestaurantList(text.trim().toLowerCase());
+                    }
+                } else {
+                    alert("請手動長按輸入框貼上！");
+                }
+            } catch (err) {
+                alert("請授權剪貼簿讀取權限，或手動貼上！");
+            }
+        };
+
+        window.filterModalRestaurants = function() {
+            const val = document.getElementById('restaurantModalInput').value.trim().toLowerCase();
+            renderModalRestaurantList(val);
+        };
+
+        function renderModalRestaurantList(filterVal = '') {
+            const container = document.getElementById('modalRestaurantList');
+            const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
+
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-text">無歷史餐廳紀錄</div>';
+                return;
+            }
+
+            let html = '';
+            list.forEach(name => {
+                html += `<div class="modal-rest-item" onclick="selectModalRestaurant('${name.replace(/'/g, "\\'")}')">
+                    <span class="rest-name">📍 ${name}</span>
+                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${name.replace(/'/g, "\\'")}')" title="刪除此紀錄">🗑️</button>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.selectModalRestaurant = function(name) {
+            document.getElementById('restaurantModalInput').value = name;
         };
 
         function clearCurrentResultUI() {
@@ -503,25 +684,9 @@
             textarea.value = currentList.join('\n');
         }
 
-        window.pasteClipboard = async function() {
-            try {
-                if (navigator.clipboard && navigator.clipboard.readText) {
-                    const text = await navigator.clipboard.readText();
-                    if (text) {
-                        document.getElementById('restaurantInput').value = text;
-                        showRestaurantDropdown();
-                    }
-                } else {
-                    alert("請手動長按輸入框貼上！");
-                }
-            } catch (err) {
-                alert("請授權剪貼簿讀取權限，或手動貼上！");
-            }
-        };
-
         window.clearAll = function() {
             document.getElementById('nameInput').value = '';
-            document.getElementById('restaurantInput').value = '';
+            updateMainRestaurantUI("");
             const tags = document.querySelectorAll('.name-tag');
             tags.forEach((tag, index) => {
                 tag.classList.remove('active');
@@ -656,41 +821,6 @@
             return Array.from(set);
         }
 
-        window.showRestaurantDropdown = function() {
-            renderRestaurantDropdown();
-        };
-
-        window.filterRestaurantDropdown = function() {
-            const val = document.getElementById('restaurantInput').value.trim().toLowerCase();
-            renderRestaurantDropdown(val);
-        };
-
-        function renderRestaurantDropdown(filterVal = '') {
-            const dropdown = document.getElementById('restaurantDropdown');
-            const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
-
-            if (list.length === 0 || !filterVal) {
-                dropdown.style.display = 'none';
-                return;
-            }
-
-            let html = '';
-            list.forEach(name => {
-                html += `<div class="dropdown-item" onclick="selectRestaurant('${name.replace(/'/g, "\\'")}')">
-                    <span class="rest-name">📍 ${name}</span>
-                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${name.replace(/'/g, "\\'")}')" title="刪除此紀錄">🗑️</button>
-                </div>`;
-            });
-
-            dropdown.innerHTML = html;
-            dropdown.style.display = 'block';
-        }
-
-        window.selectRestaurant = function(name) {
-            document.getElementById('restaurantInput').value = name;
-            document.getElementById('restaurantDropdown').style.display = 'none';
-        };
-
         window.deleteRestaurant = function(e, name) {
             e.stopPropagation();
             let updatedRounds = historyRounds.map(round => {
@@ -704,15 +834,8 @@
 
             set(historyRef, updatedRounds);
             set(customRestaurantsRef, updatedCustom);
+            renderModalRestaurantList();
         };
-
-        document.addEventListener('click', (e) => {
-            const dropdown = document.getElementById('restaurantDropdown');
-            const input = document.getElementById('restaurantInput');
-            if (!dropdown.contains(e.target) && e.target !== input) {
-                dropdown.style.display = 'none';
-            }
-        });
 
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
@@ -825,12 +948,11 @@
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             const eventDateVal = document.getElementById('eventDate').value;
-            const restaurantInputVal = document.getElementById('restaurantInput').value.trim();
 
             if (!eventDateVal) return alert("請選擇活動日期！");
-            if (players.length < 2) return alert("請至少選擇 2 位訓練家！");
+            if (players.length < selectedTeamSize) return alert(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
 
-            const restaurantData = parseRestaurantInput(restaurantInputVal);
+            const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
 
             if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
                 customRestaurants.push(restaurantData.name);
@@ -848,17 +970,20 @@
             function isPairInRecentHistory(p1, p2, recentRoundsCount) {
                 const recentRounds = historyRounds.slice(-recentRoundsCount);
                 return recentRounds.some(round => 
-                    round.teams.some(team => (team[0] === p1 && team[1] === p2) || (team[0] === p2 && team[1] === p1))
+                    round.teams.some(team => team.includes(p1) && team.includes(p2))
                 );
             }
 
             function isByeInRecentHistory(player, recentRoundsCount) {
                 const recentRounds = historyRounds.slice(-recentRoundsCount);
-                return recentRounds.some(round => round.bye === player);
+                return recentRounds.some(round => {
+                    if (Array.isArray(round.bye)) return round.bye.includes(player);
+                    return round.bye === player;
+                });
             }
 
             let validMatchFound = false;
-            let bestTeams = [], bestBye = null;
+            let bestTeams = [], bestBye = [];
 
             const constraintLevels = [
                 { pairHistory: 3, byeHistory: 3 },
@@ -870,20 +995,35 @@
             for (let level of constraintLevels) {
                 for (let attempt = 0; attempt < 300; attempt++) {
                     let currentPlayers = shuffle([...players]);
-                    let currentBye = null;
+                    let currentBye = [];
 
-                    if (currentPlayers.length % 2 !== 0) {
-                        let candidateIndex = currentPlayers.findIndex(p => !isByeInRecentHistory(p, level.byeHistory));
-                        currentBye = candidateIndex !== -1 ? currentPlayers.splice(candidateIndex, 1)[0] : currentPlayers.pop();
+                    const remainder = currentPlayers.length % selectedTeamSize;
+                    if (remainder !== 0) {
+                        for (let r = 0; r < remainder; r++) {
+                            let candidateIndex = currentPlayers.findIndex(p => !isByeInRecentHistory(p, level.byeHistory));
+                            if (candidateIndex !== -1) {
+                                currentBye.push(currentPlayers.splice(candidateIndex, 1)[0]);
+                            } else {
+                                currentBye.push(currentPlayers.pop());
+                            }
+                        }
                     }
 
                     let tempTeams = [], isValid = true;
-                    for (let i = 0; i < currentPlayers.length; i += 2) {
-                        let p1 = currentPlayers[i], p2 = currentPlayers[i + 1];
-                        if (isPairInRecentHistory(p1, p2, level.pairHistory)) {
-                            isValid = false; break;
+                    for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
+                        let group = currentPlayers.slice(i, i + selectedTeamSize);
+                        
+                        // 檢查組內是否有近期同隊過
+                        for (let a = 0; a < group.length; a++) {
+                            for (let b = a + 1; b < group.length; b++) {
+                                if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
+                                    isValid = false; break;
+                                }
+                            }
+                            if (!isValid) break;
                         }
-                        tempTeams.push([p1, p2]);
+                        if (!isValid) break;
+                        tempTeams.push(group);
                     }
 
                     if (isValid) {
@@ -896,12 +1036,14 @@
                 if (validMatchFound) break;
             }
 
+            const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
+
             const newRound = {
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
                 mapUrl: restaurantData.url,
                 teams: bestTeams,
-                bye: bestBye || ''
+                bye: byeString
             };
 
             currentSessionResult = newRound;
@@ -962,7 +1104,7 @@
             }
 
             round.teams.forEach((team, index) => {
-                lines.push(`第 ${index + 1} 組：${team[0]} & ${team[1]}`);
+                lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
             });
             if (round.bye) lines.push(`此次爽打：${round.bye}`);
             return lines.join('\n');
@@ -1009,7 +1151,8 @@
             let html = `<div class="pop-in">`;
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
-                html += `<div class="result-item">第 ${index + 1} 組：<span class="team-badge">${team[0]}</span> & <span class="team-badge">${team[1]}</span></div>`;
+                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
             html += `</div>`;
@@ -1054,10 +1197,13 @@
             displayRounds.forEach((round) => {
                 const originalIndex = round.originalIndex;
                 let restaurantHtml = formatRestaurantHTML(round, originalIndex);
-                let teamsHtml = round.teams.map((t, idx) => `<div>第 ${idx + 1} 組：<span class="team-badge">${t[0]}</span> & <span class="team-badge">${t[1]}</span></div>`).join('');
+                let teamsHtml = round.teams.map((t, idx) => {
+                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
+                }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
 
-                /* 按鈕順序調整為：編輯對戰 -> 刪除 -> 複製 -> LINE */
+                /* 按鈕順序：編輯對戰 -> 刪除 -> 複製 -> LINE */
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
@@ -1090,7 +1236,7 @@
             }
         }
 
-        // ------------------ 彈出視窗 (Modal) 編輯功能 (含密碼驗證) ------------------
+        // ------------------ 彈出視窗 (Modal) 編輯功能 ------------------
 
         window.openEditModal = function(index) {
             const pwd = prompt("編輯對戰紀錄為管理功能，請輸入管理密碼：");
@@ -1141,7 +1287,9 @@
 
         window.removePlayerFromModal = function(teamIndex, playerIndex) {
             if (teamIndex === 'bye') {
-                editingModalData.bye = '';
+                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()) : [];
+                byeArr.splice(playerIndex, 1);
+                editingModalData.bye = byeArr.join(', ');
             } else {
                 editingModalData.teams[teamIndex].splice(playerIndex, 1);
             }
@@ -1173,9 +1321,10 @@
             // 輪空區
             const byeZone = document.getElementById('editModalByeZone');
             byeZone.innerHTML = '';
-            if (editingModalData.bye) {
-                byeZone.appendChild(createDraggableTag(editingModalData.bye, 'bye', 0));
-            }
+            let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
+            byeArr.forEach((player, pIdx) => {
+                byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
+            });
             setupDropZone(byeZone);
         }
 
@@ -1225,18 +1374,18 @@
 
                 const toTeam = dropZone.dataset.teamIndex;
 
+                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
+
                 if (data.fromTeam === 'bye') {
-                    editingModalData.bye = '';
+                    byeArr.splice(data.fromIndex, 1);
+                    editingModalData.bye = byeArr.join(', ');
                 } else {
                     editingModalData.teams[data.fromTeam].splice(data.fromIndex, 1);
                 }
 
                 if (toTeam === 'bye') {
-                    if (editingModalData.bye) {
-                        if (editingModalData.teams.length === 0) editingModalData.teams.push([]);
-                        editingModalData.teams[editingModalData.teams.length - 1].push(editingModalData.bye);
-                    }
-                    editingModalData.bye = data.name;
+                    byeArr.push(data.name);
+                    editingModalData.bye = byeArr.join(', ');
                 } else {
                     const targetTeamIdx = parseInt(toTeam);
                     editingModalData.teams[targetTeamIdx].push(data.name);
