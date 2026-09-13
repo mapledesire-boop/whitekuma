@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>白熊保齡球 🎳</title>
-    <!-- 引入圓潤活潑日系字體 -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
@@ -32,7 +31,6 @@
             max-width: 480px; margin: 0 auto; padding: 16px 12px 30px 12px; 
             background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
         }
-        /* 標題區塊 */
         .header-container { text-align: center; margin: 8px 0 16px 0; }
         .header-title-box {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -48,7 +46,6 @@
             font-size: 0.82rem; color: var(--poke-red); margin-top: 8px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
-        /* 卡片容器 */
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
             padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow-poke);
@@ -63,7 +60,7 @@
         }
         label { font-size: 0.88rem; color: #333; font-weight: 800; display: block; margin-bottom: 6px; }
         .input-group { margin-bottom: 14px; position: relative; }
-        /* 手機高度與輸入框優化 */
+        
         input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], textarea { 
             width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
@@ -85,7 +82,7 @@
             min-height: 46px; flex-shrink: 0;
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
-        /* 人數選擇與主頁餐廳觸發按鈕 */
+        
         .btn-team-size, .btn-select-trigger {
             width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
             border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.95rem;
@@ -95,7 +92,7 @@
         }
         .btn-team-size:active, .btn-select-trigger:active { background-color: #E2E8F0; }
         .btn-select-trigger span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        /* 餐廳彈窗列表樣式 */
+        
         .modal-rest-list {
             max-height: 240px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
             border: 1px solid #E2E8F0;
@@ -113,7 +110,7 @@
             font-size: 0.95rem; border-radius: 6px; transition: var(--transition);
         }
         textarea { min-height: 85px; resize: vertical; }
-        /* 訓練家名牌標籤 */
+        
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px 0; }
         .name-tag { 
             padding: 8px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
@@ -126,7 +123,7 @@
             background-color: var(--poke-yellow); color: #1E293B; border-color: #334155; 
             box-shadow: 2px 2px 0px #334155; transform: translateY(-1px);
         }
-        /* 主動作按鈕 */
+        
         .btn-action { margin-top: 12px; display: flex; gap: 8px; }
         button.action-btn { 
             flex: 1; padding: 12px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
@@ -143,7 +140,6 @@
         .btn-secondary { background-color: #F1F5F9; color: #475569; border: 2px solid #CBD5E1; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
-        /* 輔助通用按鈕 */
         .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter {
             white-space: nowrap; flex-shrink: 0; font-size: 0.8rem; font-weight: 800; 
             border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex;
@@ -162,7 +158,6 @@
         
         .action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         
-        /* 時間區間選擇器 */
         .filter-container {
             background: #F8FAFC; border-radius: var(--radius-sm); padding: 12px;
             margin-bottom: 14px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
@@ -180,13 +175,13 @@
         .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
         .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .filter-btn-grid button { flex: 1; min-height: 40px; font-size: 0.82rem; padding: 6px 4px; }
-        /* 彈跳動畫 */
+        
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.96); }
             to { opacity: 1; transform: scale(1); }
         }
-        /* 組隊結果卡片 */
+        
         .result-item { 
             padding: 10px 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
             margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
@@ -198,7 +193,6 @@
         .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
         
-        /* 歷史紀錄卡片 */
         .history-card {
             background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;
             border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
@@ -221,7 +215,7 @@
         
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
-        /* Modal 編輯/選擇彈出視窗 */
+        
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.55); z-index: 1000;
@@ -248,7 +242,7 @@
             background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-sub);
             padding: 4px 8px; line-height: 1;
         }
-        /* 人數選擇按鈕列表 */
+        
         .size-option-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
         .size-option-btn {
             padding: 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
@@ -370,7 +364,7 @@
         <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
     </div>
 
-    <!-- ⚙️ 選擇隊伍人數彈出視窗 (Modal) -->
+    <!-- ⚙️ 選擇隊伍人數 Modal -->
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -386,7 +380,7 @@
         </div>
     </div>
 
-    <!-- 🍽️ 選擇/輸入餐廳彈出視窗 (Modal) -->
+    <!-- 🍽️ 選擇/輸入餐廳 Modal -->
     <div id="restaurantModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -412,7 +406,7 @@
         </div>
     </div>
 
-    <!-- ✏️ 對戰圖鑑彈出編輯視窗 (Modal) -->
+    <!-- ✏️ 對戰圖鑑 Modal -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -502,9 +496,9 @@
             const dateObj = new Date(dateVal + 'T00:00:00');
             const day = dateObj.getDay();
             const timeInput = document.getElementById('eventTime');
-            if (day === 3) { // 禮拜三
+            if (day === 3) { // 禮拜三 (14:00)
                 timeInput.value = "14:00";
-            } else if (day === 6) { // 禮拜六
+            } else if (day === 6) { // 禮拜六 (13:00)
                 timeInput.value = "13:00";
             }
         };
@@ -522,7 +516,6 @@
             }
         };
 
-        /* 統一時間與日期格式化風格工具 */
         function formatDateWithDay(dateStr, timeStr = '') {
             if (!dateStr) return '';
             const days = ['日', '一', '二', '三', '四', '五', '六'];
@@ -549,7 +542,6 @@
             }
         }
 
-        /* 產生 Google Calendar 行事曆新增網址 (標題純為 白熊保齡球) */
         function generateGoogleCalendarUrl(round) {
             if (!round || !round.eventDate) return '';
             let datePart = round.eventDate;
@@ -784,26 +776,50 @@
             renderHistory();
         };
 
-        function getRangeHistoryText() {
+        async function getShortUrl(longUrl) {
+            if (!longUrl) return '';
+            try {
+                const api = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+                const response = await fetch(api);
+                const data = await response.json();
+                if (data && data.shorturl) {
+                    return data.shorturl;
+                }
+            } catch (e) {
+                console.warn("is.gd 短網址失敗，切換備用方案:", e);
+            }
+            try {
+                const apiTiny = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+                const res = await fetch(apiTiny);
+                const shortText = await res.text();
+                if (shortText && shortText.startsWith('http')) return shortText.trim();
+            } catch (e) {
+                console.warn("tinyurl 短網址失敗:", e);
+            }
+            return longUrl;
+        }
+
+        async function getRangeHistoryText() {
             const filteredRounds = getFilteredHistory();
             if (filteredRounds.length === 0) return null;
             const sorted = getSortedHistory(filteredRounds);
             let reportLines = [];
-            sorted.forEach((round, i) => {
-                reportLines.push(formatRoundText(round));
+            for (let i = 0; i < sorted.length; i++) {
+                const formattedText = await formatRoundText(sorted[i]);
+                reportLines.push(formattedText);
                 if (i < sorted.length - 1) reportLines.push(`------------------`);
-            });
+            }
             return reportLines.join('\n');
         }
 
-        window.copyRangeHistory = function() {
-            const text = getRangeHistoryText();
+        window.copyRangeHistory = async function() {
+            const text = await getRangeHistoryText();
             if (!text) return alert("所選的時間區間內沒有對戰紀錄！");
             copyToClipboard(text);
         };
 
-        window.shareRangeHistoryToLine = function() {
-            const text = getRangeHistoryText();
+        window.shareRangeHistoryToLine = async function() {
+            const text = await getRangeHistoryText();
             if (!text) return alert("所選的時間區間內沒有對戰紀錄！");
             shareToLine(text);
         };
@@ -1124,55 +1140,8 @@
             </div>`;
         }
 
-        function formatRoundText(round) {
-            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
-            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) {
-                name = extractPlaceNameFromUrl(name);
-            }
-            if (url) {
-                if (name && name !== "Google 地圖連結") {
-                    lines.push(`🍽️ 用餐餐廳：${name}`);
-                    lines.push(`📍 地圖連結：${url}`);
-                } else {
-                    lines.push(`📍 地圖連結：${url}`);
-                }
-            } else if (name) {
-                lines.push(`🍽️ 用餐餐廳：${name}`);
-            }
-
-            round.teams.forEach((team, index) => {
-                lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
-            });
-            if (round.bye) lines.push(`此次爽打：${round.bye}`);
-            return lines.join('\n');
-        }
-
-        async function getShortUrl(longUrl) {
-            if (!longUrl) return '';
-            try {
-                const api = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
-                const response = await fetch(api);
-                const data = await response.json();
-                if (data && data.shorturl) {
-                    return data.shorturl;
-                }
-            } catch (e) {
-                console.warn("is.gd 短網址失敗，切換備用方案:", e);
-            }
-            try {
-                const apiTiny = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
-                const res = await fetch(apiTiny);
-                const shortText = await res.text();
-                if (shortText && shortText.startsWith('http')) return shortText.trim();
-            } catch (e) {
-                console.warn("tinyurl 短網址失敗:", e);
-            }
-            return longUrl;
-        }
-
-        async function formatRoundTextWithShortLink(round) {
+        // 產生戰報文字 (「加入行事曆」使用短網址，「餐廳地圖連結」保持原始完整網址)
+        async function formatRoundText(round) {
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
             const calUrl = generateGoogleCalendarUrl(round);
             if (calUrl) {
@@ -1187,18 +1156,16 @@
             }
 
             if (url) {
-                const shortMapUrl = await getShortUrl(url);
                 if (name && name !== "Google 地圖連結") {
                     lines.push(`🍽️ 用餐餐廳：${name}`);
-                    lines.push(`📍 地圖連結：${shortMapUrl}`);
+                    lines.push(`📍 地圖連結：${url}`);
                 } else {
-                    lines.push(`📍 地圖連結：${shortMapUrl}`);
+                    lines.push(`📍 地圖連結：${url}`);
                 }
             } else if (name) {
                 const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
-                const shortMapUrl = await getShortUrl(mapSearchUrl);
                 lines.push(`🍽️ 用餐餐廳：${name}`);
-                lines.push(`📍 地圖連結：${shortMapUrl}`);
+                lines.push(`📍 地圖連結：${mapSearchUrl}`);
             }
 
             round.teams.forEach((team, index) => {
@@ -1206,30 +1173,24 @@
             });
             if (round.bye) lines.push(`此次爽打：${round.bye}`);
 
-            const currentAppUrl = window.location.href;
-            if (currentAppUrl.startsWith('http')) {
-                const shortAppUrl = await getShortUrl(currentAppUrl);
-                lines.push(`🔗 對戰圖鑑連結：${shortAppUrl}`);
-            }
-
             return lines.join('\n');
         }
 
         window.copyCurrentResult = async function() {
             if (!currentSessionResult) return;
-            const text = await formatRoundTextWithShortLink(currentSessionResult);
+            const text = await formatRoundText(currentSessionResult);
             copyToClipboard(text);
         };
 
         window.shareLineCurrentResult = async function() {
             if (!currentSessionResult) return;
-            const text = await formatRoundTextWithShortLink(currentSessionResult);
+            const text = await formatRoundText(currentSessionResult);
             shareToLine(text);
         };
 
         window.shareLineByIndex = async function(index) {
             if (historyRounds[index]) {
-                const text = await formatRoundTextWithShortLink(historyRounds[index]);
+                const text = await formatRoundText(historyRounds[index]);
                 shareToLine(text);
             }
         };
@@ -1241,22 +1202,43 @@
 
         window.copyRoundByIndex = async function(index) {
             if (historyRounds[index]) {
-                const text = await formatRoundTextWithShortLink(historyRounds[index]);
+                const text = await formatRoundText(historyRounds[index]);
                 copyToClipboard(text);
             }
         };
 
+        function fallbackCopyTextToClipboard(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            textarea.style.top = "0";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                const successful = document.execCommand("copy");
+                if (successful) {
+                    alert("已複製對戰戰報！");
+                } else {
+                    alert("複製失敗，請手動複製！");
+                }
+            } catch (err) {
+                alert("複製失敗，請手動複製！");
+            }
+            document.body.removeChild(textarea);
+        }
+
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => alert("已複製對戰戰報！"));
+                navigator.clipboard.writeText(text).then(() => {
+                    alert("已複製對戰戰報！");
+                }).catch(() => {
+                    // Fallback when Clipboard API is blocked by permissions policy (e.g., inside an iframe)
+                    fallbackCopyTextToClipboard(text);
+                });
             } else {
-                const textarea = document.createElement("textarea");
-                textarea.value = text;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand("copy");
-                document.body.removeChild(textarea);
-                alert("已複製對戰戰報！");
+                fallbackCopyTextToClipboard(text);
             }
         }
 
