@@ -519,6 +519,17 @@
             bye: ''
         };
 
+        /* 日期格式化與星期計算工具 */
+        function formatDateWithDay(dateStr) {
+            if (!dateStr) return '';
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            // 避免跨時區造成的日期偏差，強制補上 T00:00:00
+            const dateObj = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+            if (isNaN(dateObj.getTime())) return dateStr;
+            const dayOfWeek = days[dateObj.getDay()];
+            return `${dateStr} (${dayOfWeek})`;
+        }
+
         /* 人數選擇彈窗邏輯 */
         window.openTeamSizeModal = function() {
             document.getElementById('teamSizeModal').style.display = 'flex';
@@ -880,7 +891,7 @@
             const round = historyRounds[index];
             if (!round) return;
 
-            const pwd = prompt(`確定要刪除 ${round.eventDate} 的對戰紀錄嗎？\n請輸入管理密碼：`);
+            const pwd = prompt(`確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`);
             if (pwd === null) return;
 
             if (pwd.trim() === AUTH_PASSWORD) {
@@ -1085,7 +1096,7 @@
         }
 
         function formatRoundText(round) {
-            let lines = [`📅 活動日期：${round.eventDate}`];
+            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             let name = round.restaurantName || round.restaurant || '';
             if (name.startsWith('http://') || name.startsWith('https://')) {
@@ -1149,6 +1160,7 @@
 
         function renderCurrentResult(round) {
             let html = `<div class="pop-in">`;
+            html += `<div class="result-item" style="background:#EBF3FF; color:var(--poke-blue); font-weight:900;">📅 活動日期：${formatDateWithDay(round.eventDate)}</div>`;
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -1207,7 +1219,7 @@
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
-                            📅 ${round.eventDate}
+                            📅 ${formatDateWithDay(round.eventDate)}
                         </div>
                         <div class="action-group">
                             <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯對戰</button>
