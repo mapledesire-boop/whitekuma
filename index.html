@@ -25,7 +25,6 @@
             --shadow-poke: 0 8px 24px rgba(42, 117, 187, 0.08);
             --transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
@@ -33,7 +32,6 @@
             max-width: 480px; margin: 0 auto; padding: 16px 12px 30px 12px; 
             background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
         }
-
         /* 標題區塊 */
         .header-container { text-align: center; margin: 8px 0 16px 0; }
         .header-title-box {
@@ -50,7 +48,6 @@
             font-size: 0.82rem; color: var(--poke-red); margin-top: 8px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
-
         /* 卡片容器 */
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
@@ -64,24 +61,20 @@
             background: radial-gradient(circle, transparent 20%, rgba(255, 83, 80, 0.04) 21%);
             border: 6px solid rgba(0, 0, 0, 0.02); border-radius: 50%; pointer-events: none;
         }
-
         label { font-size: 0.88rem; color: #333; font-weight: 800; display: block; margin-bottom: 6px; }
-
         .input-group { margin-bottom: 14px; position: relative; }
-
         /* 手機高度與輸入框優化 */
-        input[type="date"], input[type="text"], textarea { 
+        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], textarea { 
             width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none;
             min-height: 46px;
         }
         
-        input[type="date"]:focus, input[type="text"]:focus, textarea:focus { 
+        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, textarea:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; 
             box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.15);
         }
-
         .input-with-btn { display: flex; gap: 8px; align-items: center; }
         .input-with-btn input { flex: 1; }
         
@@ -92,7 +85,6 @@
             min-height: 46px; flex-shrink: 0;
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
-
         /* 人數選擇與主頁餐廳觸發按鈕 */
         .btn-team-size, .btn-select-trigger {
             width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
@@ -103,7 +95,6 @@
         }
         .btn-team-size:active, .btn-select-trigger:active { background-color: #E2E8F0; }
         .btn-select-trigger span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
         /* 餐廳彈窗列表樣式 */
         .modal-rest-list {
             max-height: 240px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
@@ -121,9 +112,7 @@
             background: none; border: none; color: #FF5350; cursor: pointer; padding: 4px 8px;
             font-size: 0.95rem; border-radius: 6px; transition: var(--transition);
         }
-
         textarea { min-height: 85px; resize: vertical; }
-
         /* 訓練家名牌標籤 */
         .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px 0; }
         .name-tag { 
@@ -137,7 +126,6 @@
             background-color: var(--poke-yellow); color: #1E293B; border-color: #334155; 
             box-shadow: 2px 2px 0px #334155; transform: translateY(-1px);
         }
-
         /* 主動作按鈕 */
         .btn-action { margin-top: 12px; display: flex; gap: 8px; }
         button.action-btn { 
@@ -162,16 +150,13 @@
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
             min-height: 36px; box-sizing: border-box; transition: var(--transition);
         }
-
         .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
         .btn-danger:disabled { background-color: #E2E8F0; color: #94A3B8; border-color: #CBD5E1; cursor: not-allowed; opacity: 0.8; }
-
         .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
         .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
         .btn-edit { background-color: #FFF7D6; color: #8A6D00; border: 1.5px solid #FFE885; }
         .btn-filter { background-color: var(--poke-blue); color: #FFFFFF; border: 1.5px solid #1D588F; }
         .btn-filter:active { transform: scale(0.95); }
-
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
         .section-header h3 { margin: 0; font-size: 0.98rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         
@@ -193,17 +178,14 @@
             padding: 8px 6px; font-size: 0.82rem; text-align: center; min-height: 42px; border-radius: 8px;
         }
         .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
-
         .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .filter-btn-grid button { flex: 1; min-height: 40px; font-size: 0.82rem; padding: 6px 4px; }
-
         /* 彈跳動畫 */
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
             from { opacity: 0; transform: scale(0.96); }
             to { opacity: 1; transform: scale(1); }
         }
-
         /* 組隊結果卡片 */
         .result-item { 
             padding: 10px 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
@@ -235,12 +217,10 @@
             margin-top: 8px; font-weight: 800; transition: var(--transition); min-height: 44px;
         }
         .toggle-history-btn:active { background-color: #F8FAFC; color: var(--text-main); }
-
         .empty-text { color: var(--text-sub); font-size: 0.85rem; text-align: center; padding: 16px 0; font-weight: 700; }
         
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
-
         /* Modal 編輯/選擇彈出視窗 */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -250,7 +230,6 @@
         @media (min-width: 480px) {
             .modal-backdrop { align-items: center; padding: 16px; }
         }
-
         .modal-content {
             background: #FFFFFF; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; padding: 16px;
@@ -260,7 +239,6 @@
         @media (min-width: 480px) {
             .modal-content { border-radius: var(--radius-lg); }
         }
-
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--border-line); padding-bottom: 10px; margin-bottom: 14px;
@@ -270,7 +248,6 @@
             background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-sub);
             padding: 4px 8px; line-height: 1;
         }
-
         /* 人數選擇按鈕列表 */
         .size-option-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
         .size-option-btn {
@@ -281,7 +258,6 @@
         .size-option-btn:active, .size-option-btn.active {
             background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155;
         }
-
         .drop-zone {
             background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--radius-sm);
             padding: 10px; min-height: 52px; display: flex; flex-wrap: wrap; gap: 8px;
@@ -290,7 +266,6 @@
         .drop-zone.drag-over {
             background: #EBF3FF; border-color: var(--poke-blue);
         }
-
         .draggable-player {
             background: var(--poke-yellow); color: #1E293B; border: 1.5px solid #334155;
             padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.85rem;
@@ -307,7 +282,6 @@
     </style>
 </head>
 <body>
-
     <div class="header-container">
         <div class="header-title-box">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="header-img">
@@ -321,10 +295,12 @@
     <!-- 輸入區塊 -->
     <div class="box">
         <div class="input-group">
-            <label for="eventDate">📅 活動日期</label>
-            <input type="date" id="eventDate">
+            <label>📅 活動日期與時間</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="date" id="eventDate" style="flex: 1.2;" onchange="onDateInputChange()">
+                <input type="time" id="eventTime" style="flex: 0.8;" value="14:00">
+            </div>
         </div>
-
         <div class="input-group">
             <label>👥 對戰隊伍人數</label>
             <button type="button" class="btn-team-size" onclick="openTeamSizeModal()">
@@ -332,7 +308,6 @@
                 <span>⚙️ 變更</span>
             </button>
         </div>
-
         <div class="input-group">
             <label>🍽️ 用餐餐廳</label>
             <div class="input-with-btn">
@@ -446,8 +421,11 @@
             </div>
             
             <div class="input-group">
-                <label for="editModalDate">📅 活動日期</label>
-                <input type="date" id="editModalDate">
+                <label>📅 活動日期與時間</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="date" id="editModalDate" style="flex: 1.2;" onchange="onModalDateInputChange()">
+                    <input type="time" id="editModalTime" style="flex: 0.8;">
+                </div>
             </div>
 
             <div class="input-group">
@@ -500,7 +478,6 @@
             "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡",
             "陳彤", "楷雲"
         ];
-
         const AUTH_PASSWORD = "765765765";
 
         let historyRounds = [];
@@ -519,38 +496,110 @@
             bye: ''
         };
 
-        /* 日期格式化與星期計算工具 */
-        function formatDateWithDay(dateStr) {
+        window.onDateInputChange = function() {
+            const dateVal = document.getElementById('eventDate').value;
+            if (!dateVal) return;
+            const dateObj = new Date(dateVal + 'T00:00:00');
+            const day = dateObj.getDay();
+            const timeInput = document.getElementById('eventTime');
+            if (day === 3) { // 禮拜三
+                timeInput.value = "14:00";
+            } else if (day === 6) { // 禮拜六
+                timeInput.value = "13:00";
+            }
+        };
+
+        window.onModalDateInputChange = function() {
+            const dateVal = document.getElementById('editModalDate').value;
+            if (!dateVal) return;
+            const dateObj = new Date(dateVal + 'T00:00:00');
+            const day = dateObj.getDay();
+            const timeInput = document.getElementById('editModalTime');
+            if (day === 3) {
+                timeInput.value = "14:00";
+            } else if (day === 6) {
+                timeInput.value = "13:00";
+            }
+        };
+
+        /* 統一時間與日期格式化風格工具 */
+        function formatDateWithDay(dateStr, timeStr = '') {
             if (!dateStr) return '';
             const days = ['日', '一', '二', '三', '四', '五', '六'];
-            // 避免跨時區造成的日期偏差，強制補上 T00:00:00
-            const dateObj = new Date(dateStr.includes('T') ? dateStr : `${dateStr}T00:00:00`);
+            
+            let cleanDate = dateStr;
+            let cleanTime = timeStr;
+            if (dateStr.includes('T')) {
+                const parts = dateStr.split('T');
+                cleanDate = parts[0];
+                if (!cleanTime) cleanTime = parts[1].slice(0, 5);
+            }
+            const dateObj = new Date(cleanDate + 'T00:00:00');
             if (isNaN(dateObj.getTime())) return dateStr;
+            const pad = (n) => String(n).padStart(2, '0');
+            const yyyy = dateObj.getFullYear();
+            const mm = pad(dateObj.getMonth() + 1);
+            const dd = pad(dateObj.getDate());
             const dayOfWeek = days[dateObj.getDay()];
-            return `${dateStr} (${dayOfWeek})`;
+            
+            if (cleanTime) {
+                return `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${cleanTime}`;
+            } else {
+                return `${yyyy}-${mm}-${dd} (${dayOfWeek})`;
+            }
         }
 
-        /* 人數選擇彈窗邏輯 */
+        /* 產生 Google Calendar 行事曆新增網址 (標題純為 白熊保齡球) */
+        function generateGoogleCalendarUrl(round) {
+            if (!round || !round.eventDate) return '';
+            let datePart = round.eventDate;
+            let timePart = round.eventTime || '14:00';
+            if (round.eventDate.includes('T')) {
+                const p = round.eventDate.split('T');
+                datePart = p[0];
+                timePart = p[1].slice(0, 5);
+            }
+            const cleanDate = datePart.replace(/-/g, '');
+            const cleanTime = timePart.replace(/:/g, '') + '00';
+            
+            const startDt = new Date(`${datePart}T${timePart}:00`);
+            const endDt = new Date(startDt.getTime() + 2 * 60 * 60 * 1000);
+            
+            const pad = (n) => String(n).padStart(2, '0');
+            const endCleanDate = `${endDt.getFullYear()}${pad(endDt.getMonth()+1)}${pad(endDt.getDate())}`;
+            const endCleanTime = `${pad(endDt.getHours())}${pad(endDt.getMinutes())}00`;
+            const dates = `${cleanDate}T${cleanTime}/${endCleanDate}T${endCleanTime}`;
+            
+            const title = encodeURIComponent("白熊保齡球");
+            
+            let detailsText = "【白熊保齡球戰報】\n";
+            if (round.teams && round.teams.length > 0) {
+                round.teams.forEach((t, i) => {
+                    detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`;
+                });
+            }
+            if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
+            const details = encodeURIComponent(detailsText);
+            const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+        }
+
         window.openTeamSizeModal = function() {
             document.getElementById('teamSizeModal').style.display = 'flex';
         };
-
         window.closeTeamSizeModal = function() {
             document.getElementById('teamSizeModal').style.display = 'none';
         };
-
         window.selectTeamSize = function(size) {
             selectedTeamSize = size;
             document.getElementById('selectedTeamSizeText').innerText = `${size} 人一組`;
             closeTeamSizeModal();
         };
 
-        /* 主頁餐廳設定更新 UI */
         function updateMainRestaurantUI(val) {
             selectedRestaurantRaw = val;
             const parsed = parseRestaurantInput(val);
             const displaySpan = document.getElementById('selectedRestaurantText');
-
             if (parsed.name && parsed.name !== "Google 地圖連結") {
                 displaySpan.innerText = `📍 ${parsed.name}`;
             } else if (val) {
@@ -560,7 +609,6 @@
             }
         }
 
-        /* 主頁直接貼上功能（不開彈窗） */
         window.pasteClipboardMain = async function() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
@@ -576,17 +624,14 @@
             }
         };
 
-        /* 餐廳彈窗邏輯 */
         window.openRestaurantModal = function() {
             document.getElementById('restaurantModalInput').value = selectedRestaurantRaw;
             renderModalRestaurantList();
             document.getElementById('restaurantModal').style.display = 'flex';
         };
-
         window.closeRestaurantModal = function() {
             document.getElementById('restaurantModal').style.display = 'none';
         };
-
         window.confirmRestaurantModal = function() {
             const val = document.getElementById('restaurantModalInput').value.trim();
             updateMainRestaurantUI(val);
@@ -617,20 +662,18 @@
         function renderModalRestaurantList(filterVal = '') {
             const container = document.getElementById('modalRestaurantList');
             const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
-
             if (list.length === 0) {
                 container.innerHTML = '<div class="empty-text">無歷史餐廳紀錄</div>';
                 return;
             }
-
             let html = '';
             list.forEach(name => {
-                html += `<div class="modal-rest-item" onclick="selectModalRestaurant('${name.replace(/'/g, "\\'")}')">
+                const escapedName = name.replace(/'/g, "\\'");
+                html += `<div class="modal-rest-item" onclick="selectModalRestaurant('${escapedName}')">
                     <span class="rest-name">📍 ${name}</span>
-                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${name.replace(/'/g, "\\'")}')" title="刪除此紀錄">🗑️</button>
+                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${escapedName}')" title="刪除此紀錄">🗑️</button>
                 </div>`;
             });
-
             container.innerHTML = html;
         }
 
@@ -651,19 +694,20 @@
         function getNextTargetDay() {
             const today = new Date();
             const dayOfWeek = today.getDay();
-
             if (dayOfWeek === 3 || dayOfWeek === 6) return today;
-
             const daysUntilWednesday = (3 - dayOfWeek + 7) % 7;
             const daysUntilSaturday = (6 - dayOfWeek + 7) % 7;
             const minDaysToAdd = Math.min(daysUntilWednesday, daysUntilSaturday);
-
             const targetDate = new Date(today);
             targetDate.setDate(today.getDate() + minDaysToAdd);
             return targetDate;
         }
 
-        document.getElementById('eventDate').valueAsDate = getNextTargetDay();
+        const nextDate = getNextTargetDay();
+        const pad = (num) => String(num).padStart(2, '0');
+        const dateStr = `${nextDate.getFullYear()}-${pad(nextDate.getMonth()+1)}-${pad(nextDate.getDate())}`;
+        document.getElementById('eventDate').value = dateStr;
+        window.onDateInputChange();
 
         function initNameTags() {
             const container = document.getElementById('tagContainer');
@@ -680,7 +724,6 @@
         function toggleName(name, element) {
             const textarea = document.getElementById('nameInput');
             let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-
             const index = currentList.indexOf(name);
             if (index === -1) {
                 currentList.push(name);
@@ -691,7 +734,6 @@
                 element.classList.remove('active');
                 element.innerText = '⚡ ' + name;
             }
-
             textarea.value = currentList.join('\n');
         }
 
@@ -708,10 +750,8 @@
         function getSortedHistory(rounds = historyRounds) {
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-
             const futureRounds = [];
             const pastRounds = [];
-
             rounds.forEach((round) => {
                 const originalIndex = historyRounds.indexOf(round);
                 const item = { ...round, originalIndex };
@@ -721,17 +761,14 @@
                     pastRounds.push(item);
                 }
             });
-
             futureRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
             pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-
             return [...futureRounds, ...pastRounds];
         }
 
         function getFilteredHistory() {
             const startVal = document.getElementById('startDate').value;
             const endVal = document.getElementById('endDate').value;
-
             return historyRounds.filter(round => {
                 if (!round.eventDate) return false;
                 if (startVal && round.eventDate < startVal) return false;
@@ -741,7 +778,6 @@
         }
 
         window.applyDateFilter = function() { renderHistory(); };
-
         window.resetDateFilter = function() {
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
@@ -751,15 +787,12 @@
         function getRangeHistoryText() {
             const filteredRounds = getFilteredHistory();
             if (filteredRounds.length === 0) return null;
-
             const sorted = getSortedHistory(filteredRounds);
             let reportLines = [];
-
             sorted.forEach((round, i) => {
                 reportLines.push(formatRoundText(round));
                 if (i < sorted.length - 1) reportLines.push(`------------------`);
             });
-
             return reportLines.join('\n');
         }
 
@@ -808,12 +841,10 @@
         function parseRestaurantInput(inputVal) {
             if (!inputVal) return { name: '', url: '' };
             const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
-
             if (isUrl) {
                 const extractedName = extractPlaceNameFromUrl(inputVal);
                 return { name: extractedName, url: inputVal };
             }
-
             return {
                 name: inputVal,
                 url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
@@ -840,9 +871,7 @@
                 }
                 return round;
             });
-
             let updatedCustom = customRestaurants.filter(r => r !== name);
-
             set(historyRef, updatedRounds);
             set(customRestaurantsRef, updatedCustom);
             renderModalRestaurantList();
@@ -851,38 +880,30 @@
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
             if (!currentRound) return;
-
             const oldName = currentRound.restaurantName || currentRound.restaurant || '';
             const searchKeyword = oldName === "Google 地圖連結" ? "" : oldName;
-
             const wantSearch = confirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`);
-
             if (wantSearch) {
                 const searchUrl = searchKeyword 
                     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}`
                     : `https://www.google.com/maps`;
                 window.open(searchUrl, '_blank');
             }
-
             setTimeout(() => {
                 const newName = prompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword);
                 if (newName === null) return;
-
                 const trimmedName = newName.trim();
                 const restaurantData = parseRestaurantInput(trimmedName);
-
                 let updatedRounds = [...historyRounds];
                 updatedRounds[index] = {
                     ...updatedRounds[index],
                     restaurantName: restaurantData.name,
                     mapUrl: restaurantData.url
                 };
-
                 if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
                     customRestaurants.push(restaurantData.name);
                     set(customRestaurantsRef, customRestaurants);
                 }
-
                 set(historyRef, updatedRounds);
             }, 300);
         };
@@ -890,10 +911,8 @@
         window.deleteSingleRoundByIndex = function(index) {
             const round = historyRounds[index];
             if (!round) return;
-
             const pwd = prompt(`確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`);
             if (pwd === null) return;
-
             if (pwd.trim() === AUTH_PASSWORD) {
                 let updatedRounds = [...historyRounds];
                 updatedRounds.splice(index, 1);
@@ -907,13 +926,11 @@
         window.clearCloudHistory = function() {
             const btn = document.getElementById('btnClearCloud');
             if (historyRounds.length === 0) return;
-
             if (clearStep === 0) {
                 clearStep = 1;
                 let countdown = 5;
                 btn.disabled = true;
                 btn.innerText = `⏳ 等待 ${countdown}s`;
-
                 clearConfirmTimer = setInterval(() => {
                     countdown--;
                     if (countdown > 0) {
@@ -925,14 +942,12 @@
                         btn.innerText = "⚠️ 確定要清空嗎？";
                     }
                 }, 1000);
-
             } else if (clearStep === 2) {
                 const pwd = prompt("清空所有歷史紀錄為高風險操作，請輸入管理密碼：");
                 if (pwd === null) {
                     resetClearBtn();
                     return;
                 }
-
                 if (pwd.trim() === AUTH_PASSWORD) {
                     remove(historyRef);
                     remove(customRestaurantsRef);
@@ -958,13 +973,15 @@
         window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-            const eventDateVal = document.getElementById('eventDate').value;
+            const dateInputVal = document.getElementById('eventDate').value;
+            const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            
+            if (!dateInputVal) return alert("請選擇活動日期！");
+            const eventDateVal = `${dateInputVal}T${timeInputVal}`;
 
-            if (!eventDateVal) return alert("請選擇活動日期！");
             if (players.length < selectedTeamSize) return alert(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
 
             const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
-
             if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
                 customRestaurants.push(restaurantData.name);
                 set(customRestaurantsRef, customRestaurants);
@@ -995,7 +1012,6 @@
 
             let validMatchFound = false;
             let bestTeams = [], bestBye = [];
-
             const constraintLevels = [
                 { pairHistory: 3, byeHistory: 3 },
                 { pairHistory: 2, byeHistory: 2 },
@@ -1007,16 +1023,34 @@
                 for (let attempt = 0; attempt < 300; attempt++) {
                     let currentPlayers = shuffle([...players]);
                     let currentBye = [];
-
                     const remainder = currentPlayers.length % selectedTeamSize;
+
                     if (remainder !== 0) {
+                        const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
-                            let candidateIndex = currentPlayers.findIndex(p => !isByeInRecentHistory(p, level.byeHistory));
-                            if (candidateIndex !== -1) {
-                                currentBye.push(currentPlayers.splice(candidateIndex, 1)[0]);
-                            } else {
-                                currentBye.push(currentPlayers.pop());
+                            let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }))
+                                                           .filter(c => !isByeInRecentHistory(c.name, level.byeHistory));
+                            if (candidates.length === 0) {
+                                candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
                             }
+                            
+                            let totalWeight = candidates.reduce((sum, c) => {
+                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                return sum + (isReduced ? 0.5 : 1.0);
+                            }, 0);
+
+                            let rand = Math.random() * totalWeight;
+                            let chosenIndex = candidates[0].idx;
+                            for (let c of candidates) {
+                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                const w = isReduced ? 0.5 : 1.0;
+                                if (rand < w) {
+                                    chosenIndex = c.idx;
+                                    break;
+                                }
+                                rand -= w;
+                            }
+                            currentBye.push(currentPlayers.splice(chosenIndex, 1)[0]);
                         }
                     }
 
@@ -1024,7 +1058,6 @@
                     for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
                         let group = currentPlayers.slice(i, i + selectedTeamSize);
                         
-                        // 檢查組內是否有近期同隊過
                         for (let a = 0; a < group.length; a++) {
                             for (let b = a + 1; b < group.length; b++) {
                                 if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
@@ -1048,7 +1081,6 @@
             }
 
             const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
-
             const newRound = {
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
@@ -1062,18 +1094,15 @@
 
             let updatedHistory = [...historyRounds, newRound];
             if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
-
             set(historyRef, updatedHistory);
         };
 
         function formatRestaurantHTML(round, originalIndex = null) {
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             let name = round.restaurantName || round.restaurant || '';
-
             if (name.startsWith('http://') || name.startsWith('https://')) {
                 name = extractPlaceNameFromUrl(name);
             }
-
             let content = '';
             if (url) {
                 const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
@@ -1102,7 +1131,6 @@
             if (name.startsWith('http://') || name.startsWith('https://')) {
                 name = extractPlaceNameFromUrl(name);
             }
-
             if (url) {
                 if (name && name !== "Google 地圖連結") {
                     lines.push(`🍽️ 用餐餐廳：${name}`);
@@ -1121,18 +1149,89 @@
             return lines.join('\n');
         }
 
-        window.copyCurrentResult = function() {
+        async function getShortUrl(longUrl) {
+            if (!longUrl) return '';
+            try {
+                const api = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
+                const response = await fetch(api);
+                const data = await response.json();
+                if (data && data.shorturl) {
+                    return data.shorturl;
+                }
+            } catch (e) {
+                console.warn("is.gd 短網址失敗，切換備用方案:", e);
+            }
+            try {
+                const apiTiny = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
+                const res = await fetch(apiTiny);
+                const shortText = await res.text();
+                if (shortText && shortText.startsWith('http')) return shortText.trim();
+            } catch (e) {
+                console.warn("tinyurl 短網址失敗:", e);
+            }
+            return longUrl;
+        }
+
+        async function formatRoundTextWithShortLink(round) {
+            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
+            const calUrl = generateGoogleCalendarUrl(round);
+            if (calUrl) {
+                const shortCalUrl = await getShortUrl(calUrl);
+                lines.push(`🗓️ 加入行事曆：${shortCalUrl}`);
+            }
+
+            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
+            let name = round.restaurantName || round.restaurant || '';
+            if (name.startsWith('http://') || name.startsWith('https://')) {
+                name = extractPlaceNameFromUrl(name);
+            }
+
+            if (url) {
+                const shortMapUrl = await getShortUrl(url);
+                if (name && name !== "Google 地圖連結") {
+                    lines.push(`🍽️ 用餐餐廳：${name}`);
+                    lines.push(`📍 地圖連結：${shortMapUrl}`);
+                } else {
+                    lines.push(`📍 地圖連結：${shortMapUrl}`);
+                }
+            } else if (name) {
+                const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
+                const shortMapUrl = await getShortUrl(mapSearchUrl);
+                lines.push(`🍽️ 用餐餐廳：${name}`);
+                lines.push(`📍 地圖連結：${shortMapUrl}`);
+            }
+
+            round.teams.forEach((team, index) => {
+                lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
+            });
+            if (round.bye) lines.push(`此次爽打：${round.bye}`);
+
+            const currentAppUrl = window.location.href;
+            if (currentAppUrl.startsWith('http')) {
+                const shortAppUrl = await getShortUrl(currentAppUrl);
+                lines.push(`🔗 對戰圖鑑連結：${shortAppUrl}`);
+            }
+
+            return lines.join('\n');
+        }
+
+        window.copyCurrentResult = async function() {
             if (!currentSessionResult) return;
-            copyToClipboard(formatRoundText(currentSessionResult));
+            const text = await formatRoundTextWithShortLink(currentSessionResult);
+            copyToClipboard(text);
         };
 
-        window.shareLineCurrentResult = function() {
+        window.shareLineCurrentResult = async function() {
             if (!currentSessionResult) return;
-            shareToLine(formatRoundText(currentSessionResult));
+            const text = await formatRoundTextWithShortLink(currentSessionResult);
+            shareToLine(text);
         };
 
-        window.shareLineByIndex = function(index) {
-            if (historyRounds[index]) shareToLine(formatRoundText(historyRounds[index]));
+        window.shareLineByIndex = async function(index) {
+            if (historyRounds[index]) {
+                const text = await formatRoundTextWithShortLink(historyRounds[index]);
+                shareToLine(text);
+            }
         };
 
         function shareToLine(text) {
@@ -1140,8 +1239,11 @@
             window.open(lineUrl, '_blank');
         }
 
-        window.copyRoundByIndex = function(index) {
-            if (historyRounds[index]) copyToClipboard(formatRoundText(historyRounds[index]));
+        window.copyRoundByIndex = async function(index) {
+            if (historyRounds[index]) {
+                const text = await formatRoundTextWithShortLink(historyRounds[index]);
+                copyToClipboard(text);
+            }
         };
 
         function copyToClipboard(text) {
@@ -1159,8 +1261,10 @@
         }
 
         function renderCurrentResult(round) {
+            const calUrl = generateGoogleCalendarUrl(round);
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.8rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 8px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 加入行事曆</a>` : '';
             let html = `<div class="pop-in">`;
-            html += `<div class="result-item" style="background:#EBF3FF; color:var(--poke-blue); font-weight:900;">📅 活動日期：${formatDateWithDay(round.eventDate)}</div>`;
+            html += `<div class="result-item" style="background:#EBF3FF; color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -1168,7 +1272,6 @@
             });
             if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
             html += `</div>`;
-
             document.getElementById('currentResult').innerHTML = html;
             document.getElementById('copyCurrentBtn').style.display = 'inline-flex';
             document.getElementById('lineCurrentBtn').style.display = 'inline-flex';
@@ -1195,7 +1298,6 @@
             filterContainer.style.display = isHistoryExpanded ? 'block' : 'none';
 
             const filteredRounds = getFilteredHistory();
-
             if (filteredRounds.length === 0) {
                 historyContainer.innerHTML = '<div class="empty-text">所選的時間區間內無紀錄</div>';
                 toggleBtn.style.display = 'none';
@@ -1215,11 +1317,11 @@
                 }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
 
-                /* 按鈕順序：編輯對戰 -> 刪除 -> 複製 -> LINE */
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
                             📅 ${formatDateWithDay(round.eventDate)}
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="margin-left:6px; font-size:0.78rem; background:#EBF3FF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 加入行事曆</a>
                         </div>
                         <div class="action-group">
                             <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯對戰</button>
@@ -1248,17 +1350,13 @@
             }
         }
 
-        // ------------------ 彈出視窗 (Modal) 編輯功能 ------------------
-
         window.openEditModal = function(index) {
             const pwd = prompt("編輯對戰紀錄為管理功能，請輸入管理密碼：");
             if (pwd === null) return;
-
             if (pwd.trim() !== AUTH_PASSWORD) {
                 alert("密碼錯誤，無法編輯對戰！");
                 return;
             }
-
             editingIndex = index;
             const round = historyRounds[index];
             if (!round) return;
@@ -1269,7 +1367,15 @@
                 bye: round.bye || ''
             };
 
-            document.getElementById('editModalDate').value = editingModalData.eventDate;
+            if (editingModalData.eventDate.includes('T')) {
+                const parts = editingModalData.eventDate.split('T');
+                document.getElementById('editModalDate').value = parts[0];
+                document.getElementById('editModalTime').value = parts[1].slice(0, 5);
+            } else {
+                document.getElementById('editModalDate').value = editingModalData.eventDate;
+                document.getElementById('editModalTime').value = '14:00';
+            }
+
             renderModalTeams();
             document.getElementById('editModal').style.display = 'flex';
         };
@@ -1311,12 +1417,10 @@
         function renderModalTeams() {
             const teamsContainer = document.getElementById('editModalTeamsContainer');
             teamsContainer.innerHTML = '';
-
             editingModalData.teams.forEach((team, tIdx) => {
                 const groupDiv = document.createElement('div');
                 groupDiv.style.marginBottom = '10px';
                 groupDiv.innerHTML = `<div style="font-size:0.85rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
-
                 const dropZone = document.createElement('div');
                 dropZone.className = 'drop-zone';
                 dropZone.dataset.teamIndex = tIdx;
@@ -1330,7 +1434,6 @@
                 teamsContainer.appendChild(groupDiv);
             });
 
-            // 輪空區
             const byeZone = document.getElementById('editModalByeZone');
             byeZone.innerHTML = '';
             let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -1353,8 +1456,8 @@
                 e.stopPropagation();
                 removePlayerFromModal(teamIdx, pIdx);
             };
-            tag.appendChild(delBtn);
 
+            tag.appendChild(delBtn);
             tag.addEventListener('dragstart', (e) => {
                 e.dataTransfer.setData('text/plain', JSON.stringify({
                     fromTeam: teamIdx,
@@ -1362,7 +1465,6 @@
                     name: name
                 }));
             });
-
             return tag;
         }
 
@@ -1371,19 +1473,15 @@
                 e.preventDefault();
                 dropZone.classList.add('drag-over');
             });
-
             dropZone.addEventListener('dragleave', () => {
                 dropZone.classList.remove('drag-over');
             });
-
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('drag-over');
-
                 const rawData = e.dataTransfer.getData('text/plain');
                 if (!rawData) return;
                 const data = JSON.parse(rawData);
-
                 const toTeam = dropZone.dataset.teamIndex;
 
                 let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
@@ -1409,10 +1507,11 @@
 
         window.saveEditModal = function() {
             if (editingIndex === null) return;
+            const newDateVal = document.getElementById('editModalDate').value;
+            const newTimeVal = document.getElementById('editModalTime').value || '14:00';
+            if (!newDateVal) return alert("活動日期不能為空！");
 
-            const newDate = document.getElementById('editModalDate').value;
-            if (!newDate) return alert("活動日期不能為空！");
-
+            const newDate = `${newDateVal}T${newTimeVal}`;
             const cleanedTeams = editingModalData.teams.filter(t => t.length > 0);
 
             let updatedRounds = [...historyRounds];
