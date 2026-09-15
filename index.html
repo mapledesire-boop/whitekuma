@@ -1035,8 +1035,12 @@
                 { pairHistory: 0, byeHistory: 0 }
             ];
 
+            const hasYuanYuan = players.includes("圓圓");
+            const hasYuanZai = players.includes("圓仔");
+            const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
+
             for (let level of constraintLevels) {
-                for (let attempt = 0; attempt < 300; attempt++) {
+                for (let attempt = 0; attempt < 1000; attempt++) {
                     let currentPlayers = shuffle([...players]);
                     let currentBye = [];
                     const remainder = currentPlayers.length % selectedTeamSize;
@@ -1071,9 +1075,23 @@
                     }
 
                     let tempTeams = [], isValid = true;
+                    let isYuanYuanAndZaiPaired = false;
+
                     for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
                         let group = currentPlayers.slice(i, i + selectedTeamSize);
                         
+                        // 1. 降低 50% 「團團」與「圓圓」的組隊機率
+                        if (group.includes("團團") && group.includes("圓圓")) {
+                            if (Math.random() < 0.5) {
+                                isValid = false;
+                                break;
+                            }
+                        }
+
+                        if (group.includes("圓圓") && group.includes("圓仔")) {
+                            isYuanYuanAndZaiPaired = true;
+                        }
+
                         for (let a = 0; a < group.length; a++) {
                             for (let b = a + 1; b < group.length; b++) {
                                 if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
@@ -1084,6 +1102,13 @@
                         }
                         if (!isValid) break;
                         tempTeams.push(group);
+                    }
+
+                    // 2. 增加 50% 「圓圓」與「圓仔」的組隊機率
+                    if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
+                        if (Math.random() < 0.5) {
+                            isValid = false;
+                        }
                     }
 
                     if (isValid) {
