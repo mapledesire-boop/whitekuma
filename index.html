@@ -9,29 +9,32 @@
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #F4F6F9;           /* 乾淨柔和底色 */
+            --bg-color: #F4F7FA;           /* 乾淨柔和底色 */
             --card-bg: #FFFFFF;            /* 純白卡片 */
             --poke-red: #FF5350;           /* 精靈球紅 */
             --poke-red-hover: #E04340;
             --poke-yellow: #FFCB05;        /* 皮卡丘電光黃 */
             --poke-blue: #2A75BB;          /* 寶可夢藍 */
+            --poke-blue-light: #EBF3FF;
             --line-green: #06C755;         /* LINE 綠色 */
-            --text-main: #2C2C2C;          /* 深灰文字 */
-            --text-sub: #6E7C8C;
-            --border-line: #E8ECEF;
+            --text-main: #1E293B;          /* 深灰文字 */
+            --text-sub: #64748B;
+            --border-line: #E2E8F0;
             --radius-lg: 20px;
             --radius-sm: 12px;
-            --shadow-poke: 0 8px 24px rgba(42, 117, 187, 0.08);
+            --shadow-poke: 0 8px 24px rgba(42, 117, 187, 0.06);
             --transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'M PLUS Rounded 1c', -apple-system, sans-serif;
-            max-width: 480px; margin: 0 auto; padding: 16px 12px 40px 12px; 
+            max-width: 500px; margin: 0 auto; padding: 12px 10px 40px 10px; 
             background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
         }
-        .header-container { text-align: center; margin: 8px 0 14px 0; }
+
+        /* 標題區 */
+        .header-container { text-align: center; margin: 6px 0 12px 0; }
         .header-title-box {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             background: #FFFFFF; padding: 8px 20px; border-radius: 30px;
@@ -39,109 +42,115 @@
         }
         .header-img { width: 34px; height: 34px; object-fit: contain; }
         .header-title { 
-            font-size: 1.2rem; font-weight: 900; color: #2C2C2C; 
+            font-size: 1.25rem; font-weight: 900; color: #2C2C2C; 
             margin: 0; letter-spacing: 0.5px;
         }
         .subtitle { 
-            font-size: 0.82rem; color: var(--poke-red); margin-top: 8px; font-weight: 800;
+            font-size: 0.82rem; color: var(--poke-red); margin-top: 6px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
 
+        /* 預組隊伍庫觸發按鈕 */
         .btn-preset-trigger {
-            margin-top: 12px;
+            margin-top: 10px;
             width: 100%;
-            padding: 12px;
+            padding: 10px 14px;
             background: #FFFFFF;
             border: 2px solid var(--poke-blue);
             color: var(--poke-blue);
-            border-radius: 20px;
+            border-radius: var(--radius-lg);
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 0.92rem;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(42, 117, 187, 0.1);
+            box-shadow: var(--shadow-poke);
             transition: var(--transition);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 6px;
-            min-height: 48px;
+            min-height: 46px;
         }
         .btn-preset-trigger:active {
-            transform: scale(0.97);
-            background: #EBF3FF;
+            transform: scale(0.98);
+            background: var(--poke-blue-light);
         }
 
+        /* 卡片通用區塊 */
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
-            padding: 16px; margin-bottom: 14px; box-shadow: var(--shadow-poke);
+            padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-poke);
             border: 1px solid var(--border-line); position: relative; overflow: hidden;
         }
+
+        label { font-size: 0.88rem; color: #334155; font-weight: 800; display: block; margin-bottom: 6px; }
+        .label-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+        .label-header label { margin-bottom: 0; }
         
-        .box::after {
-            content: ''; position: absolute; right: -15px; bottom: -15px;
-            width: 70px; height: 70px;
-            background: radial-gradient(circle, transparent 20%, rgba(255, 83, 80, 0.04) 21%);
-            border: 6px solid rgba(0, 0, 0, 0.02); border-radius: 50%; pointer-events: none;
-        }
-        label { font-size: 0.88rem; color: #333; font-weight: 800; display: block; margin-bottom: 6px; }
-        .input-group { margin-bottom: 14px; position: relative; }
+        .input-group { margin-bottom: 12px; position: relative; }
         
         input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], textarea { 
-            width: 100%; padding: 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
+            width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none;
-            min-height: 48px;
+            min-height: 46px;
         }
         
         input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, textarea:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; 
-            box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.15);
+            box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
         }
         .input-with-btn { display: flex; gap: 8px; align-items: center; }
         .input-with-btn input { flex: 1; }
         
         .btn-paste {
-            padding: 0 16px; border: 2px solid #D0E1FD; background-color: #EBF3FF; color: var(--poke-blue);
+            padding: 0 14px; border: 2px solid #D0E1FD; background-color: var(--poke-blue-light); color: var(--poke-blue);
             border-radius: var(--radius-sm); font-weight: 800; font-size: 0.88rem; cursor: pointer;
             transition: var(--transition); white-space: nowrap; display: flex; align-items: center;
-            min-height: 48px; flex-shrink: 0;
+            min-height: 46px; flex-shrink: 0;
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
         
         .btn-team-size, .btn-select-trigger {
             width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
-            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.95rem;
+            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.92rem;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            transition: var(--transition); min-height: 48px; text-align: left; flex: 1;
+            transition: var(--transition); min-height: 46px; text-align: left; flex: 1;
             overflow: hidden;
         }
         .btn-team-size:active, .btn-select-trigger:active { background-color: #E2E8F0; }
         .btn-select-trigger span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
+        .btn-sm-manage {
+            background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #475569;
+            padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 4px;
+        }
+        .btn-sm-manage:active { background: #E2E8F0; transform: scale(0.95); }
+
         .modal-rest-list {
-            max-height: 240px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
+            max-height: 220px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
             border: 1px solid #E2E8F0;
         }
         .modal-rest-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; font-weight: 700;
-            cursor: pointer; transition: var(--transition); background: #FFFFFF; min-height: 46px;
+            padding: 10px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 700;
+            cursor: pointer; transition: var(--transition); background: #FFFFFF; min-height: 44px;
         }
         .modal-rest-item:last-child { border-bottom: none; }
         .modal-rest-item:active { background-color: #F1F5F9; }
         .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .modal-rest-item .btn-del-rest {
-            background: none; border: none; color: #FF5350; cursor: pointer; padding: 6px 10px;
-            font-size: 0.95rem; border-radius: 6px; transition: var(--transition);
+            background: none; border: none; color: #FF5350; cursor: pointer; padding: 6px 8px;
+            font-size: 0.92rem; border-radius: 6px; transition: var(--transition);
         }
-        textarea { min-height: 85px; resize: vertical; }
+        textarea { min-height: 80px; resize: vertical; }
         
-        .tag-container { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 14px 0; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px 0; }
         .name-tag { 
-            padding: 8px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
-            border-radius: 20px; cursor: pointer; font-size: 0.88rem; font-weight: 800;
+            padding: 6px 12px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
+            border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 800;
             transition: var(--transition); user-select: none; display: inline-flex; align-items: center; 
-            justify-content: center; min-height: 40px;
+            justify-content: center; min-height: 38px;
         }
         .name-tag:active { transform: scale(0.92); }
         .name-tag.active { 
@@ -149,10 +158,10 @@
             box-shadow: 2px 2px 0px #334155; transform: translateY(-1px);
         }
         
-        .btn-action { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-action { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
         button.action-btn { 
-            flex: 1; min-width: 100px; padding: 12px 8px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
-            font-size: 0.92rem; font-weight: 900; min-height: 48px; font-family: inherit;
+            flex: 1; min-width: 100px; padding: 10px 8px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
+            font-size: 0.9rem; font-weight: 900; min-height: 46px; font-family: inherit;
             display: inline-flex; align-items: center; justify-content: center; transition: var(--transition);
         }
         
@@ -172,40 +181,40 @@
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
         .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter {
-            white-space: nowrap; flex-shrink: 0; font-size: 0.82rem; font-weight: 800; 
-            border-radius: 8px; padding: 8px 12px; cursor: pointer; display: inline-flex;
+            white-space: nowrap; flex-shrink: 0; font-size: 0.8rem; font-weight: 800; 
+            border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex;
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
-            min-height: 40px; box-sizing: border-box; transition: var(--transition);
+            min-height: 38px; box-sizing: border-box; transition: var(--transition);
         }
         .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
         .btn-danger:disabled { background-color: #E2E8F0; color: #94A3B8; border-color: #CBD5E1; cursor: not-allowed; opacity: 0.8; }
-        .btn-copy { background-color: #EBF3FF; color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
+        .btn-copy { background-color: var(--poke-blue-light); color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
         .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
         .btn-edit { background-color: #FFF7D6; color: #8A6D00; border: 1.5px solid #FFE885; }
         .btn-filter { background-color: var(--poke-blue); color: #FFFFFF; border: 1.5px solid #1D588F; }
         .btn-filter:active { transform: scale(0.95); }
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; flex-wrap: wrap; }
         .section-header h3 { margin: 0; font-size: 0.98rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         
         .action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         
         .filter-container {
-            background: #F8FAFC; border-radius: var(--radius-sm); padding: 12px;
-            margin-bottom: 14px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            background: #F8FAFC; border-radius: var(--radius-sm); padding: 10px;
+            margin-bottom: 12px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
             display: none;
         }
         .filter-title {
-            font-size: 0.85rem; font-weight: 800; color: #475569; margin-bottom: 8px; display: flex; align-items: center; gap: 4px;
+            font-size: 0.82rem; font-weight: 800; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
         }
         .filter-date-grid { 
-            display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 10px; 
+            display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 8px; 
         }
         .filter-date-grid input[type="date"] { 
-            padding: 8px 6px; font-size: 0.82rem; text-align: center; min-height: 44px; border-radius: 8px;
+            padding: 6px 4px; font-size: 0.8rem; text-align: center; min-height: 40px; border-radius: 8px;
         }
-        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
+        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.82rem; }
         .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
-        .filter-btn-grid button { flex: 1; min-height: 42px; font-size: 0.82rem; padding: 6px 4px; }
+        .filter-btn-grid button { flex: 1; min-height: 38px; font-size: 0.78rem; padding: 4px 2px; }
         
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
@@ -214,50 +223,52 @@
         }
         
         .result-item { 
-            padding: 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
-            margin-bottom: 8px; font-size: 0.9rem; font-weight: 700; border: 1.5px solid #E2E8F0;
-            word-break: break-all; line-height: 1.6;
+            padding: 10px 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
+            margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
+            word-break: break-all; line-height: 1.5;
         }
         .restaurant-item-box {
             display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
         }
-        .team-badge { background: #EBF3FF; color: var(--poke-blue); padding: 3px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
-        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 3px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
+        .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
+        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
         
         .history-card {
-            background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 12px;
+            background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px;
             border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-        .history-date-title { font-size: 0.95rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
+        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; }
         .history-teams { 
-            font-size: 0.88rem; line-height: 1.6; padding-top: 8px;
+            font-size: 0.86rem; line-height: 1.5; padding-top: 8px;
             border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
         }
         .history-teams .full-width { grid-column: span 1; }
         
         .toggle-history-btn {
-            width: 100%; text-align: center; padding: 12px; background: #FFFFFF; border: 2px dashed #CBD5E1;
-            border-radius: var(--radius-sm); color: var(--text-sub); font-size: 0.88rem; cursor: pointer;
-            margin-top: 8px; font-weight: 800; transition: var(--transition); min-height: 48px;
+            width: 100%; text-align: center; padding: 10px; background: #FFFFFF; border: 2px dashed #CBD5E1;
+            border-radius: var(--radius-sm); color: var(--text-sub); font-size: 0.85rem; cursor: pointer;
+            margin-top: 6px; font-weight: 800; transition: var(--transition); min-height: 46px;
         }
         .toggle-history-btn:active { background-color: #F8FAFC; color: var(--text-main); }
-        .empty-text { color: var(--text-sub); font-size: 0.85rem; text-align: center; padding: 16px 0; font-weight: 700; }
+        .empty-text { color: var(--text-sub); font-size: 0.85rem; text-align: center; padding: 14px 0; font-weight: 700; }
         
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
         
+        /* Modal 通用樣式 */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.55); z-index: 1000;
+            background: rgba(15, 23, 42, 0.6); z-index: 1000;
             display: flex; justify-content: center; align-items: flex-end; padding: 0;
+            backdrop-filter: blur(2px);
         }
         @media (min-width: 480px) {
             .modal-backdrop { align-items: center; padding: 16px; }
         }
         .modal-content {
             background: #FFFFFF; border-top-left-radius: var(--radius-lg); border-top-right-radius: var(--radius-lg);
-            width: 100%; max-width: 480px; max-height: 90vh; overflow-y: auto; padding: 16px 16px 24px 16px;
+            width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; padding: 16px 16px 24px 16px;
             box-shadow: 0 -8px 24px rgba(0,0,0,0.15);
             animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
@@ -266,56 +277,63 @@
         }
         .modal-header {
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--border-line); padding-bottom: 10px; margin-bottom: 14px;
+            border-bottom: 2px solid var(--border-line); padding-bottom: 10px; margin-bottom: 12px;
         }
-        .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 900; }
+        .modal-header h3 { margin: 0; font-size: 1.02rem; font-weight: 900; }
         .modal-close {
-            background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-sub);
-            padding: 6px 10px; line-height: 1;
+            background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-sub);
+            padding: 4px 8px; line-height: 1;
         }
         
         .size-option-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
         .size-option-btn {
-            padding: 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
-            font-size: 1rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
-            transition: var(--transition); min-height: 48px;
+            padding: 12px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
+            font-size: 0.95rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
+            transition: var(--transition); min-height: 46px;
         }
         .size-option-btn:active, .size-option-btn.active {
             background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155;
         }
         .drop-zone {
             background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--radius-sm);
-            padding: 10px; min-height: 54px; display: flex; flex-wrap: wrap; gap: 8px;
+            padding: 8px; min-height: 50px; display: flex; flex-wrap: wrap; gap: 6px;
             align-items: center; margin-top: 6px; transition: var(--transition);
         }
         .drop-zone.drag-over {
-            background: #EBF3FF; border-color: var(--poke-blue);
+            background: var(--poke-blue-light); border-color: var(--poke-blue);
         }
         .draggable-player {
             background: var(--poke-yellow); color: #1E293B; border: 1.5px solid #334155;
-            padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.85rem;
-            cursor: grab; display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 0.82rem;
+            cursor: grab; display: inline-flex; align-items: center; gap: 4px;
             user-select: none; transition: transform 0.1s; line-height: 1.2;
         }
         .draggable-player:active { cursor: grabbing; transform: scale(0.95); }
         .draggable-player .btn-del-p {
-            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 22px; height: 22px;
-            display: inline-flex; justify-content: center; align-items: center; font-size: 0.9rem;
+            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 20px; height: 20px;
+            display: inline-flex; justify-content: center; align-items: center; font-size: 0.85rem;
             cursor: pointer; color: #333; margin-left: 2px; font-weight: bold;
         }
         .draggable-player .btn-del-p:active { background: var(--poke-red); color: white; }
 
         .preset-card {
             background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: var(--radius-sm);
-            padding: 12px; margin-bottom: 12px; position: relative; transition: var(--transition);
+            padding: 10px 12px; margin-bottom: 10px; position: relative; transition: var(--transition);
         }
-        .preset-card:active { background: #EBF3FF; border-color: var(--poke-blue); }
-        .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.95rem; margin-bottom: 4px; }
-        .preset-details { font-size: 0.85rem; color: #475569; font-weight: 700; line-height: 1.5; }
-        .preset-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .preset-card:active { background: var(--poke-blue-light); border-color: var(--poke-blue); }
+        .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.92rem; margin-bottom: 4px; }
+        .preset-details { font-size: 0.82rem; color: #475569; font-weight: 700; line-height: 1.5; }
+        .preset-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+
+        .trainer-list-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 800;
+        }
+        .trainer-list-item:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
+    <!-- 1. Header 標題區 -->
     <div class="header-container">
         <div class="header-title-box">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="header-img">
@@ -324,12 +342,24 @@
         <div class="subtitle">
             <span>就決定是你了！不能黑箱的決鬥抽籤 ⚡</span>
         </div>
-        <button class="btn-preset-trigger" onclick="openPresetModal()">
-            📅 預組隊伍庫 <span id="presetBadgeCount">(0)</span>
-        </button>
     </div>
 
-    <!-- 輸入區塊 -->
+    <!-- 2. 置頂「預訂對戰圖鑑」 -->
+    <div class="box" id="upcomingHistoryBox">
+        <div class="section-header">
+            <h3>⚡ 預訂對戰圖鑑</h3>
+        </div>
+        <div id="upcomingHistoryContent">
+            <div class="empty-text">載入預訂對戰紀錄中...</div>
+        </div>
+    </div>
+
+    <!-- 3. 「預組隊伍庫」按鈕 -->
+    <button class="btn-preset-trigger" style="margin-bottom: 12px;" onclick="openPresetModal()">
+        📅 預組隊伍庫 <span id="presetBadgeCount">(0)</span>
+    </button>
+
+    <!-- 4. 輸入區塊 -->
     <div class="box">
         <div class="input-group">
             <label>📅 活動日期與時間</label>
@@ -356,7 +386,10 @@
             </div>
         </div>
 
-        <label>👥 選擇登場訓練家</label>
+        <div class="label-header">
+            <label>👥 選擇登場訓練家</label>
+            <button type="button" class="btn-sm-manage" onclick="openTrainerManagerModal()">⚙️ 編輯訓練家</button>
+        </div>
         <div class="tag-container" id="tagContainer"></div>
 
         <label for="nameInput">📝 參賽訓練家名單（每行一位）</label>
@@ -369,10 +402,10 @@
         </div>
     </div>
 
-    <!-- 本次結果區塊 -->
+    <!-- 5. 本次結果區塊 -->
     <div class="box" id="currentResultSection">
         <div class="section-header">
-            <h3>🔴 本次對戰組合</h3>
+            <h3>🔴 本次配對結果</h3>
             <div class="action-group">
                 <button id="lineCurrentBtn" class="btn-line" style="display: none;" onclick="shareLineCurrentResult()">💬 LINE</button>
                 <button id="copyCurrentBtn" class="btn-copy" style="display: none;" onclick="copyCurrentResult()">📋 複製</button>
@@ -381,7 +414,7 @@
         <div id="currentResult"><div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div></div>
     </div>
 
-    <!-- 歷史紀錄區塊 -->
+    <!-- 6. 歷史紀錄區塊 -->
     <div class="box">
         <div class="section-header">
             <h3>📖 訓練家對戰圖鑑</h3>
@@ -400,12 +433,34 @@
                 <button class="btn-filter" onclick="applyDateFilter()">🔍 搜尋區間</button>
                 <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間</button>
                 <button class="btn-line" onclick="shareRangeHistoryToLine()">💬 分享區間</button>
-                <button class="btn-secondary" style="font-size:0.8rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
+                <button class="btn-secondary" style="font-size:0.78rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
             </div>
         </div>
 
         <div id="historyList"><div class="empty-text">連線至 Firebase 中...</div></div>
         <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
+    </div>
+
+    <!-- ⚙️ 登場訓練家管理 Modal -->
+    <div id="trainerModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚙️ 登場訓練家管理</h3>
+                <button class="modal-close" onclick="closeTrainerManagerModal()">✖</button>
+            </div>
+            <div class="input-group">
+                <label>➕ 新增預設登場訓練家</label>
+                <div class="input-with-btn">
+                    <input type="text" id="newTrainerInput" placeholder="輸入訓練家姓名...">
+                    <button class="btn-paste" style="background:var(--poke-yellow); color:#1E293B; border-color:#D4A000;" onclick="addNewTrainerPreset()">新增</button>
+                </div>
+            </div>
+            <label style="margin-top:12px;">目前預設訓練家名單：</label>
+            <div id="trainerManagerList" class="modal-rest-list"></div>
+            <div class="btn-action" style="margin-top: 14px;">
+                <button class="action-btn btn-primary" onclick="closeTrainerManagerModal()">✅ 完成</button>
+            </div>
+        </div>
     </div>
 
     <!-- 📅 預組隊伍庫 Modal -->
@@ -418,7 +473,7 @@
                     <button class="modal-close" onclick="closePresetModal()">✖</button>
                 </div>
             </div>
-            <button id="btnPairAllPresets" class="action-btn btn-primary" style="width: 100%; margin-bottom: 12px; font-size: 0.95rem; min-height: 48px;" onclick="generateAllPresetsInLoop()">🔥 組隊渡劫一時爽</button>
+            <button id="btnPairAllPresets" class="action-btn btn-primary" style="width: 100%; margin-bottom: 12px; font-size: 0.95rem; min-height: 46px;" onclick="generateAllPresetsInLoop()">🔥 組隊渡劫一時爽</button>
             <div id="presetListContainer">
                 <div class="empty-text">無預選隊伍紀錄</div>
             </div>
@@ -486,7 +541,7 @@
             <div class="input-group">
                 <label>👥 對戰組合（拖曳人員以變更分組）</label>
                 <div id="editModalTeamsContainer"></div>
-                <button class="btn-secondary" style="width:100%; margin-top:10px; border-radius:10px; min-height:46px; font-weight:800;" onclick="addModalTeamGroup()">➕ 新增一組</button>
+                <button class="btn-secondary" style="width:100%; margin-top:10px; border-radius:10px; min-height:44px; font-weight:800;" onclick="addModalTeamGroup()">➕ 新增一組</button>
             </div>
 
             <div class="input-group">
@@ -528,8 +583,9 @@
         const historyRef = ref(db, 'historyRounds');
         const customRestaurantsRef = ref(db, 'customRestaurants');
         const presetsRef = ref(db, 'presetTeams');
+        const trainerPresetsRef = ref(db, 'trainerPresets');
 
-        const presetNames = [
+        let defaultPresetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
             "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡",
             "陳彤", "楷雲"
@@ -548,8 +604,8 @@
         let clearConfirmTimer = null;
         let clearStep = 0;
         let currentSessionResult = null;
-        let selectedTeamSize = 2; // 預設 2 人一組
-        let selectedRestaurantRaw = ""; // 儲存主頁選擇的餐廳名稱/連結
+        let selectedTeamSize = 2;
+        let selectedRestaurantRaw = "";
         
         let editingIndex = null;
         let editingModalData = {
@@ -564,9 +620,9 @@
             const dateObj = new Date(dateVal + 'T00:00:00');
             const day = dateObj.getDay();
             const timeInput = document.getElementById('eventTime');
-            if (day === 3) { // 禮拜三 (14:00)
+            if (day === 3) {
                 timeInput.value = "14:00";
-            } else if (day === 6) { // 禮拜六 (13:00)
+            } else if (day === 6) {
                 timeInput.value = "13:00";
             }
         };
@@ -772,13 +828,65 @@
         function initNameTags() {
             const container = document.getElementById('tagContainer');
             container.innerHTML = '';
-            presetNames.forEach(name => {
+            defaultPresetNames.forEach(name => {
                 const tag = document.createElement('div');
                 tag.className = 'name-tag';
                 tag.innerText = '⚡ ' + name;
                 tag.onclick = () => toggleName(name, tag);
                 container.appendChild(tag);
             });
+            syncTagsWithTextarea();
+        }
+
+        window.openTrainerManagerModal = function() {
+            const pwd = prompt("編輯登場訓練家為管理功能，請輸入管理密碼：");
+            if (pwd === null) return;
+            if (pwd.trim() !== AUTH_PASSWORD) {
+                alert("密碼錯誤，無法編輯訓練家！");
+                return;
+            }
+            renderTrainerManagerList();
+            document.getElementById('trainerModal').style.display = 'flex';
+        };
+        window.closeTrainerManagerModal = function() {
+            document.getElementById('trainerModal').style.display = 'none';
+        };
+        window.addNewTrainerPreset = function() {
+            const input = document.getElementById('newTrainerInput');
+            const val = input.value.trim();
+            if (!val) return;
+            if (defaultPresetNames.includes(val)) {
+                alert("該訓練家已存在於清單中！");
+                return;
+            }
+            defaultPresetNames.push(val);
+            set(trainerPresetsRef, defaultPresetNames);
+            input.value = '';
+            initNameTags();
+            renderTrainerManagerList();
+        };
+        window.deleteTrainerPreset = function(name) {
+            if (!confirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`)) return;
+            defaultPresetNames = defaultPresetNames.filter(n => n !== name);
+            set(trainerPresetsRef, defaultPresetNames);
+            initNameTags();
+            renderTrainerManagerList();
+        };
+        function renderTrainerManagerList() {
+            const container = document.getElementById('trainerManagerList');
+            if (defaultPresetNames.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無預設訓練家</div>';
+                return;
+            }
+            let html = '';
+            defaultPresetNames.forEach(name => {
+                const escapedName = name.replace(/'/g, "\\'");
+                html += `<div class="trainer-list-item">
+                    <span>⚡ ${name}</span>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapedName}')">🗑️ 刪除</button>
+                </div>`;
+            });
+            container.innerHTML = html;
         }
 
         function toggleName(name, element) {
@@ -801,8 +909,8 @@
             const textarea = document.getElementById('nameInput');
             let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             const tags = document.querySelectorAll('.name-tag');
-            tags.forEach((tag, index) => {
-                const name = presetNames[index];
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
                 if (currentList.includes(name)) {
                     tag.classList.add('active');
                     tag.innerText = '★ ' + name;
@@ -820,23 +928,41 @@
             syncTagsWithTextarea();
         };
 
-        function getSortedHistory(rounds = historyRounds) {
+        /* 按照時間順序 (舊 -> 新) 排序歷史紀錄 */
+        function getChronologicalHistory(rounds = historyRounds) {
+            return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
+                         .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+        }
+
+        /* 渲染頂部「預訂對戰圖鑑」(保持近期最早未過期戰報) */
+        function renderUpcomingHistory() {
+            const container = document.getElementById('upcomingHistoryContent');
+            if (historyRounds.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
+                return;
+            }
+
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const futureRounds = [];
-            const pastRounds = [];
-            rounds.forEach((round) => {
-                const originalIndex = historyRounds.indexOf(round);
-                const item = { ...round, originalIndex };
-                if (round.eventDate >= todayStr) {
-                    futureRounds.push(item);
-                } else {
-                    pastRounds.push(item);
-                }
+            
+            const sorted = getChronologicalHistory(historyRounds);
+            const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
+            const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+
+            const calUrl = generateGoogleCalendarUrl(target);
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
+
+            let html = `<div class="pop-in">`;
+            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
+            html += formatRestaurantHTML(target);
+            target.teams.forEach((team, index) => {
+                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
-            futureRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-            pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-            return [...futureRounds, ...pastRounds];
+            if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
+            html += `</div>`;
+
+            container.innerHTML = html;
         }
 
         function getFilteredHistory() {
@@ -883,7 +1009,7 @@
         async function getRangeHistoryText() {
             const filteredRounds = getFilteredHistory();
             if (filteredRounds.length === 0) return null;
-            const sorted = getSortedHistory(filteredRounds);
+            const sorted = getChronologicalHistory(filteredRounds);
             let reportLines = [];
             for (let i = 0; i < sorted.length; i++) {
                 const formattedText = await formatRoundText(sorted[i]);
@@ -908,6 +1034,7 @@
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
+            renderUpcomingHistory();
             renderHistory();
             
             if (currentSessionResult) {
@@ -930,7 +1057,14 @@
             renderPresetModalList();
         });
 
-        // 預組隊伍相關功能
+        onValue(trainerPresetsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) {
+                defaultPresetNames = data;
+            }
+            initNameTags();
+        });
+
         window.openPresetModal = function() {
             resetPresetClearBtn();
             renderPresetModalList();
@@ -989,7 +1123,6 @@
             alert("已成功帶入該筆預組隊伍資料！");
         };
 
-        // 直接從預組隊伍彈出視窗執行擲球配對
         window.generateFromPreset = function(presetId, event) {
             if (event) event.stopPropagation();
             const target = presetTeams.find(p => p.id === presetId);
@@ -1019,7 +1152,6 @@
             activePresetId = null;
         };
 
-        // 「組隊渡劫一時爽」：一次把所有預組隊伍全部自動擲球配對
         window.generateAllPresetsInLoop = function() {
             if (presetTeams.length === 0) return alert("目前沒有任何預組隊伍！");
 
@@ -1054,7 +1186,6 @@
             alert(`🎉 已成功完成全數 ${count} 組預組隊伍的渡劫配對！`);
         };
 
-        // 清空所有預組隊伍（附帶 5 秒確認倒數）
         window.clearAllPresetsWithConfirm = function() {
             const btn = document.getElementById('btnClearPresets');
             if (presetTeams.length === 0) return alert("目前沒有預組隊伍！");
@@ -1126,9 +1257,9 @@
                         <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
                     </div>
                     <div class="preset-actions">
-                        <button class="btn-primary" style="padding: 6px 12px; font-size: 0.82rem; min-height:40px;" onclick="generateFromPreset('${p.id}', event)">⚡ 直接擲球配對</button>
-                        <button class="btn-copy" style="min-height:40px;" onclick="loadPresetToMain('${p.id}')">帶入資料</button>
-                        <button class="btn-danger" style="min-height:40px;" onclick="deletePreset('${p.id}', event)">刪除</button>
+                        <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; min-height:38px;" onclick="generateFromPreset('${p.id}', event)">⚡ 直接擲球配對</button>
+                        <button class="btn-copy" style="min-height:38px;" onclick="loadPresetToMain('${p.id}')">帶入資料</button>
+                        <button class="btn-danger" style="min-height:38px;" onclick="deletePreset('${p.id}', event)">刪除</button>
                     </div>
                 </div>`;
             });
@@ -1374,7 +1505,6 @@
                     for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
                         let group = currentPlayers.slice(i, i + selectedTeamSize);
                         
-                        // 1. 降低 50% 「團團」與「圓圓」的組隊機率
                         if (group.includes("團團") && group.includes("圓圓")) {
                             if (Math.random() < 0.5) {
                                 isValid = false;
@@ -1398,7 +1528,6 @@
                         tempTeams.push(group);
                     }
 
-                    // 2. 增加 50% 「圓圓」與「圓仔」的組隊機率
                     if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
                         if (Math.random() < 0.5) {
                             isValid = false;
@@ -1431,7 +1560,6 @@
             if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
             set(historyRef, updatedHistory);
 
-            // 如果是以預組隊伍帶入並組隊完成，自動刪除該筆預組資料
             if (activePresetId) {
                 let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
                 set(presetsRef, updatedPresets);
@@ -1568,9 +1696,9 @@
 
         function renderCurrentResult(round) {
             const calUrl = generateGoogleCalendarUrl(round);
-            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.8rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 8px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 加入行事曆</a>` : '';
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
             let html = `<div class="pop-in">`;
-            html += `<div class="result-item" style="background:#EBF3FF; color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
+            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -1588,6 +1716,7 @@
             renderHistory();
         };
 
+        /* 渲染歷史紀錄：依照時間順序 (舊->新) 且全收攏等待展開 */
         function renderHistory() {
             const historyContainer = document.getElementById('historyList');
             const toggleBtn = document.getElementById('toggleHistoryBtn');
@@ -1610,11 +1739,18 @@
                 return;
             }
 
-            const sortedHistory = getSortedHistory(filteredRounds);
-            const displayRounds = isHistoryExpanded ? sortedHistory : sortedHistory.slice(0, 1);
+            const sortedHistory = getChronologicalHistory(filteredRounds);
+
+            /* 未展開時不直接渲染任何卡片，收攏等待展開 */
+            if (!isHistoryExpanded) {
+                historyContainer.innerHTML = '';
+                toggleBtn.style.display = 'block';
+                toggleBtn.innerText = `👇 展開對戰圖鑑紀錄 (共 ${filteredRounds.length} 筆)`;
+                return;
+            }
 
             let html = "";
-            displayRounds.forEach((round) => {
+            sortedHistory.forEach((round) => {
                 const originalIndex = round.originalIndex;
                 let restaurantHtml = formatRestaurantHTML(round, originalIndex);
                 let teamsHtml = round.teams.map((t, idx) => {
@@ -1627,11 +1763,11 @@
                     <div class="history-header">
                         <div class="history-date-title">
                             📅 ${formatDateWithDay(round.eventDate)}
-                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="margin-left:6px; font-size:0.78rem; background:#EBF3FF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 加入行事曆</a>
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="margin-left:6px; font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
                         </div>
                         <div class="action-group">
-                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯對戰</button>
-                            <button class="btn-danger" style="padding: 6px 10px; min-height: 38px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
+                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
+                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
                             <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
                             <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
                         </div>
@@ -1645,15 +1781,8 @@
             });
 
             historyContainer.innerHTML = html;
-
-            if (filteredRounds.length > 1) {
-                toggleBtn.style.display = 'block';
-                toggleBtn.innerText = isHistoryExpanded 
-                    ? `👆 收合對戰圖鑑` 
-                    : `👇 展開更多紀錄 (共 ${filteredRounds.length} 筆符合條件紀錄)`;
-            } else {
-                toggleBtn.style.display = 'none';
-            }
+            toggleBtn.style.display = 'block';
+            toggleBtn.innerText = `👆 收合對戰圖鑑`;
         }
 
         window.openEditModal = function(index) {
@@ -1725,8 +1854,8 @@
             teamsContainer.innerHTML = '';
             editingModalData.teams.forEach((team, tIdx) => {
                 const groupDiv = document.createElement('div');
-                groupDiv.style.marginBottom = '10px';
-                groupDiv.innerHTML = `<div style="font-size:0.85rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
+                groupDiv.style.marginBottom = '8px';
+                groupDiv.innerHTML = `<div style="font-size:0.82rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
                 const dropZone = document.createElement('div');
                 dropZone.className = 'drop-zone';
                 dropZone.dataset.teamIndex = tIdx;
