@@ -1195,7 +1195,7 @@
             if (totalAvail <= 0 || totalAvail < neededCount) {
                 matchPoolsData.pools.forEach(p => p.count = 0);
                 set(matchPoolsRef, matchPoolsData);
-                alert("請支援收銀!!!");
+                alert("懇請銀彈支援");
                 if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
                 return;
             }
@@ -2100,19 +2100,44 @@
                     return array;
                 }
 
-                function isPairInRecentHistory(p1, p2, recentRoundsCount) {
-                    const recentRounds = historyRounds.slice(-recentRoundsCount);
-                    return recentRounds.some(round => 
-                        round.teams.some(team => team.includes(p1) && team.includes(p2))
+                function isPlayerInBye(byeData, player) {
+                    if (!byeData) return false;
+                    if (Array.isArray(byeData)) return byeData.includes(player);
+                    if (typeof byeData === 'string') {
+                        return byeData.split(',').map(s => s.trim()).includes(player);
+                    }
+                    return false;
+                }
+
+                function isPairInSurroundingRounds(p1, p2, targetDateVal, recentRoundsCount) {
+                    if (!historyRounds || historyRounds.length === 0 || recentRoundsCount === 0) return false;
+                    const sorted = getChronologicalHistory(historyRounds);
+                    const beforeRounds = sorted.filter(r => r.eventDate < targetDateVal).slice(-recentRoundsCount);
+                    const afterRounds = sorted.filter(r => r.eventDate > targetDateVal).slice(0, recentRoundsCount);
+                    const surroundingRounds = [...beforeRounds, ...afterRounds];
+
+                    return surroundingRounds.some(round =>
+                        round.teams && round.teams.some(team => team.includes(p1) && team.includes(p2))
                     );
                 }
 
-                function isByeInRecentHistory(player, recentRoundsCount) {
-                    const recentRounds = historyRounds.slice(-recentRoundsCount);
-                    return recentRounds.some(round => {
-                        if (Array.isArray(round.bye)) return round.bye.includes(player);
-                        return round.bye === player;
+                /* 判斷爽打：以「確實有產生爽打人員的場次」作為計算基準的前後 N 次 */
+                function isByeInSurroundingRounds(player, targetDateVal, recentByeCount) {
+                    if (!historyRounds || historyRounds.length === 0 || recentByeCount === 0) return false;
+                    const sorted = getChronologicalHistory(historyRounds);
+
+                    // 僅篩選出「確實有爽打（輪空）」紀錄的場次
+                    const roundsWithBye = sorted.filter(r => {
+                        if (!r.bye) return false;
+                        if (Array.isArray(r.bye)) return r.bye.length > 0;
+                        return String(r.bye).trim().length > 0;
                     });
+
+                    const beforeByeRounds = roundsWithBye.filter(r => r.eventDate < targetDateVal).slice(-recentByeCount);
+                    const afterByeRounds = roundsWithBye.filter(r => r.eventDate > targetDateVal).slice(0, recentByeCount);
+                    const surroundingByeRounds = [...beforeByeRounds, ...afterByeRounds];
+
+                    return surroundingByeRounds.some(round => isPlayerInBye(round.bye, player));
                 }
 
                 let validMatchFound = false;
@@ -2138,7 +2163,7 @@
                             const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                             for (let r = 0; r < remainder; r++) {
                                 let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }))
-                                                               .filter(c => !isByeInRecentHistory(c.name, level.byeHistory));
+                                                               .filter(c => !isByeInSurroundingRounds(c.name, eventDateVal, level.byeHistory));
                                 if (candidates.length === 0) {
                                     candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
                                 }
@@ -2182,7 +2207,7 @@
 
                             for (let a = 0; a < group.length; a++) {
                                 for (let b = a + 1; b < group.length; b++) {
-                                    if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
+                                    if (isPairInSurroundingRounds(group[a], group[b], eventDateVal, level.pairHistory)) {
                                         isValid = false; break;
                                     }
                                 }
