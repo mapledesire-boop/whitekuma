@@ -335,7 +335,7 @@
             border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
         }
         .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; }
+        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
         .history-teams { 
             font-size: 0.86rem; line-height: 1.5; padding-top: 8px;
             border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
@@ -529,7 +529,7 @@
         </div>
     </div>
 
-    <!-- 6. 本次結果區塊 -->
+    <!-- 6. 本次結果區塊 (配對結果不再顯示場次資訊，因為尚未對戰) -->
     <div class="box" id="currentResultSection">
         <div class="section-header">
             <h3>🔴 本次配對結果</h3>
@@ -568,7 +568,7 @@
         <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
     </div>
 
-    <!-- 8. 對戰場次管理專區 (位於頁面尾部，已移除密碼備註提示) -->
+    <!-- 8. 對戰場次管理專區 (位於頁面尾部) -->
     <div class="box" style="margin-top: 18px; border-color: #D8B4FE; background: #FAF5FF;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
@@ -606,7 +606,7 @@
         </div>
     </div>
 
-    <!-- 🔢 輸入場次數字 Modal (取代原本的 prompt 視窗) -->
+    <!-- 🔢 輸入場次數字 Modal -->
     <div id="matchInputModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -828,8 +828,8 @@
         let customRestaurants = [];
         let presetTeams = [];
         let activePresetId = null;
-        let upcomingMatchUsage = null; // { base: number, bonus: number, basePoolId: string, bonusPoolId: string }
-        let currentInputMode = 'base'; // 'base' or 'bonus'
+        let upcomingMatchUsage = null;
+        let currentInputMode = 'base';
 
         let matchPoolsData = {
             lastUpdatedDate: "",
@@ -909,7 +909,6 @@
             return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
         }
 
-        /* 更新最上方總場次列與相關 UI */
         function updateTopMatchesSummary() {
             const total = calculateTotalMatches();
             const totalEl = document.getElementById('topTotalSummary');
@@ -960,7 +959,6 @@
             document.getElementById('upcomingModal').style.display = 'none';
         };
 
-        /* 彈出視窗：設定本次場次 */
         window.triggerSetBaseMatches = function() {
             closeUpcomingModal();
             currentInputMode = 'base';
@@ -978,7 +976,6 @@
             }, 100);
         };
 
-        /* 彈出視窗：設定主委加碼 */
         window.triggerSetBonusMatches = function() {
             closeUpcomingModal();
             currentInputMode = 'bonus';
@@ -1370,7 +1367,6 @@
                 });
             }
             if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
-            if (round.usedPoolName) detailsText += `扣除場次池：${round.usedPoolName}\n`;
             const details = encodeURIComponent(detailsText);
             const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
             return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
@@ -1611,6 +1607,7 @@
                          .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
         }
 
+        /* 預訂對戰圖鑑 (持續顯示預訂與場次紀錄資訊，因為正在對戰中) */
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
             if (historyRounds.length === 0) {
@@ -1636,7 +1633,11 @@
                 html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
-            if (target.usedPoolName) html += `<div class="result-item">扣除場次池：<span class="pool-badge">${target.usedPoolName}</span></div>`;
+            if (target.matchUsageText) {
+                html += `<div class="result-item">🎯 對戰場次：<span class="pool-badge">${target.matchUsageText}</span> <span class="pool-badge" style="background:#F3E8FF; color:#8B5CF6;">${target.usedPoolName || '預設對戰'}</span></div>`;
+            } else if (target.usedPoolName) {
+                html += `<div class="result-item">扣除場次池：<span class="pool-badge">${target.usedPoolName}</span></div>`;
+            }
             html += `</div>`;
 
             container.innerHTML = html;
@@ -2068,9 +2069,19 @@
             if (players.length < selectedTeamSize) return alert(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
 
             const numTeams = Math.floor(players.length / selectedTeamSize);
-            const neededMatches = numTeams > 0 ? numTeams : 1;
+            const defaultNeeded = numTeams > 0 ? numTeams : 1;
 
-            executeMatchDeductions(neededMatches, (deductRes) => {
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            const baseCnt = usage.base || 0;
+            const bonusCnt = usage.bonus || 0;
+            const totalMatchesUsed = (baseCnt + bonusCnt) > 0 ? (baseCnt + bonusCnt) : defaultNeeded;
+
+            let matchUsageStr = `${totalMatchesUsed} 場`;
+            if (bonusCnt > 0) {
+                matchUsageStr = `${totalMatchesUsed} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
+            }
+
+            executeMatchDeductions(defaultNeeded, (deductRes) => {
                 if (!deductRes || !deductRes.success) {
                     return;
                 }
@@ -2204,7 +2215,9 @@
                     mapUrl: restaurantData.url,
                     teams: bestTeams,
                     bye: byeString,
-                    usedPoolName: deductRes.usedPoolName || "預設對戰"
+                    usedPoolName: deductRes.usedPoolName || "預設對戰",
+                    usedMatchesCount: totalMatchesUsed,
+                    matchUsageText: matchUsageStr
                 };
 
                 currentSessionResult = newRound;
@@ -2213,6 +2226,9 @@
                 let updatedHistory = [...historyRounds, newRound];
                 if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
                 set(historyRef, updatedHistory);
+
+                // 成功配對後清空本次設定，使其轉為歷史紀錄
+                set(upcomingUsageRef, null);
 
                 if (activePresetId) {
                     let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
@@ -2249,6 +2265,7 @@
             </div>`;
         }
 
+        /* 複製與 LINE 分享文字格式：不包含場次紀錄，維持分享內容簡潔 */
         async function formatRoundText(round) {
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
             const calUrl = generateGoogleCalendarUrl(round);
@@ -2279,7 +2296,6 @@
                 lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
             });
             if (round.bye) lines.push(`此次爽打：${round.bye}`);
-            if (round.usedPoolName) lines.push(`🎯 扣除場次池：${round.usedPoolName}`);
 
             return lines.join('\n');
         }
@@ -2349,6 +2365,7 @@
             }
         }
 
+        /* 本次配對結果渲染 (因為對戰尚未開始，不顯示場次紀錄) */
         function renderCurrentResult(round) {
             const calUrl = generateGoogleCalendarUrl(round);
             let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
@@ -2360,7 +2377,6 @@
                 html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
-            if (round.usedPoolName) html += `<div class="result-item">扣除場次池：<span class="pool-badge">${round.usedPoolName}</span></div>`;
             html += `</div>`;
             document.getElementById('currentResult').innerHTML = html;
             document.getElementById('copyCurrentBtn').style.display = 'inline-flex';
@@ -2372,6 +2388,7 @@
             renderHistory();
         };
 
+        /* 歷史紀錄渲染 (完整呈現場次紀錄於日期的正後方) */
         function renderHistory() {
             const historyContainer = document.getElementById('historyList');
             const toggleBtn = document.getElementById('toggleHistoryBtn');
@@ -2412,13 +2429,23 @@
                     return `<div>第 ${idx + 1} 組：${badges}</div>`;
                 }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+                
+                // 場次紀錄標籤：顯示在日期的正後方（無數據則不顯示）
+                let matchBadgeHtml = '';
+                if (round.matchUsageText) {
+                    matchBadgeHtml = `<span class="pool-badge" style="font-size:0.76rem; padding: 2px 7px;">🎯 場次: ${round.matchUsageText}</span>`;
+                } else if (round.usedMatchesCount) {
+                    matchBadgeHtml = `<span class="pool-badge" style="font-size:0.76rem; padding: 2px 7px;">🎯 場次: ${round.usedMatchesCount} 場</span>`;
+                }
+
                 let poolHtml = round.usedPoolName ? `<div class="full-width">扣除場次池：<span class="pool-badge">${round.usedPoolName}</span></div>` : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
-                            📅 ${formatDateWithDay(round.eventDate)}
-                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="margin-left:6px; font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
+                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
+                            ${matchBadgeHtml}
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
                         </div>
                         <div class="action-group">
                             <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
