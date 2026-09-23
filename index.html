@@ -16,6 +16,8 @@
             --poke-yellow: #FFCB05;        /* 皮卡丘電光黃 */
             --poke-blue: #2A75BB;          /* 寶可夢藍 */
             --poke-blue-light: #EBF3FF;
+            --poke-purple: #8B5CF6;        /* 超能力紫 */
+            --poke-purple-light: #F3E8FF;
             --line-green: #06C755;         /* LINE 綠色 */
             --text-main: #1E293B;          /* 深灰文字 */
             --text-sub: #64748B;
@@ -29,30 +31,115 @@
         
         body { 
             font-family: 'M PLUS Rounded 1c', -apple-system, sans-serif;
-            max-width: 500px; margin: 0 auto; padding: 12px 10px 40px 10px; 
+            max-width: 500px; margin: 0 auto; padding: 12px 12px 50px 12px; 
             background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
         }
 
         /* 標題區 */
-        .header-container { text-align: center; margin: 6px 0 12px 0; }
+        .header-container { text-align: center; margin: 4px 0 10px 0; }
         .header-title-box {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
             background: #FFFFFF; padding: 8px 20px; border-radius: 30px;
             border: 2px solid var(--poke-red); box-shadow: 0 4px 14px rgba(255, 83, 80, 0.15);
         }
-        .header-img { width: 34px; height: 34px; object-fit: contain; }
+        .header-img { width: 32px; height: 32px; object-fit: contain; }
         .header-title { 
             font-size: 1.25rem; font-weight: 900; color: #2C2C2C; 
             margin: 0; letter-spacing: 0.5px;
         }
         .subtitle { 
-            font-size: 0.82rem; color: var(--poke-red); margin-top: 6px; font-weight: 800;
+            font-size: 0.8rem; color: var(--poke-red); margin-top: 4px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; gap: 4px;
+        }
+
+        /* 總場次資訊列 (位於標題下方、預訂對戰圖鑑上方) */
+        .top-summary-bar {
+            background: linear-gradient(135deg, #2A75BB 0%, #8B5CF6 100%);
+            color: #FFFFFF;
+            border-radius: var(--radius-sm);
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            box-shadow: 0 4px 14px rgba(42, 117, 187, 0.18);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .top-summary-total {
+            color: #FFCB05;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+        }
+        .top-summary-pools {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+        }
+        .top-summary-item {
+            background: rgba(255, 255, 255, 0.22);
+            padding: 3px 10px;
+            border-radius: 12px;
+            white-space: nowrap;
+            font-size: 0.78rem;
+            backdrop-filter: blur(4px);
+        }
+
+        /* 本次使用場次按鈕 (預訂對戰圖鑑標題右側) */
+        .btn-usage-badge {
+            background: #FFF7D6;
+            border: 1.5px solid #FFE885;
+            color: #8A6D00;
+            font-weight: 800;
+            border-radius: 20px;
+            padding: 5px 12px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            min-height: 34px;
+        }
+        .btn-usage-badge:active {
+            transform: scale(0.95);
+            background: #FFE885;
+        }
+        .btn-usage-badge.has-value {
+            background: #E6F9ED;
+            border-color: #A3E9BC;
+            color: #047857;
+            font-weight: 900;
+        }
+
+        /* 扣除場次池專用 Badge 樣式 */
+        .pool-badge-style {
+            background: #F3E8FF;
+            border: 1.5px solid #D8B4FE;
+            color: #6B21A8;
+        }
+        .pool-badge-style:active {
+            background: #E9D5FF;
+        }
+        .pool-badge-style.has-value {
+            background: #E9D5FF;
+            border-color: #8B5CF6;
+            color: #5B21B6;
+            font-weight: 900;
         }
 
         /* 預組隊伍庫觸發按鈕 */
         .btn-preset-trigger {
-            margin-top: 10px;
+            margin-top: 4px;
+            margin-bottom: 12px;
             width: 100%;
             padding: 10px 14px;
             background: #FFFFFF;
@@ -75,6 +162,29 @@
             background: var(--poke-blue-light);
         }
 
+        /* 場次管理觸發按鈕 (頁尾) */
+        .btn-pool-trigger {
+            width: 100%;
+            padding: 12px 16px;
+            background: #FFFFFF;
+            border: 2px solid var(--poke-purple);
+            color: var(--poke-purple);
+            border-radius: var(--radius-lg);
+            font-weight: 900;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-poke);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+        }
+        .btn-pool-trigger:active {
+            transform: scale(0.98);
+            background: var(--poke-purple-light);
+        }
+
         /* 卡片通用區塊 */
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
@@ -88,14 +198,14 @@
         
         .input-group { margin-bottom: 12px; position: relative; }
         
-        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], textarea { 
+        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], textarea { 
             width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none;
             min-height: 46px;
         }
         
-        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, textarea:focus { 
+        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, textarea:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; 
             box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
         }
@@ -128,7 +238,7 @@
         .btn-sm-manage:active { background: #E2E8F0; transform: scale(0.95); }
 
         .modal-rest-list {
-            max-height: 220px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
+            max-height: 260px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm);
             border: 1px solid #E2E8F0;
         }
         .modal-rest-item {
@@ -180,7 +290,7 @@
         .btn-secondary { background-color: #F1F5F9; color: #475569; border: 2px solid #CBD5E1; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
-        .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter {
+        .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter, .btn-purple {
             white-space: nowrap; flex-shrink: 0; font-size: 0.8rem; font-weight: 800; 
             border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex;
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
@@ -192,7 +302,9 @@
         .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
         .btn-edit { background-color: #FFF7D6; color: #8A6D00; border: 1.5px solid #FFE885; }
         .btn-filter { background-color: var(--poke-blue); color: #FFFFFF; border: 1.5px solid #1D588F; }
-        .btn-filter:active { transform: scale(0.95); }
+        .btn-purple { background-color: var(--poke-purple-light); color: var(--poke-purple); border: 1.5px solid #D8B4FE; }
+        .btn-filter:active, .btn-purple:active { transform: scale(0.95); }
+        
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; flex-wrap: wrap; }
         .section-header h3 { margin: 0; font-size: 0.98rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         
@@ -232,7 +344,8 @@
         }
         .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
-        
+        .pool-badge { background: var(--poke-purple-light); color: var(--poke-purple); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #D8B4FE; display: inline-block; }
+
         .history-card {
             background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px;
             border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
@@ -316,10 +429,11 @@
         }
         .draggable-player .btn-del-p:active { background: var(--poke-red); color: white; }
 
-        .preset-card {
+        .preset-card, .pool-card {
             background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: var(--radius-sm);
-            padding: 10px 12px; margin-bottom: 10px; position: relative; transition: var(--transition);
+            padding: 12px; margin-bottom: 10px; position: relative; transition: var(--transition);
         }
+        .pool-card { border-color: #E9D5FF; }
         .preset-card:active { background: var(--poke-blue-light); border-color: var(--poke-blue); }
         .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.92rem; margin-bottom: 4px; }
         .preset-details { font-size: 0.82rem; color: #475569; font-weight: 700; line-height: 1.5; }
@@ -330,6 +444,22 @@
             padding: 8px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 800;
         }
         .trainer-list-item:last-child { border-bottom: none; }
+
+        /* 場次池卡片與總和顯示 */
+        .total-matches-box {
+            background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
+            color: #FFFFFF; border-radius: var(--radius-sm); padding: 14px 16px;
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 14px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+        }
+        .total-matches-title { font-size: 1rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .total-matches-count { font-size: 1.6rem; font-weight: 900; color: #FFCB05; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+
+        .pool-item-row {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 8px;
+        }
+        .pool-item-row input[type="text"] { flex: 1.2; }
+        .pool-item-row input[type="number"] { flex: 0.8; text-align: center; }
     </style>
 </head>
 <body>
@@ -344,22 +474,34 @@
         </div>
     </div>
 
-    <!-- 2. 置頂「預訂對戰圖鑑」 -->
+    <!-- 2. 總場次資訊列 (位於標題下方、預訂對戰圖鑑上方) -->
+    <div class="top-summary-bar" id="topMatchesSummaryBar">
+        <span class="top-summary-total" id="topTotalSummary">總場次: 0 場</span>
+        <div class="top-summary-pools" id="topPoolsSummaryList"></div>
+    </div>
+
+    <!-- 3. 置頂「預訂對戰圖鑑」卡片 -->
     <div class="box" id="upcomingHistoryBox">
-        <div class="section-header">
+        <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
+            <!-- 右側單一按鈕：本次使用場次 (整合場次數量與扣除場次池選擇功能) -->
+            <div>
+                <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">
+                    🎯 本次場次
+                </button>
+            </div>
         </div>
         <div id="upcomingHistoryContent">
             <div class="empty-text">載入預訂對戰紀錄中...</div>
         </div>
     </div>
 
-    <!-- 3. 「預組隊伍庫」按鈕 -->
-    <button class="btn-preset-trigger" style="margin-bottom: 12px;" onclick="openPresetModal()">
+    <!-- 4. 按鈕區：預組隊伍庫 -->
+    <button class="btn-preset-trigger" onclick="openPresetModal()">
         📅 預組隊伍庫 <span id="presetBadgeCount">(0)</span>
     </button>
 
-    <!-- 4. 輸入區塊 -->
+    <!-- 5. 輸入區塊 -->
     <div class="box">
         <div class="input-group">
             <label>📅 活動日期與時間</label>
@@ -402,7 +544,7 @@
         </div>
     </div>
 
-    <!-- 5. 本次結果區塊 -->
+    <!-- 6. 本次結果區塊 -->
     <div class="box" id="currentResultSection">
         <div class="section-header">
             <h3>🔴 本次配對結果</h3>
@@ -414,7 +556,7 @@
         <div id="currentResult"><div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div></div>
     </div>
 
-    <!-- 6. 歷史紀錄區塊 -->
+    <!-- 7. 歷史紀錄區塊 -->
     <div class="box">
         <div class="section-header">
             <h3>📖 訓練家對戰圖鑑</h3>
@@ -439,6 +581,62 @@
 
         <div id="historyList"><div class="empty-text">連線至 Firebase 中...</div></div>
         <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
+    </div>
+
+    <!-- 8. 對戰場次管理專區 (位於頁面尾部，已移除密碼備註提示) -->
+    <div class="box" style="margin-top: 18px; border-color: #D8B4FE; background: #FAF5FF;">
+        <div class="section-header" style="margin-bottom: 8px;">
+            <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
+        </div>
+        <button class="btn-pool-trigger" onclick="openPoolManagementModal()">
+            <span>🔐 進入場次管理專區</span>
+            <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙️</span>
+        </button>
+    </div>
+
+    <!-- 🎯 對戰場次管理 Modal -->
+    <div id="poolModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🎯 對戰場次管理專區</h3>
+                <button class="modal-close" onclick="closePoolManagementModal()">✖</button>
+            </div>
+
+            <div class="total-matches-box">
+                <div class="total-matches-title">
+                    <span>🏆 總場次 (全部池加總)</span>
+                </div>
+                <div class="total-matches-count" id="modalTotalMatches">0</div>
+            </div>
+
+            <div style="font-size: 0.82rem; color: #64748B; font-weight: 800; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
+                <span>✨ 每日跨日全體場次池自動 +3</span>
+                <span id="lastAutoIncText" style="color:var(--poke-purple);">跨日檢查中...</span>
+            </div>
+
+            <label>🎯 場次池列表與數值設定：</label>
+            <div id="poolListContainer" style="margin-bottom: 12px;"></div>
+
+            <div class="btn-action" style="margin-top: 14px;">
+                <button class="action-btn btn-purple" style="flex:1;" onclick="addNewPool()">➕ 新增場次池</button>
+                <button class="action-btn btn-primary" style="flex:1;" onclick="savePoolsFromModal()">💾 儲存修改</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🎯 選擇扣除場次池 Modal -->
+    <div id="selectPoolModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="selectPoolModalTitle">🎯 選擇要扣除場次池</h3>
+                <button class="modal-close" onclick="closeSelectPoolModal()">✖</button>
+            </div>
+            <p id="selectPoolModalSubtext" style="font-size:0.88rem; font-weight:800; color:#475569; margin-top:0;">請選擇扣除此場次扣量的場次池：</p>
+            <div id="selectPoolModalList" class="size-option-list"></div>
+            <div class="btn-action" style="margin-top: 12px;">
+                <button class="action-btn btn-secondary" onclick="closeSelectPoolModal()">取消</button>
+            </div>
+        </div>
     </div>
 
     <!-- ⚙️ 登場訓練家管理 Modal -->
@@ -584,6 +782,8 @@
         const customRestaurantsRef = ref(db, 'customRestaurants');
         const presetsRef = ref(db, 'presetTeams');
         const trainerPresetsRef = ref(db, 'trainerPresets');
+        const matchPoolsRef = ref(db, 'matchPoolsData');
+        const upcomingUsageRef = ref(db, 'upcomingMatchUsage');
 
         let defaultPresetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
@@ -596,6 +796,19 @@
         let customRestaurants = [];
         let presetTeams = [];
         let activePresetId = null;
+        let upcomingMatchUsage = null;
+
+        let matchPoolsData = {
+            lastUpdatedDate: "",
+            pools: [
+                { id: "pool_1", name: "場次池 A", count: 10 },
+                { id: "pool_2", name: "場次池 B", count: 10 },
+                { id: "pool_3", name: "場次池 C", count: 10 },
+                { id: "pool_4", name: "場次池 D", count: 10 },
+                { id: "pool_5", name: "場次池 E", count: 10 }
+            ]
+        };
+        let selectedDeductionPoolId = "";
 
         let presetClearStep = 0;
         let presetClearTimer = null;
@@ -613,6 +826,324 @@
             teams: [],
             bye: ''
         };
+
+        function getTodayDateString() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function checkAndApplyDailyAutoIncrement(data) {
+            if (!data || !data.pools) return data;
+            const todayStr = getTodayDateString();
+            if (!data.lastUpdatedDate) {
+                data.lastUpdatedDate = todayStr;
+                return data;
+            }
+
+            if (data.lastUpdatedDate < todayStr) {
+                const d1 = new Date(data.lastUpdatedDate);
+                const d2 = new Date(todayStr);
+                const diffTime = Math.abs(d2 - d1);
+                const diffDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+                
+                data.pools.forEach(pool => {
+                    pool.count = (Number(pool.count) || 0) + (diffDays * 3);
+                });
+                data.lastUpdatedDate = todayStr;
+                set(matchPoolsRef, data);
+            }
+            return data;
+        }
+
+        function calculateTotalMatches() {
+            if (!matchPoolsData || !matchPoolsData.pools) return 0;
+            return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
+        }
+
+        /* 更新最上方總場次列與相關 UI */
+        function updateTopMatchesSummary() {
+            const total = calculateTotalMatches();
+            const totalEl = document.getElementById('topTotalSummary');
+            if (totalEl) totalEl.innerText = `總場次: ${total} 場`;
+
+            const listEl = document.getElementById('topPoolsSummaryList');
+            if (listEl && matchPoolsData && matchPoolsData.pools) {
+                let html = '';
+                matchPoolsData.pools.forEach(pool => {
+                    html += `<span class="top-summary-item">${pool.name}: ${pool.count}</span>`;
+                });
+                listEl.innerHTML = html;
+            }
+        }
+
+        function updateUpcomingUsageUI() {
+            const btn = document.getElementById('btnUpcomingMatchUsage');
+            if (!btn) return;
+
+            if (upcomingMatchUsage !== null && upcomingMatchUsage !== undefined && upcomingMatchUsage !== "") {
+                btn.classList.add('has-value');
+                btn.innerHTML = `🎯 本次場次: ${upcomingMatchUsage}`;
+            } else {
+                btn.classList.remove('has-value');
+                btn.innerHTML = `🎯 本次場次`;
+            }
+        }
+
+        window.handleUpcomingUsageClick = function() {
+            const currentStr = (upcomingMatchUsage !== null && upcomingMatchUsage !== undefined) ? String(upcomingMatchUsage) : "";
+
+            const promptMsg = currentStr 
+                ? `【設定本次對戰】\n目前設定之本次場次: ${currentStr} 場\n\n・輸入數字修改場次\n・直接點「確定」(不改數字)繼續選擇/更換扣除場次池\n・留白或輸入 0 清除設定：` 
+                : `請輸入本次對戰之預定「本次場次」數量：`;
+            
+            const input = prompt(promptMsg, currentStr);
+            if (input === null) return;
+            
+            const trimmed = input.trim();
+            if (trimmed === "" || trimmed === "0") {
+                set(upcomingUsageRef, null);
+                selectedDeductionPoolId = "";
+                updatePoolsUI();
+                alert("已清除本次場次與扣除池設定！");
+            } else {
+                const num = parseInt(trimmed, 10);
+                if (isNaN(num) || num < 0) {
+                    alert("請輸入有效的正整數數字！");
+                    return;
+                }
+                
+                // 只有確定選擇卡池後才儲存場次數量；若選擇取消未選擇卡池，則不變更場次並維持原樣
+                setTimeout(() => {
+                    openPoolSelectionForAction((chosenPoolId) => {
+                        set(upcomingUsageRef, num);
+                        selectedDeductionPoolId = chosenPoolId;
+                        updatePoolsUI();
+                    }, "請選擇本次擲球對戰要扣除的場次池：", () => {
+                        // 取消時重繪 UI，確保按鈕維持原樣
+                        updatePoolsUI();
+                    });
+                }, 100);
+            }
+        };
+
+        let onPoolSelectCallback = null;
+        let onPoolCancelCallback = null;
+
+        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null) {
+            onPoolSelectCallback = callback;
+            onPoolCancelCallback = cancelCallback;
+            document.getElementById('selectPoolModalSubtext').innerText = titleText;
+            const container = document.getElementById('selectPoolModalList');
+            
+            // 僅篩選出仍有剩餘場次 (>0) 的場池
+            const availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
+
+            let html = `<button class="size-option-btn ${!selectedDeductionPoolId ? 'active' : ''}" onclick="confirmPoolSelect('')">🔄 依序自動扣除其餘場次池</button>`;
+            
+            if (availablePools.length === 0) {
+                html += `<div class="empty-text" style="color:var(--poke-red); font-weight:900;">⚠️ 目前無任何剩餘場次池！</div>`;
+            } else {
+                availablePools.forEach(pool => {
+                    const isActive = selectedDeductionPoolId === pool.id;
+                    html += `<button class="size-option-btn ${isActive ? 'active' : ''}" onclick="confirmPoolSelect('${pool.id}')">🎯 ${pool.name} (剩餘 ${pool.count} 場)</button>`;
+                });
+            }
+            container.innerHTML = html;
+            document.getElementById('selectPoolModal').style.display = 'flex';
+        }
+
+        window.confirmPoolSelect = function(poolId) {
+            const cb = onPoolSelectCallback;
+            onPoolSelectCallback = null;
+            onPoolCancelCallback = null;
+            document.getElementById('selectPoolModal').style.display = 'none';
+            if (cb) {
+                cb(poolId);
+            }
+        };
+
+        window.closeSelectPoolModal = function() {
+            const cancelCb = onPoolCancelCallback;
+            onPoolSelectCallback = null;
+            onPoolCancelCallback = null;
+            document.getElementById('selectPoolModal').style.display = 'none';
+            if (cancelCb) {
+                cancelCb();
+            }
+        };
+
+        function updatePoolsUI() {
+            const total = calculateTotalMatches();
+            const badge = document.getElementById('mainTotalMatchesBadge');
+            if (badge) badge.innerText = total;
+
+            const modalTotal = document.getElementById('modalTotalMatches');
+            if (modalTotal) modalTotal.innerText = total;
+
+            const lastIncText = document.getElementById('lastAutoIncText');
+            if (lastIncText) {
+                lastIncText.innerText = matchPoolsData.lastUpdatedDate ? `上次結算: ${matchPoolsData.lastUpdatedDate}` : '今日已跨日更新';
+            }
+
+            updateTopMatchesSummary();
+            updateUpcomingUsageUI();
+        }
+
+        window.openPoolManagementModal = function() {
+            const pwd = prompt("【管理員保護】進入對戰場次管理專區，請輸入密碼：");
+            if (pwd === null) return;
+            if (pwd.trim() !== AUTH_PASSWORD) {
+                alert("密碼錯誤，無法進入對戰場次管理！");
+                return;
+            }
+            renderPoolListModal();
+            document.getElementById('poolModal').style.display = 'flex';
+        };
+
+        window.closePoolManagementModal = function() {
+            document.getElementById('poolModal').style.display = 'none';
+        };
+
+        function renderPoolListModal() {
+            const container = document.getElementById('poolListContainer');
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+            
+            let html = '';
+            matchPoolsData.pools.forEach((pool, idx) => {
+                html += `<div class="pool-item-row" id="poolRow_${pool.id}">
+                    <input type="text" id="poolName_${idx}" value="${pool.name}" placeholder="場次池名稱">
+                    <input type="number" id="poolCount_${idx}" value="${pool.count}" min="0" placeholder="數量">
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePool('${pool.id}')">🗑️</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+            updatePoolsUI();
+        }
+
+        window.addNewPool = function() {
+            const nextIdx = matchPoolsData.pools.length + 1;
+            matchPoolsData.pools.push({
+                id: 'pool_' + Date.now(),
+                name: `場次池 ${nextIdx}`,
+                count: 10
+            });
+            renderPoolListModal();
+        };
+
+        window.deletePool = function(poolId) {
+            if (matchPoolsData.pools.length <= 1) {
+                return alert("至少需保留一個對戰場次池！");
+            }
+            if (!confirm("確定要刪除此場次池嗎？")) return;
+            matchPoolsData.pools = matchPoolsData.pools.filter(p => p.id !== poolId);
+            if (selectedDeductionPoolId === poolId) selectedDeductionPoolId = "";
+            renderPoolListModal();
+        };
+
+        window.savePoolsFromModal = function() {
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+            
+            matchPoolsData.pools.forEach((pool, idx) => {
+                const nameInp = document.getElementById(`poolName_${idx}`);
+                const countInp = document.getElementById(`poolCount_${idx}`);
+                if (nameInp) pool.name = nameInp.value.trim() || `場次池 ${idx + 1}`;
+                if (countInp) pool.count = Math.max(0, parseInt(countInp.value) || 0);
+            });
+
+            matchPoolsData.lastUpdatedDate = getTodayDateString();
+            set(matchPoolsRef, matchPoolsData);
+            closePoolManagementModal();
+            alert("對戰場次池設定已成功儲存！");
+        };
+
+        window.openSelectPoolForDeductionModal = function() {
+            openPoolSelectionForAction((poolId) => {
+                selectedDeductionPoolId = poolId;
+                updatePoolsUI();
+            }, "請選擇本次擲球對戰要扣除的場次池：");
+        };
+
+        function deductMatchPoolsInteractive(neededCount, currentPoolId, onComplete) {
+            let totalAvail = calculateTotalMatches();
+            
+            // 檢查總場次是否已經歸零或不足
+            if (totalAvail <= 0 || totalAvail < neededCount) {
+                matchPoolsData.pools.forEach(p => p.count = 0);
+                set(matchPoolsRef, matchPoolsData);
+                alert("懇請銀彈支援");
+                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
+                return;
+            }
+
+            // 1. 若未指定場池，或選擇自動/依序扣除
+            if (!currentPoolId) {
+                let remaining = neededCount;
+                let usedNames = [];
+                for (let pool of matchPoolsData.pools) {
+                    let currentCount = Number(pool.count) || 0;
+                    if (currentCount > 0 && remaining > 0) {
+                        let deduct = Math.min(currentCount, remaining);
+                        pool.count = Math.max(0, currentCount - deduct);
+                        remaining -= deduct;
+                        usedNames.push(`${pool.name}(-${deduct})`);
+                    }
+                }
+                set(matchPoolsRef, matchPoolsData);
+                if (onComplete) onComplete({ success: true, usedPoolName: usedNames.join(' + ') });
+                return;
+            }
+
+            // 2. 指定扣除特定場次池
+            let targetPool = matchPoolsData.pools.find(p => p.id === currentPoolId);
+            let poolCount = targetPool ? (Number(targetPool.count) || 0) : 0;
+
+            if (!targetPool || poolCount <= 0) {
+                // 所選場池已無剩餘，跳出提示選擇其他剩餘場池
+                promptNextPoolDeduction(neededCount, `【${targetPool ? targetPool.name : '選擇的場次池'}】已無剩餘場次！請選擇其他可扣除的場池：`, onComplete);
+                return;
+            }
+
+            if (poolCount >= neededCount) {
+                // 指定場池足夠扣除
+                targetPool.count = Math.max(0, poolCount - neededCount);
+                set(matchPoolsRef, matchPoolsData);
+                if (onComplete) onComplete({ success: true, usedPoolName: targetPool.name });
+            } else {
+                // 指定場池不夠，先將該池扣至 0，再跳出剩餘場池讓使用者選擇繼續扣除
+                let deducted = poolCount;
+                targetPool.count = 0;
+                set(matchPoolsRef, matchPoolsData);
+
+                let remainingNeeded = neededCount - deducted;
+                let newTotal = calculateTotalMatches();
+
+                if (newTotal <= 0) {
+                    alert("懇請銀彈支援");
+                    if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
+                    return;
+                }
+
+                promptNextPoolDeduction(remainingNeeded, `「${targetPool.name}」已扣完 (${deducted} 場)，尚需扣除 ${remainingNeeded} 場，請選擇下一個場次池：`, onComplete);
+            }
+        }
+
+        function promptNextPoolDeduction(remainingNeeded, subtext, onComplete) {
+            let availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
+            if (availablePools.length === 0) {
+                matchPoolsData.pools.forEach(p => p.count = 0);
+                set(matchPoolsRef, matchPoolsData);
+                alert("懇請銀彈支援");
+                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
+                return;
+            }
+
+            openPoolSelectionForAction((chosenPoolId) => {
+                deductMatchPoolsInteractive(remainingNeeded, chosenPoolId, onComplete);
+            }, subtext);
+        }
 
         window.onDateInputChange = function() {
             const dateVal = document.getElementById('eventDate').value;
@@ -695,6 +1226,7 @@
                 });
             }
             if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
+            if (round.usedPoolName) detailsText += `扣除場次池：${round.usedPoolName}\n`;
             const details = encodeURIComponent(detailsText);
             const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
             return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
@@ -925,16 +1457,16 @@
             document.getElementById('nameInput').value = '';
             updateMainRestaurantUI("");
             activePresetId = null;
+            selectedDeductionPoolId = "";
+            updatePoolsUI();
             syncTagsWithTextarea();
         };
 
-        /* 按照時間順序 (舊 -> 新) 排序歷史紀錄 */
         function getChronologicalHistory(rounds = historyRounds) {
             return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
                          .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
         }
 
-        /* 渲染頂部「預訂對戰圖鑑」(保持近期最早未過期戰報) */
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
             if (historyRounds.length === 0) {
@@ -960,6 +1492,7 @@
                 html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
+            if (target.usedPoolName) html += `<div class="result-item">扣除場次池：<span class="pool-badge">${target.usedPoolName}</span></div>`;
             html += `</div>`;
 
             container.innerHTML = html;
@@ -981,54 +1514,6 @@
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
             renderHistory();
-        };
-
-        async function getShortUrl(longUrl) {
-            if (!longUrl) return '';
-            try {
-                const api = `https://is.gd/create.php?format=json&url=${encodeURIComponent(longUrl)}`;
-                const response = await fetch(api);
-                const data = await response.json();
-                if (data && data.shorturl) {
-                    return data.shorturl;
-                }
-            } catch (e) {
-                console.warn("is.gd 短網址失敗，切換備用方案:", e);
-            }
-            try {
-                const apiTiny = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(longUrl)}`;
-                const res = await fetch(apiTiny);
-                const shortText = await res.text();
-                if (shortText && shortText.startsWith('http')) return shortText.trim();
-            } catch (e) {
-                console.warn("tinyurl 短網址失敗:", e);
-            }
-            return longUrl;
-        }
-
-        async function getRangeHistoryText() {
-            const filteredRounds = getFilteredHistory();
-            if (filteredRounds.length === 0) return null;
-            const sorted = getChronologicalHistory(filteredRounds);
-            let reportLines = [];
-            for (let i = 0; i < sorted.length; i++) {
-                const formattedText = await formatRoundText(sorted[i]);
-                reportLines.push(formattedText);
-                if (i < sorted.length - 1) reportLines.push(`------------------`);
-            }
-            return reportLines.join('\n');
-        }
-
-        window.copyRangeHistory = async function() {
-            const text = await getRangeHistoryText();
-            if (!text) return alert("所選的時間區間內沒有對戰紀錄！");
-            copyToClipboard(text);
-        };
-
-        window.shareRangeHistoryToLine = async function() {
-            const text = await getRangeHistoryText();
-            if (!text) return alert("所選的時間區間內沒有對戰紀錄！");
-            shareToLine(text);
         };
 
         onValue(historyRef, (snapshot) => {
@@ -1063,6 +1548,22 @@
                 defaultPresetNames = data;
             }
             initNameTags();
+        });
+
+        onValue(matchPoolsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.pools) {
+                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
+            } else {
+                matchPoolsData.lastUpdatedDate = getTodayDateString();
+                set(matchPoolsRef, matchPoolsData);
+            }
+            updatePoolsUI();
+        });
+
+        onValue(upcomingUsageRef, (snapshot) => {
+            upcomingMatchUsage = snapshot.val();
+            updateUpcomingUsageUI();
         });
 
         window.openPresetModal = function() {
@@ -1422,149 +1923,159 @@
 
             if (players.length < selectedTeamSize) return alert(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
 
-            const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
-            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                customRestaurants.push(restaurantData.name);
-                set(customRestaurantsRef, customRestaurants);
-            }
+            const numTeams = Math.floor(players.length / selectedTeamSize);
+            const neededMatches = numTeams > 0 ? numTeams : 1;
 
-            function shuffle(array) {
-                for (let i = array.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [array[i], array[j]] = [array[j], array[i]];
+            deductMatchPoolsInteractive(neededMatches, selectedDeductionPoolId, (deductRes) => {
+                if (!deductRes || !deductRes.success) {
+                    return; // 扣除失敗或場次耗盡時中斷組隊
                 }
-                return array;
-            }
 
-            function isPairInRecentHistory(p1, p2, recentRoundsCount) {
-                const recentRounds = historyRounds.slice(-recentRoundsCount);
-                return recentRounds.some(round => 
-                    round.teams.some(team => team.includes(p1) && team.includes(p2))
-                );
-            }
+                const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
+                if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                    customRestaurants.push(restaurantData.name);
+                    set(customRestaurantsRef, customRestaurants);
+                }
 
-            function isByeInRecentHistory(player, recentRoundsCount) {
-                const recentRounds = historyRounds.slice(-recentRoundsCount);
-                return recentRounds.some(round => {
-                    if (Array.isArray(round.bye)) return round.bye.includes(player);
-                    return round.bye === player;
-                });
-            }
+                function shuffle(array) {
+                    for (let i = array.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [array[i], array[j]] = [array[j], array[i]];
+                    }
+                    return array;
+                }
 
-            let validMatchFound = false;
-            let bestTeams = [], bestBye = [];
-            const constraintLevels = [
-                { pairHistory: 3, byeHistory: 3 },
-                { pairHistory: 2, byeHistory: 2 },
-                { pairHistory: 1, byeHistory: 1 },
-                { pairHistory: 0, byeHistory: 0 }
-            ];
+                function isPairInRecentHistory(p1, p2, recentRoundsCount) {
+                    const recentRounds = historyRounds.slice(-recentRoundsCount);
+                    return recentRounds.some(round => 
+                        round.teams.some(team => team.includes(p1) && team.includes(p2))
+                    );
+                }
 
-            const hasYuanYuan = players.includes("圓圓");
-            const hasYuanZai = players.includes("圓仔");
-            const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
+                function isByeInRecentHistory(player, recentRoundsCount) {
+                    const recentRounds = historyRounds.slice(-recentRoundsCount);
+                    return recentRounds.some(round => {
+                        if (Array.isArray(round.bye)) return round.bye.includes(player);
+                        return round.bye === player;
+                    });
+                }
 
-            for (let level of constraintLevels) {
-                for (let attempt = 0; attempt < 1000; attempt++) {
-                    let currentPlayers = shuffle([...players]);
-                    let currentBye = [];
-                    const remainder = currentPlayers.length % selectedTeamSize;
+                let validMatchFound = false;
+                let bestTeams = [], bestBye = [];
+                const constraintLevels = [
+                    { pairHistory: 3, byeHistory: 3 },
+                    { pairHistory: 2, byeHistory: 2 },
+                    { pairHistory: 1, byeHistory: 1 },
+                    { pairHistory: 0, byeHistory: 0 }
+                ];
 
-                    if (remainder !== 0) {
-                        const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
-                        for (let r = 0; r < remainder; r++) {
-                            let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }))
-                                                           .filter(c => !isByeInRecentHistory(c.name, level.byeHistory));
-                            if (candidates.length === 0) {
-                                candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
+                const hasYuanYuan = players.includes("圓圓");
+                const hasYuanZai = players.includes("圓仔");
+                const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
+
+                for (let level of constraintLevels) {
+                    for (let attempt = 0; attempt < 1000; attempt++) {
+                        let currentPlayers = shuffle([...players]);
+                        let currentBye = [];
+                        const remainder = currentPlayers.length % selectedTeamSize;
+
+                        if (remainder !== 0) {
+                            const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
+                            for (let r = 0; r < remainder; r++) {
+                                let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }))
+                                                               .filter(c => !isByeInRecentHistory(c.name, level.byeHistory));
+                                if (candidates.length === 0) {
+                                    candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
+                                }
+                                
+                                let totalWeight = candidates.reduce((sum, c) => {
+                                    const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                    return sum + (isReduced ? 0.5 : 1.0);
+                                }, 0);
+
+                                let rand = Math.random() * totalWeight;
+                                let chosenIndex = candidates[0].idx;
+                                for (let c of candidates) {
+                                    const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                    const w = isReduced ? 0.5 : 1.0;
+                                    if (rand < w) {
+                                        chosenIndex = c.idx;
+                                        break;
+                                    }
+                                    rand -= w;
+                                }
+                                currentBye.push(currentPlayers.splice(chosenIndex, 1)[0]);
                             }
-                            
-                            let totalWeight = candidates.reduce((sum, c) => {
-                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                return sum + (isReduced ? 0.5 : 1.0);
-                            }, 0);
+                        }
 
-                            let rand = Math.random() * totalWeight;
-                            let chosenIndex = candidates[0].idx;
-                            for (let c of candidates) {
-                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                const w = isReduced ? 0.5 : 1.0;
-                                if (rand < w) {
-                                    chosenIndex = c.idx;
+                        let tempTeams = [], isValid = true;
+                        let isYuanYuanAndZaiPaired = false;
+
+                        for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
+                            let group = currentPlayers.slice(i, i + selectedTeamSize);
+                            
+                            if (group.includes("團團") && group.includes("圓圓")) {
+                                if (Math.random() < 0.5) {
+                                    isValid = false;
                                     break;
                                 }
-                                rand -= w;
                             }
-                            currentBye.push(currentPlayers.splice(chosenIndex, 1)[0]);
-                        }
-                    }
 
-                    let tempTeams = [], isValid = true;
-                    let isYuanYuanAndZaiPaired = false;
-
-                    for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
-                        let group = currentPlayers.slice(i, i + selectedTeamSize);
-                        
-                        if (group.includes("團團") && group.includes("圓圓")) {
-                            if (Math.random() < 0.5) {
-                                isValid = false;
-                                break;
+                            if (group.includes("圓圓") && group.includes("圓仔")) {
+                                isYuanYuanAndZaiPaired = true;
                             }
-                        }
 
-                        if (group.includes("圓圓") && group.includes("圓仔")) {
-                            isYuanYuanAndZaiPaired = true;
-                        }
-
-                        for (let a = 0; a < group.length; a++) {
-                            for (let b = a + 1; b < group.length; b++) {
-                                if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
-                                    isValid = false; break;
+                            for (let a = 0; a < group.length; a++) {
+                                for (let b = a + 1; b < group.length; b++) {
+                                    if (isPairInRecentHistory(group[a], group[b], level.pairHistory)) {
+                                        isValid = false; break;
+                                    }
                                 }
+                                if (!isValid) break;
                             }
                             if (!isValid) break;
+                            tempTeams.push(group);
                         }
-                        if (!isValid) break;
-                        tempTeams.push(group);
-                    }
 
-                    if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
-                        if (Math.random() < 0.5) {
-                            isValid = false;
+                        if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
+                            if (Math.random() < 0.5) {
+                                isValid = false;
+                            }
+                        }
+
+                        if (isValid) {
+                            bestTeams = tempTeams;
+                            bestBye = currentBye;
+                            validMatchFound = true;
+                            break;
                         }
                     }
-
-                    if (isValid) {
-                        bestTeams = tempTeams;
-                        bestBye = currentBye;
-                        validMatchFound = true;
-                        break;
-                    }
+                    if (validMatchFound) break;
                 }
-                if (validMatchFound) break;
-            }
 
-            const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
-            const newRound = {
-                eventDate: eventDateVal,
-                restaurantName: restaurantData.name,
-                mapUrl: restaurantData.url,
-                teams: bestTeams,
-                bye: byeString
-            };
+                const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
+                const newRound = {
+                    eventDate: eventDateVal,
+                    restaurantName: restaurantData.name,
+                    mapUrl: restaurantData.url,
+                    teams: bestTeams,
+                    bye: byeString,
+                    usedPoolName: deductRes.usedPoolName || "預設對戰"
+                };
 
-            currentSessionResult = newRound;
-            renderCurrentResult(newRound);
+                currentSessionResult = newRound;
+                renderCurrentResult(newRound);
 
-            let updatedHistory = [...historyRounds, newRound];
-            if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
-            set(historyRef, updatedHistory);
+                let updatedHistory = [...historyRounds, newRound];
+                if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
+                set(historyRef, updatedHistory);
 
-            if (activePresetId) {
-                let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
-                set(presetsRef, updatedPresets);
-                activePresetId = null;
-            }
+                if (activePresetId) {
+                    let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
+                    set(presetsRef, updatedPresets);
+                    activePresetId = null;
+                }
+            });
         };
 
         function formatRestaurantHTML(round, originalIndex = null) {
@@ -1598,8 +2109,7 @@
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
             const calUrl = generateGoogleCalendarUrl(round);
             if (calUrl) {
-                const shortCalUrl = await getShortUrl(calUrl);
-                lines.push(`🗓️ 加入行事曆：${shortCalUrl}`);
+                lines.push(`🗓️ 加入行事曆：${calUrl}`);
             }
 
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
@@ -1625,6 +2135,7 @@
                 lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
             });
             if (round.bye) lines.push(`此次爽打：${round.bye}`);
+            if (round.usedPoolName) lines.push(`🎯 扣除場次池：${round.usedPoolName}`);
 
             return lines.join('\n');
         }
@@ -1705,6 +2216,7 @@
                 html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
+            if (round.usedPoolName) html += `<div class="result-item">扣除場次池：<span class="pool-badge">${round.usedPoolName}</span></div>`;
             html += `</div>`;
             document.getElementById('currentResult').innerHTML = html;
             document.getElementById('copyCurrentBtn').style.display = 'inline-flex';
@@ -1716,7 +2228,6 @@
             renderHistory();
         };
 
-        /* 渲染歷史紀錄：依照時間順序 (舊->新) 且全收攏等待展開 */
         function renderHistory() {
             const historyContainer = document.getElementById('historyList');
             const toggleBtn = document.getElementById('toggleHistoryBtn');
@@ -1741,7 +2252,6 @@
 
             const sortedHistory = getChronologicalHistory(filteredRounds);
 
-            /* 未展開時不直接渲染任何卡片，收攏等待展開 */
             if (!isHistoryExpanded) {
                 historyContainer.innerHTML = '';
                 toggleBtn.style.display = 'block';
@@ -1758,6 +2268,7 @@
                     return `<div>第 ${idx + 1} 組：${badges}</div>`;
                 }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+                let poolHtml = round.usedPoolName ? `<div class="full-width">扣除場次池：<span class="pool-badge">${round.usedPoolName}</span></div>` : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
@@ -1776,6 +2287,7 @@
                         ${restaurantHtml}
                         ${teamsHtml}
                         ${byeHtml}
+                        ${poolHtml}
                     </div>
                 </div>`;
             });
