@@ -120,22 +120,6 @@
             font-weight: 900;
         }
 
-        /* 扣除場次池專用 Badge 樣式 */
-        .pool-badge-style {
-            background: #F3E8FF;
-            border: 1.5px solid #D8B4FE;
-            color: #6B21A8;
-        }
-        .pool-badge-style:active {
-            background: #E9D5FF;
-        }
-        .pool-badge-style.has-value {
-            background: #E9D5FF;
-            border-color: #8B5CF6;
-            color: #5B21B6;
-            font-weight: 900;
-        }
-
         /* 預組隊伍庫觸發按鈕 */
         .btn-preset-trigger {
             margin-top: 4px;
@@ -403,6 +387,7 @@
             padding: 12px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
             font-size: 0.95rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
             transition: var(--transition); min-height: 46px;
+            display: flex; justify-content: space-between; align-items: center;
         }
         .size-option-btn:active, .size-option-btn.active {
             background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155;
@@ -484,7 +469,7 @@
     <div class="box" id="upcomingHistoryBox">
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
-            <!-- 右側單一按鈕：本次使用場次 (整合場次數量與扣除場次池選擇功能) -->
+            <!-- 右側單一按鈕：本次使用場次 (跳出選單可選擇「本次場次」或「主委加碼」) -->
             <div>
                 <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">
                     🎯 本次場次
@@ -592,6 +577,53 @@
             <span>🔐 進入場次管理專區</span>
             <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙️</span>
         </button>
+    </div>
+
+    <!-- 🎯 本次對戰場次與主委加碼 Modal -->
+    <div id="upcomingModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🎯 本次對戰場次設定與加碼</h3>
+                <button class="modal-close" onclick="closeUpcomingModal()">✖</button>
+            </div>
+            <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px;">
+                請選擇要設定或編輯的場次項目：
+            </div>
+            <div class="size-option-list">
+                <button class="size-option-btn" onclick="triggerSetBaseMatches()">
+                    <span>🎯 本次場次</span>
+                    <span id="modalBaseMatchText" style="font-size:0.82rem; color:#64748B;"></span>
+                </button>
+                <button class="size-option-btn" style="background:#FFF7D6; border-color:#FFE885; color:#8A6D00;" onclick="triggerSetBonusMatches()">
+                    <span>🎁 主委加碼</span>
+                    <span id="modalBonusMatchText" style="font-size:0.82rem; color:#8A6D00; font-weight:900;"></span>
+                </button>
+            </div>
+            <div style="margin-top: 14px; display: flex; gap: 8px;">
+                <button class="action-btn btn-danger" style="flex:1;" onclick="clearUpcomingUsageAndBonus()">🗑️ 清空所有設定</button>
+                <button class="action-btn btn-secondary" style="flex:1;" onclick="closeUpcomingModal()">關閉</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 🔢 輸入場次數字 Modal (取代原本的 prompt 視窗) -->
+    <div id="matchInputModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="matchInputModalTitle">🎯 設定本次場次</h3>
+                <button class="modal-close" onclick="closeMatchInputModal()">✖</button>
+            </div>
+            <div id="matchInputModalSubtext" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px; white-space: pre-line;">
+                請輸入場次數量：
+            </div>
+            <div class="input-group">
+                <input type="number" id="matchInputVal" min="0" placeholder="請輸入場次數字 (輸入 0 清除)" style="font-size: 1.1rem; text-align: center; font-weight: 900;" onkeydown="if(event.key==='Enter') confirmMatchInput()">
+            </div>
+            <div class="btn-action" style="margin-top: 14px;">
+                <button class="action-btn btn-danger" style="flex:1;" onclick="submitMatchInput(0)">🗑️ 清除設定</button>
+                <button class="action-btn btn-primary" style="flex:1.5;" onclick="confirmMatchInput()">下一步 (選擇卡池) ➔</button>
+            </div>
+        </div>
     </div>
 
     <!-- 🎯 對戰場次管理 Modal -->
@@ -796,7 +828,8 @@
         let customRestaurants = [];
         let presetTeams = [];
         let activePresetId = null;
-        let upcomingMatchUsage = null;
+        let upcomingMatchUsage = null; // { base: number, bonus: number, basePoolId: string, bonusPoolId: string }
+        let currentInputMode = 'base'; // 'base' or 'bonus'
 
         let matchPoolsData = {
             lastUpdatedDate: "",
@@ -858,6 +891,19 @@
             return data;
         }
 
+        function parseUpcomingUsage(val) {
+            if (!val) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "" };
+            if (typeof val === 'number') {
+                return { base: val, bonus: 0, basePoolId: "", bonusPoolId: "" };
+            }
+            return {
+                base: Number(val.base) || 0,
+                bonus: Number(val.bonus) || 0,
+                basePoolId: val.basePoolId || "",
+                bonusPoolId: val.bonusPoolId || ""
+            };
+        }
+
         function calculateTotalMatches() {
             if (!matchPoolsData || !matchPoolsData.pools) return 0;
             return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
@@ -883,9 +929,16 @@
             const btn = document.getElementById('btnUpcomingMatchUsage');
             if (!btn) return;
 
-            if (upcomingMatchUsage !== null && upcomingMatchUsage !== undefined && upcomingMatchUsage !== "") {
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            const total = usage.base + usage.bonus;
+
+            if (total > 0) {
                 btn.classList.add('has-value');
-                btn.innerHTML = `🎯 本次場次: ${upcomingMatchUsage}`;
+                let text = `🎯 本次場次: ${total}`;
+                if (usage.bonus > 0) {
+                    text += ` (含加碼${usage.bonus})`;
+                }
+                btn.innerHTML = text;
             } else {
                 btn.classList.remove('has-value');
                 btn.innerHTML = `🎯 本次場次`;
@@ -893,41 +946,122 @@
         }
 
         window.handleUpcomingUsageClick = function() {
-            const currentStr = (upcomingMatchUsage !== null && upcomingMatchUsage !== undefined) ? String(upcomingMatchUsage) : "";
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            const baseTxt = document.getElementById('modalBaseMatchText');
+            const bonusTxt = document.getElementById('modalBonusMatchText');
 
-            const promptMsg = currentStr 
-                ? `【設定本次對戰】\n目前設定之本次場次: ${currentStr} 場\n\n・輸入數字修改場次\n・直接點「確定」(不改數字)繼續選擇/更換扣除場次池\n・留白或輸入 0 清除設定：` 
-                : `請輸入本次對戰之預定「本次場次」數量：`;
-            
-            const input = prompt(promptMsg, currentStr);
-            if (input === null) return;
-            
-            const trimmed = input.trim();
-            if (trimmed === "" || trimmed === "0") {
-                set(upcomingUsageRef, null);
-                selectedDeductionPoolId = "";
-                updatePoolsUI();
-                alert("已清除本次場次與扣除池設定！");
-            } else {
-                const num = parseInt(trimmed, 10);
-                if (isNaN(num) || num < 0) {
-                    alert("請輸入有效的正整數數字！");
-                    return;
+            if (baseTxt) baseTxt.innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
+            if (bonusTxt) bonusTxt.innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
+
+            document.getElementById('upcomingModal').style.display = 'flex';
+        };
+
+        window.closeUpcomingModal = function() {
+            document.getElementById('upcomingModal').style.display = 'none';
+        };
+
+        /* 彈出視窗：設定本次場次 */
+        window.triggerSetBaseMatches = function() {
+            closeUpcomingModal();
+            currentInputMode = 'base';
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            document.getElementById('matchInputModalTitle').innerText = '🎯 設定本次場次';
+            document.getElementById('matchInputModalSubtext').innerText = usage.base > 0 
+                ? `目前場次：${usage.base} 場\n請修改數量，或輸入 0 清除：`
+                : '請輸入本次場次數量：';
+            document.getElementById('matchInputVal').value = usage.base || '';
+            document.getElementById('matchInputModal').style.display = 'flex';
+            setTimeout(() => {
+                const input = document.getElementById('matchInputVal');
+                input.focus();
+                input.select();
+            }, 100);
+        };
+
+        /* 彈出視窗：設定主委加碼 */
+        window.triggerSetBonusMatches = function() {
+            closeUpcomingModal();
+            currentInputMode = 'bonus';
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            document.getElementById('matchInputModalTitle').innerText = '🎁 設定主委加碼';
+            document.getElementById('matchInputModalSubtext').innerText = usage.bonus > 0 
+                ? `目前加碼：${usage.bonus} 場\n請修改數量，或輸入 0 清除：`
+                : '請輸入主委加碼場次數量：';
+            document.getElementById('matchInputVal').value = usage.bonus || '';
+            document.getElementById('matchInputModal').style.display = 'flex';
+            setTimeout(() => {
+                const input = document.getElementById('matchInputVal');
+                input.focus();
+                input.select();
+            }, 100);
+        };
+
+        window.closeMatchInputModal = function() {
+            document.getElementById('matchInputModal').style.display = 'none';
+        };
+
+        window.submitMatchInput = function(valOverride) {
+            let valStr = valOverride !== undefined ? String(valOverride) : document.getElementById('matchInputVal').value.trim();
+            if (valStr === '') return;
+            const num = parseInt(valStr, 10);
+            if (isNaN(num) || num < 0) {
+                alert("請輸入有效的正整數數字！");
+                return;
+            }
+
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            closeMatchInputModal();
+
+            if (num === 0) {
+                if (currentInputMode === 'base') {
+                    usage.base = 0;
+                    usage.basePoolId = "";
+                } else {
+                    usage.bonus = 0;
+                    usage.bonusPoolId = "";
                 }
+                saveUpcomingUsageState(usage);
+                alert("已清除該場次設定！");
+            } else {
+                const promptTitle = currentInputMode === 'base' 
+                    ? '請選擇【本次場次】要扣除的場次池：' 
+                    : '請選擇【主委加碼】要扣除的場次池：';
                 
-                // 只有確定選擇卡池後才儲存場次數量；若選擇取消未選擇卡池，則不變更場次並維持原樣
-                setTimeout(() => {
-                    openPoolSelectionForAction((chosenPoolId) => {
-                        set(upcomingUsageRef, num);
-                        selectedDeductionPoolId = chosenPoolId;
-                        updatePoolsUI();
-                    }, "請選擇本次擲球對戰要扣除的場次池：", () => {
-                        // 取消時重繪 UI，確保按鈕維持原樣
-                        updatePoolsUI();
-                    });
-                }, 100);
+                openPoolSelectionForAction((chosenPoolId) => {
+                    if (currentInputMode === 'base') {
+                        usage.base = num;
+                        usage.basePoolId = chosenPoolId;
+                    } else {
+                        usage.bonus = num;
+                        usage.bonusPoolId = chosenPoolId;
+                    }
+                    saveUpcomingUsageState(usage);
+                }, promptTitle, () => {
+                    updatePoolsUI();
+                });
             }
         };
+
+        window.confirmMatchInput = function() {
+            submitMatchInput();
+        };
+
+        window.clearUpcomingUsageAndBonus = function() {
+            set(upcomingUsageRef, null);
+            closeUpcomingModal();
+            selectedDeductionPoolId = "";
+            updatePoolsUI();
+            alert("已成功清空所有本次場次與加碼設定！");
+        };
+
+        function saveUpcomingUsageState(usageObj) {
+            if (usageObj.base <= 0 && usageObj.bonus <= 0) {
+                set(upcomingUsageRef, null);
+            } else {
+                set(upcomingUsageRef, usageObj);
+            }
+            updatePoolsUI();
+        }
 
         let onPoolSelectCallback = null;
         let onPoolCancelCallback = null;
@@ -938,7 +1072,6 @@
             document.getElementById('selectPoolModalSubtext').innerText = titleText;
             const container = document.getElementById('selectPoolModalList');
             
-            // 僅篩選出仍有剩餘場次 (>0) 的場池
             const availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
 
             let html = `<button class="size-option-btn ${!selectedDeductionPoolId ? 'active' : ''}" onclick="confirmPoolSelect('')">🔄 依序自動扣除其餘場次池</button>`;
@@ -1059,17 +1192,9 @@
             alert("對戰場次池設定已成功儲存！");
         };
 
-        window.openSelectPoolForDeductionModal = function() {
-            openPoolSelectionForAction((poolId) => {
-                selectedDeductionPoolId = poolId;
-                updatePoolsUI();
-            }, "請選擇本次擲球對戰要扣除的場次池：");
-        };
-
         function deductMatchPoolsInteractive(neededCount, currentPoolId, onComplete) {
             let totalAvail = calculateTotalMatches();
             
-            // 檢查總場次是否已經歸零或不足
             if (totalAvail <= 0 || totalAvail < neededCount) {
                 matchPoolsData.pools.forEach(p => p.count = 0);
                 set(matchPoolsRef, matchPoolsData);
@@ -1078,7 +1203,6 @@
                 return;
             }
 
-            // 1. 若未指定場池，或選擇自動/依序扣除
             if (!currentPoolId) {
                 let remaining = neededCount;
                 let usedNames = [];
@@ -1096,23 +1220,19 @@
                 return;
             }
 
-            // 2. 指定扣除特定場次池
             let targetPool = matchPoolsData.pools.find(p => p.id === currentPoolId);
             let poolCount = targetPool ? (Number(targetPool.count) || 0) : 0;
 
             if (!targetPool || poolCount <= 0) {
-                // 所選場池已無剩餘，跳出提示選擇其他剩餘場池
                 promptNextPoolDeduction(neededCount, `【${targetPool ? targetPool.name : '選擇的場次池'}】已無剩餘場次！請選擇其他可扣除的場池：`, onComplete);
                 return;
             }
 
             if (poolCount >= neededCount) {
-                // 指定場池足夠扣除
                 targetPool.count = Math.max(0, poolCount - neededCount);
                 set(matchPoolsRef, matchPoolsData);
                 if (onComplete) onComplete({ success: true, usedPoolName: targetPool.name });
             } else {
-                // 指定場池不夠，先將該池扣至 0，再跳出剩餘場池讓使用者選擇繼續扣除
                 let deducted = poolCount;
                 targetPool.count = 0;
                 set(matchPoolsRef, matchPoolsData);
@@ -1143,6 +1263,30 @@
             openPoolSelectionForAction((chosenPoolId) => {
                 deductMatchPoolsInteractive(remainingNeeded, chosenPoolId, onComplete);
             }, subtext);
+        }
+
+        function executeMatchDeductions(neededMatches, onComplete) {
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            
+            if (usage.base > 0 && usage.bonus > 0) {
+                deductMatchPoolsInteractive(usage.base, usage.basePoolId, (resBase) => {
+                    if (!resBase || !resBase.success) return;
+                    deductMatchPoolsInteractive(usage.bonus, usage.bonusPoolId, (resBonus) => {
+                        if (!resBonus || !resBonus.success) return;
+                        const combinedName = `${resBase.usedPoolName} + ${resBonus.usedPoolName}(加碼)`;
+                        onComplete({ success: true, usedPoolName: combinedName });
+                    });
+                });
+            } else if (usage.base > 0) {
+                deductMatchPoolsInteractive(usage.base, usage.basePoolId, onComplete);
+            } else if (usage.bonus > 0) {
+                deductMatchPoolsInteractive(usage.bonus, usage.bonusPoolId, (resBonus) => {
+                    if (!resBonus || !resBonus.success) return;
+                    onComplete({ success: true, usedPoolName: `${resBonus.usedPoolName}(加碼)` });
+                });
+            } else {
+                deductMatchPoolsInteractive(neededMatches, selectedDeductionPoolId, onComplete);
+            }
         }
 
         window.onDateInputChange = function() {
@@ -1926,9 +2070,9 @@
             const numTeams = Math.floor(players.length / selectedTeamSize);
             const neededMatches = numTeams > 0 ? numTeams : 1;
 
-            deductMatchPoolsInteractive(neededMatches, selectedDeductionPoolId, (deductRes) => {
+            executeMatchDeductions(neededMatches, (deductRes) => {
                 if (!deductRes || !deductRes.success) {
-                    return; // 扣除失敗或場次耗盡時中斷組隊
+                    return;
                 }
 
                 const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
