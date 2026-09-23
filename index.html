@@ -1195,7 +1195,7 @@
             if (totalAvail <= 0 || totalAvail < neededCount) {
                 matchPoolsData.pools.forEach(p => p.count = 0);
                 set(matchPoolsRef, matchPoolsData);
-                alert("懇請銀彈支援");
+                alert("請支援收銀!!!");
                 if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
                 return;
             }
