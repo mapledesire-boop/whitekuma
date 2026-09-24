@@ -1887,9 +1887,6 @@
                 html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
             });
             if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
-            if (target.matchUsageText) {
-                html += `<div class="result-item">🎯 對戰場次：<span class="pool-badge">${target.matchUsageText}</span></div>`;
-            }
             html += `</div>`;
 
             container.innerHTML = html;
