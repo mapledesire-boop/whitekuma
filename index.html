@@ -839,7 +839,7 @@
             "陳彤", "楷雲"
         ];
         const AUTH_PASSWORD = "765765765";
-        const UPCOMING_USAGE_PASSWORD = "330"; // 本次場次按鈕密碼設定為 330
+        const UPCOMING_USAGE_PASSWORD = "330";
 
         let historyRounds = [];
         let customRestaurants = [];
@@ -877,7 +877,6 @@
             bye: ''
         };
 
-        // 🔑 密碼彈窗邏輯
         function openPasswordModal(title, subtext, onSuccessCallback) {
             document.getElementById('passwordModalTitle').innerText = title || "🔐 請輸入驗證密碼";
             document.getElementById('passwordModalSubtext').innerText = subtext || "請輸入存取密碼以繼續：";
@@ -918,7 +917,6 @@
 
             if (target && target.eventDate) {
                 const targetDt = new Date(target.eventDate);
-                // 若活動日期與時間已過，自動重置「本次場次」設定
                 if (!isNaN(targetDt.getTime()) && targetDt < now) {
                     set(upcomingUsageRef, null);
                 }
@@ -1064,22 +1062,26 @@
         }
 
         window.handleUpcomingUsageClick = function() {
-            openPasswordModal("🔐 請輸入「本次場次」驗證密碼", "進入本次場次與主委加碼設定，請輸入驗證密碼 (330)：", (inputPwd) => {
-                if (inputPwd === UPCOMING_USAGE_PASSWORD) {
-                    const usage = getUpcomingUsageValue();
-                    const baseTxt = document.getElementById('modalBaseMatchText');
-                    const bonusTxt = document.getElementById('modalBonusMatchText');
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "請輸入存取密碼以繼續：",
+                (pwd) => {
+                    if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
+                        const usage = getUpcomingUsageValue();
+                        const baseTxt = document.getElementById('modalBaseMatchText');
+                        const bonusTxt = document.getElementById('modalBonusMatchText');
 
-                    if (baseTxt) baseTxt.innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
-                    if (bonusTxt) bonusTxt.innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
+                        if (baseTxt) baseTxt.innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
+                        if (bonusTxt) bonusTxt.innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
 
-                    document.getElementById('upcomingModal').style.display = 'flex';
-                    return true;
-                } else {
-                    alert("❌ 密碼錯誤！無法進入設定。");
-                    return false;
+                        document.getElementById('upcomingModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法進入本次場次設定！");
+                        return false;
+                    }
                 }
-            });
+            );
         };
 
         window.closeUpcomingModal = function() {
@@ -1136,44 +1138,26 @@
             const usage = getUpcomingUsageValue();
             closeMatchInputModal();
 
+            if (currentInputMode === 'base' && usage.base > 0) {
+                releaseMatchPools(usage.base, usage.basePoolId);
+            } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
+                releaseMatchPools(usage.bonus, usage.bonusPoolId);
+            }
+
             if (num === 0) {
                 if (currentInputMode === 'base') {
-                    if (usage.base > 0) {
-                        releaseMatchPools(usage.base, usage.basePoolId);
-                    }
                     usage.base = 0;
                     usage.basePoolId = "";
                     usage.baseUsedName = "";
                 } else {
-                    if (usage.bonus > 0) {
-                        releaseMatchPools(usage.bonus, usage.bonusPoolId);
-                    }
                     usage.bonus = 0;
                     usage.bonusPoolId = "";
                     usage.bonusUsedName = "";
                 }
-                saveUpcomingUsageState(usage);
                 set(matchPoolsRef, matchPoolsData);
-                alert("已清除該場次設定並將額度釋放回場次池！");
+                saveUpcomingUsageState(usage);
+                alert("已清除該場次設定並將剩餘額度釋放回卡池！");
             } else {
-                if (currentInputMode === 'base' && usage.base > 0) {
-                    releaseMatchPools(usage.base, usage.basePoolId);
-                } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
-                    releaseMatchPools(usage.bonus, usage.bonusPoolId);
-                }
-
-                const totalAvail = calculateTotalMatches();
-
-                if (totalAvail <= 0 || totalAvail < num) {
-                    if (currentInputMode === 'base' && usage.base > 0) {
-                        deductFromPoolsDirectly(usage.base, usage.basePoolId);
-                    } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
-                        deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
-                    }
-                    alert("請支援收銀!!!");
-                    return;
-                }
-
                 const promptTitle = currentInputMode === 'base' 
                     ? `請選擇【本次場次】要扣除的場次池 (需 ${num} 場)：` 
                     : `請選擇【主委加碼】要扣除的場次池 (需 ${num} 場)：`;
@@ -1198,7 +1182,6 @@
                             usage.bonusPoolId = chosenPoolId;
                             usage.bonusUsedName = res.usedPoolName;
                         }
-                        
                         set(matchPoolsRef, matchPoolsData);
                         saveUpcomingUsageState(usage);
                     });
@@ -1218,19 +1201,37 @@
 
         window.clearUpcomingUsageAndBonus = function() {
             const usage = getUpcomingUsageValue();
-            if (usage.base > 0) {
-                releaseMatchPools(usage.base, usage.basePoolId);
-            }
-            if (usage.bonus > 0) {
-                releaseMatchPools(usage.bonus, usage.bonusPoolId);
-            }
+            if (usage.base > 0) releaseMatchPools(usage.base, usage.basePoolId);
+            if (usage.bonus > 0) releaseMatchPools(usage.bonus, usage.bonusPoolId);
 
             set(matchPoolsRef, matchPoolsData);
             set(upcomingUsageRef, null);
+            
+            if (historyRounds && historyRounds.length > 0) {
+                const now = new Date();
+                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const sorted = getChronologicalHistory(historyRounds);
+                const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
+                const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+
+                if (target) {
+                    const targetIdx = target.originalIndex;
+                    delete historyRounds[targetIdx].baseCount;
+                    delete historyRounds[targetIdx].bonusCount;
+                    delete historyRounds[targetIdx].basePoolId;
+                    delete historyRounds[targetIdx].bonusPoolId;
+                    delete historyRounds[targetIdx].baseUsedName;
+                    delete historyRounds[targetIdx].bonusUsedName;
+                    delete historyRounds[targetIdx].usedMatchesCount;
+                    delete historyRounds[targetIdx].matchUsageText;
+                    delete historyRounds[targetIdx].usedPoolName;
+                    set(historyRef, historyRounds);
+                }
+            }
 
             closeUpcomingModal();
             updatePoolsUI();
-            alert("已成功清空所有本次場次與加碼設定，並將額度釋放回場次池！");
+            alert("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
         };
 
         function saveUpcomingUsageState(usageObj) {
@@ -1239,19 +1240,74 @@
             } else {
                 set(upcomingUsageRef, usageObj);
             }
+
+            if (historyRounds && historyRounds.length > 0) {
+                const now = new Date();
+                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+                const sorted = getChronologicalHistory(historyRounds);
+                const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
+                const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+
+                if (target) {
+                    const targetIdx = target.originalIndex;
+                    const totalMatchesUsed = usageObj.base + usageObj.bonus;
+
+                    if (totalMatchesUsed > 0) {
+                        let matchUsageStr = `${totalMatchesUsed} 場`;
+                        if (usageObj.bonus > 0) {
+                            matchUsageStr = `${totalMatchesUsed} 場 (基本 ${usageObj.base} + 加碼 ${usageObj.bonus})`;
+                        }
+
+                        let usedPoolNames = [];
+                        if (usageObj.base > 0) {
+                            usedPoolNames.push(usageObj.baseUsedName || "自動扣除");
+                        }
+                        if (usageObj.bonus > 0) {
+                            let bName = usageObj.bonusUsedName || "自動扣除";
+                            if (!bName.includes('加碼')) bName += '(加碼)';
+                            usedPoolNames.push(bName);
+                        }
+
+                        historyRounds[targetIdx].baseCount = usageObj.base;
+                        historyRounds[targetIdx].bonusCount = usageObj.bonus;
+                        historyRounds[targetIdx].basePoolId = usageObj.basePoolId;
+                        historyRounds[targetIdx].bonusPoolId = usageObj.bonusPoolId;
+                        historyRounds[targetIdx].baseUsedName = usageObj.baseUsedName;
+                        historyRounds[targetIdx].bonusUsedName = usageObj.bonusUsedName;
+                        historyRounds[targetIdx].usedMatchesCount = totalMatchesUsed;
+                        historyRounds[targetIdx].matchUsageText = matchUsageStr;
+                        if (usedPoolNames.length > 0) {
+                            historyRounds[targetIdx].usedPoolName = usedPoolNames.join(' + ');
+                        }
+                    } else {
+                        delete historyRounds[targetIdx].baseCount;
+                        delete historyRounds[targetIdx].bonusCount;
+                        delete historyRounds[targetIdx].basePoolId;
+                        delete historyRounds[targetIdx].bonusPoolId;
+                        delete historyRounds[targetIdx].baseUsedName;
+                        delete historyRounds[targetIdx].bonusUsedName;
+                        delete historyRounds[targetIdx].usedMatchesCount;
+                        delete historyRounds[targetIdx].matchUsageText;
+                        delete historyRounds[targetIdx].usedPoolName;
+                    }
+                    set(historyRef, historyRounds);
+                }
+            }
+
             updatePoolsUI();
         }
 
         let onPoolSelectCallback = null;
         let onPoolCancelCallback = null;
 
-        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null) {
+        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null, customEffPools = null) {
             onPoolSelectCallback = callback;
             onPoolCancelCallback = cancelCallback;
             document.getElementById('selectPoolModalSubtext').innerText = titleText;
             const container = document.getElementById('selectPoolModalList');
             
-            const availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
+            const pools = customEffPools || (matchPoolsData ? matchPoolsData.pools : []);
+            const availablePools = pools.filter(p => (Number(p.count) || 0) > 0);
 
             let html = '';
             if (availablePools.length === 0) {
@@ -1266,7 +1322,8 @@
         }
 
         function deductMatchPoolsInteractive(neededCount, currentPoolId, onComplete, accumulated = []) {
-            let totalAvail = calculateTotalMatches();
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+            let totalAvail = matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
             
             if (totalAvail <= 0 || totalAvail < neededCount) {
                 alert("請支援收銀!!!");
@@ -1288,7 +1345,7 @@
             }
 
             if (poolCount >= neededCount) {
-                targetPool.count -= neededCount;
+                targetPool.count = poolCount - neededCount;
                 accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: neededCount });
                 let usedNameStr = formatAccumulatedPoolNames(accumulated);
                 if (onComplete) onComplete({ success: true, usedPoolName: usedNameStr });
@@ -1361,16 +1418,20 @@
         }
 
         window.openPoolManagementModal = function() {
-            openPasswordModal("🔐 請輸入「場次管理專區」密碼", "【管理員保護】進入對戰場次管理專區，請輸入管理密碼：", (pwd) => {
-                if (pwd === AUTH_PASSWORD) {
-                    renderPoolListModal();
-                    document.getElementById('poolModal').style.display = 'flex';
-                    return true;
-                } else {
-                    alert("❌ 密碼錯誤，無法進入對戰場次管理！");
-                    return false;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "進入對戰場次管理專區，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        renderPoolListModal();
+                        document.getElementById('poolModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法進入對戰場次管理！");
+                        return false;
+                    }
                 }
-            });
+            );
         };
 
         window.closePoolManagementModal = function() {
@@ -1653,22 +1714,24 @@
         }
 
         window.openTrainerManagerModal = function() {
-            openPasswordModal("🔐 請輸入「登場訓練家管理」密碼", "編輯登場訓練家為管理功能，請輸入管理密碼：", (pwd) => {
-                if (pwd === AUTH_PASSWORD) {
-                    renderTrainerManagerList();
-                    document.getElementById('trainerModal').style.display = 'flex';
-                    return true;
-                } else {
-                    alert("❌ 密碼錯誤，無法編輯訓練家！");
-                    return false;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯登場訓練家為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        renderTrainerManagerList();
+                        document.getElementById('trainerModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法編輯訓練家！");
+                        return false;
+                    }
                 }
-            });
+            );
         };
-
         window.closeTrainerManagerModal = function() {
             document.getElementById('trainerModal').style.display = 'none';
         };
-
         window.addNewTrainerPreset = function() {
             const input = document.getElementById('newTrainerInput');
             const val = input.value.trim();
@@ -1683,7 +1746,6 @@
             initNameTags();
             renderTrainerManagerList();
         };
-
         window.deleteTrainerPreset = function(name) {
             if (!confirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`)) return;
             defaultPresetNames = defaultPresetNames.filter(n => n !== name);
@@ -1691,7 +1753,6 @@
             initNameTags();
             renderTrainerManagerList();
         };
-
         function renderTrainerManagerList() {
             const container = document.getElementById('trainerManagerList');
             if (defaultPresetNames.length === 0) {
@@ -1802,7 +1863,7 @@
             renderHistory();
         };
 
-        /* 核心「擲球配對」函式：產生配對，扣除紀錄完整保留，不在此重置本次場次 */
+        /* 核心「擲球配對」函式：產生對戰隊伍組合並保存紀錄 */
         window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
@@ -2237,35 +2298,39 @@
         }
 
         window.openEditModal = function(index) {
-            openPasswordModal("🔐 請輸入「編輯對戰」密碼", "編輯對戰紀錄為管理功能，請輸入管理密碼：", (pwd) => {
-                if (pwd === AUTH_PASSWORD) {
-                    editingIndex = index;
-                    const round = historyRounds[index];
-                    if (!round) return false;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯對戰紀錄為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingIndex = index;
+                        const round = historyRounds[index];
+                        if (!round) return false;
 
-                    editingModalData = {
-                        eventDate: round.eventDate || '',
-                        teams: (round.teams || []).map(t => [...t]),
-                        bye: round.bye || ''
-                    };
+                        editingModalData = {
+                            eventDate: round.eventDate || '',
+                            teams: (round.teams || []).map(t => [...t]),
+                            bye: round.bye || ''
+                        };
 
-                    if (editingModalData.eventDate.includes('T')) {
-                        const parts = editingModalData.eventDate.split('T');
-                        document.getElementById('editModalDate').value = parts[0];
-                        document.getElementById('editModalTime').value = parts[1].slice(0, 5);
+                        if (editingModalData.eventDate.includes('T')) {
+                            const parts = editingModalData.eventDate.split('T');
+                            document.getElementById('editModalDate').value = parts[0];
+                            document.getElementById('editModalTime').value = parts[1].slice(0, 5);
+                        } else {
+                            document.getElementById('editModalDate').value = editingModalData.eventDate;
+                            document.getElementById('editModalTime').value = '14:00';
+                        }
+
+                        renderModalTeams();
+                        document.getElementById('editModal').style.display = 'flex';
+                        return true;
                     } else {
-                        document.getElementById('editModalDate').value = editingModalData.eventDate;
-                        document.getElementById('editModalTime').value = '14:00';
+                        alert("密碼錯誤，無法編輯對戰！");
+                        return false;
                     }
-
-                    renderModalTeams();
-                    document.getElementById('editModal').style.display = 'flex';
-                    return true;
-                } else {
-                    alert("❌ 密碼錯誤，無法編輯對戰！");
-                    return false;
                 }
-            });
+            );
         };
 
         window.closeEditModal = function() {
@@ -2755,18 +2820,22 @@
         window.deleteSingleRoundByIndex = function(index) {
             const round = historyRounds[index];
             if (!round) return;
-            openPasswordModal("🗑️ 刪除戰報紀錄", `確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`, (inputPwd) => {
-                if (inputPwd === AUTH_PASSWORD) {
-                    let updatedRounds = [...historyRounds];
-                    updatedRounds.splice(index, 1);
-                    set(historyRef, updatedRounds);
-                    alert("已成功刪除該筆戰報紀錄！");
-                    return true;
-                } else {
-                    alert("❌ 密碼錯誤，無法刪除！");
-                    return false;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                `確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`,
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        let updatedRounds = [...historyRounds];
+                        updatedRounds.splice(index, 1);
+                        set(historyRef, updatedRounds);
+                        alert("已成功刪除該筆戰報紀錄！");
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法刪除！");
+                        return false;
+                    }
                 }
-            });
+            );
         };
 
         window.clearCloudHistory = function() {
@@ -2789,20 +2858,24 @@
                     }
                 }, 1000);
             } else if (clearStep === 2) {
-                openPasswordModal("🗑️ 清空所有紀錄", "清空所有歷史紀錄為高風險操作，請輸入管理密碼：", (inputPwd) => {
-                    if (inputPwd === AUTH_PASSWORD) {
-                        remove(historyRef);
-                        remove(customRestaurantsRef);
-                        clearCurrentResultUI();
-                        alert("已清空所有歷史紀錄！");
-                        resetClearBtn();
-                        return true;
-                    } else {
-                        alert("❌ 密碼錯誤，無法清空！");
-                        resetClearBtn();
-                        return false;
+                openPasswordModal(
+                    "🔐 請輸入管理員密碼",
+                    "清空所有歷史紀錄為高風險操作，請輸入管理密碼：",
+                    (pwd) => {
+                        if (pwd.trim() === AUTH_PASSWORD) {
+                            remove(historyRef);
+                            remove(customRestaurantsRef);
+                            clearCurrentResultUI();
+                            alert("已清空所有歷史紀錄！");
+                            resetClearBtn();
+                            return true;
+                        } else {
+                            alert("密碼錯誤，無法清空！");
+                            resetClearBtn();
+                            return false;
+                        }
                     }
-                });
+                );
             }
         };
 
