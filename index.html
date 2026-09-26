@@ -52,7 +52,7 @@
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
 
-        /* 總場次資訊列 */
+        /* 總場次資訊列 (位於標題下方、預訂對戰圖鑑上方) */
         .top-summary-bar {
             background: linear-gradient(135deg, #2A75BB 0%, #8B5CF6 100%);
             color: #FFFFFF;
@@ -322,6 +322,20 @@
             padding: 10px 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
             margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
             word-break: break-all; line-height: 1.5;
+        }
+        .match-badge-box {
+            background: #FAF5FF;
+            border: 1.5px solid #D8B4FE;
+            color: #581C87;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            font-weight: 900;
+            font-size: 0.88rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
         }
         .restaurant-item-box {
             display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
@@ -903,7 +917,6 @@
             }
         };
 
-        /* 檢查預訂對戰圖鑑之活動日期，過期則自動重置本次場次設定 */
         function checkAndResetExpiredUpcomingUsage() {
             if (!upcomingMatchUsage) return;
             const usage = parseUpcomingUsage(upcomingMatchUsage);
@@ -913,7 +926,7 @@
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
             const sorted = getChronologicalHistory(historyRounds);
             const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
-            const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+            const target = upcomingRounds.length > 0 ? upcomingRounds[0] : (sorted.length > 0 ? sorted[sorted.length - 1] : null);
 
             if (target && target.eventDate) {
                 const targetDt = new Date(target.eventDate);
@@ -973,7 +986,6 @@
             return parseUpcomingUsage(upcomingMatchUsage);
         }
 
-        /* 將先前扣除的場次數值加回（釋放）到對應的場次池 */
         function releaseMatchPools(amount, poolId) {
             if (!amount || amount <= 0) return;
             if (!matchPoolsData || !matchPoolsData.pools) return;
@@ -988,7 +1000,6 @@
             }
         }
 
-        /* 從資料庫場次池中直接進行扣除 */
         function deductFromPoolsDirectly(count, preferredPoolId) {
             if (count <= 0) return { success: false, usedPoolName: "" };
             let targetPool = matchPoolsData.pools.find(p => p.id === preferredPoolId);
@@ -1059,6 +1070,48 @@
                 btn.classList.remove('has-value');
                 btn.innerHTML = `🎯 本次場次`;
             }
+        }
+
+        /* 根據需求顯示格式：
+           - 預訂對戰圖鑑顯示： 本次場次:本次場次:所輸入場次 加碼場次 (例: 本次場次: 3 場, 主委加碼: 1 場)
+           - 歷史訓練家對戰圖鑑顯示： 場次:場次:所輸入場次 加碼場次 (例: 場次: 3 場, 主委加碼: 1 場)
+        */
+        function formatMatchUsageHTML(roundOrUsage, isHistoryMode = false) {
+            let base = 0, bonus = 0;
+            
+            if (roundOrUsage) {
+                base = roundOrUsage.baseCount || 0;
+                bonus = roundOrUsage.bonusCount || 0;
+                
+                if (base === 0 && bonus === 0 && roundOrUsage.usedMatchesCount) {
+                    base = roundOrUsage.usedMatchesCount;
+                }
+            }
+            
+            if (base === 0 && bonus === 0 && !isHistoryMode) {
+                const usage = getUpcomingUsageValue();
+                base = usage.base || 0;
+                bonus = usage.bonus || 0;
+            }
+
+            const total = base + bonus;
+            if (total <= 0) return '';
+
+            let textParts = [];
+            if (base > 0) {
+                textParts.push(`${base} 場`);
+            }
+            if (bonus > 0) {
+                textParts.push(`主委加碼: ${bonus} 場`);
+            }
+
+            const prefixText = isHistoryMode ? '🎯 場次：' : '🎯 本次場次：';
+            const detailText = textParts.join(', ');
+
+            return `<div class="match-badge-box">
+                <span>${prefixText}${detailText}</span>
+                <span class="pool-badge" style="font-size:0.82rem;">共 ${total} 場</span>
+            </div>`;
         }
 
         window.handleUpcomingUsageClick = function() {
@@ -1295,6 +1348,7 @@
             }
 
             updatePoolsUI();
+            renderUpcomingHistory();
         }
 
         let onPoolSelectCallback = null;
@@ -1817,14 +1871,19 @@
 
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const usage = getUpcomingUsageValue();
+
             if (historyRounds.length === 0) {
-                container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
+                if (usage.base > 0 || usage.bonus > 0) {
+                    container.innerHTML = `<div class="pop-in">${formatMatchUsageHTML(null, false)}</div>`;
+                } else {
+                    container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
+                }
                 return;
             }
 
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            
             const sorted = getChronologicalHistory(historyRounds);
             const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
             const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
@@ -1834,6 +1893,11 @@
 
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
+            
+            /* 顯眼標示預訂對戰圖鑑中的「本次場次:所輸入場次 加碼場次」 */
+            const matchUsageHtml = formatMatchUsageHTML(target, false);
+            if (matchUsageHtml) html += matchUsageHtml;
+
             html += formatRestaurantHTML(target);
             target.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -1863,7 +1927,6 @@
             renderHistory();
         };
 
-        /* 核心「擲球配對」函式：產生對戰隊伍組合並保存紀錄 */
         window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
@@ -2056,8 +2119,10 @@
                 matchUsageText: matchUsageStr,
                 baseCount: usage.base || 0,
                 basePoolId: usage.basePoolId || "",
+                baseUsedName: usage.baseUsedName || "",
                 bonusCount: usage.bonus || 0,
-                bonusPoolId: usage.bonusPoolId || ""
+                bonusPoolId: usage.bonusPoolId || "",
+                bonusUsedName: usage.bonusUsedName || ""
             };
 
             currentSessionResult = newRound;
@@ -2103,6 +2168,7 @@
 
         async function formatRoundText(round) {
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
+
             const calUrl = generateGoogleCalendarUrl(round);
             if (calUrl) {
                 lines.push(`🗓️ 加入行事曆：${calUrl}`);
@@ -2205,6 +2271,10 @@
             let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
+            
+            const matchUsageHtml = formatMatchUsageHTML(round, false);
+            if (matchUsageHtml) html += matchUsageHtml;
+
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -2263,18 +2333,13 @@
                 }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
                 
-                let matchBadgeHtml = '';
-                if (round.matchUsageText) {
-                    matchBadgeHtml = `<span class="pool-badge" style="font-size:0.76rem; padding: 2px 7px;">🎯 場次: ${round.matchUsageText}</span>`;
-                } else if (round.usedMatchesCount) {
-                    matchBadgeHtml = `<span class="pool-badge" style="font-size:0.76rem; padding: 2px 7px;">🎯 場次: ${round.usedMatchesCount} 場</span>`;
-                }
+                /* 訓練家對戰圖鑑中顯示： 🎯 場次：場次:所輸入場次 加碼場次 */
+                const matchUsageHtml = formatMatchUsageHTML(round, true);
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
                             <span>📅 ${formatDateWithDay(round.eventDate)}</span>
-                            ${matchBadgeHtml}
                             <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
                         </div>
                         <div class="action-group">
@@ -2284,6 +2349,7 @@
                             <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
                         </div>
                     </div>
+                    ${matchUsageHtml}
                     <div class="history-teams">
                         ${restaurantHtml}
                         ${teamsHtml}
@@ -2531,6 +2597,7 @@
             checkAndResetExpiredUpcomingUsage();
             updateUpcomingUsageUI();
             updatePoolsUI();
+            renderUpcomingHistory();
         });
 
         window.openPresetModal = function() {
