@@ -1006,7 +1006,7 @@
 
             if (total > 0) {
                 btn.classList.add('has-value');
-                let text = `🎯 本次場次: ${total}`;
+                let text = `🎯 本次場次: ${usage.base || total}`;
                 if (usage.bonus > 0) {
                     text += ` (含加碼${usage.bonus})`;
                 }
@@ -1335,8 +1335,8 @@
 
         window.requestEditHistoryMatch = function(index) {
             openPasswordModal(
-                "🔐 請輸入管理員密碼",
-                "請輸入管理密碼以修改歷史場次：",
+                "🔐 請輸入密碼",
+                "請輸入密碼以修改歷史場次：",
                 (pwd) => {
                     if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
                         openEditHistoryMatchModal(index);
@@ -2555,7 +2555,7 @@
         window.generateFromPreset = function(presetId, isDisabled, event) {
             if (event) event.stopPropagation();
             if (isDisabled) {
-                alert("根據規則，必須由時間較早（靠近現在）的預組隊伍依序進行抽籤配對！");
+                alert("狂刀三浪還在浪！請先依序將較早日期的預組隊伍進行擲球配對！");
                 return;
             }
 
@@ -2691,7 +2691,7 @@
                 const btnStyle = isDisabled 
                     ? 'padding: 6px 12px; font-size: 0.8rem; min-height:38px; background:#CBD5E1; color:#64748B; border-color:#94A3B8; cursor:not-allowed;' 
                     : 'padding: 6px 12px; font-size: 0.8rem; min-height:38px;';
-                const btnText = isDisabled ? '🔒 需依序先抽早期' : '⚡ 直接擲球配對';
+                const btnText = isDisabled ? '⚔️ 狂刀三浪還在浪' : '⚡ 直接擲球配對';
 
                 html += `<div class="${cardClass}">
                     <div class="preset-date">📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒 (需依序抽籤)' : ''}</div>
