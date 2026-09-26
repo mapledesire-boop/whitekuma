@@ -9,17 +9,17 @@
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #F4F7FA;           /* 乾淨柔和底色 */
-            --card-bg: #FFFFFF;            /* 純白卡片 */
-            --poke-red: #FF5350;           /* 精靈球紅 */
+            --bg-color: #F4F7FA;
+            --card-bg: #FFFFFF;
+            --poke-red: #FF5350;
             --poke-red-hover: #E04340;
-            --poke-yellow: #FFCB05;        /* 皮卡丘電光黃 */
-            --poke-blue: #2A75BB;          /* 寶可夢藍 */
+            --poke-yellow: #FFCB05;
+            --poke-blue: #2A75BB;
             --poke-blue-light: #EBF3FF;
-            --poke-purple: #8B5CF6;        /* 超能力紫 */
+            --poke-purple: #8B5CF6;
             --poke-purple-light: #F3E8FF;
-            --line-green: #06C755;         /* LINE 綠色 */
-            --text-main: #1E293B;          /* 深灰文字 */
+            --line-green: #06C755;
+            --text-main: #1E293B;
             --text-sub: #64748B;
             --border-line: #E2E8F0;
             --radius-lg: 20px;
@@ -52,7 +52,7 @@
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
 
-        /* 總場次資訊列 (位於標題下方、預訂對戰圖鑑上方) */
+        /* 總場次資訊列 */
         .top-summary-bar {
             background: linear-gradient(135deg, #2A75BB 0%, #8B5CF6 100%);
             color: #FFFFFF;
@@ -120,7 +120,7 @@
             font-weight: 900;
         }
 
-        /* 預組隊伍庫觸發按鈕 */
+        /* 預組隊伍庫按鈕 */
         .btn-preset-trigger {
             margin-top: 4px;
             margin-bottom: 12px;
@@ -146,7 +146,7 @@
             background: var(--poke-blue-light);
         }
 
-        /* 場次管理觸發按鈕 (頁尾) */
+        /* 場次管理觸發按鈕 */
         .btn-pool-trigger {
             width: 100%;
             padding: 12px 16px;
@@ -169,7 +169,6 @@
             background: var(--poke-purple-light);
         }
 
-        /* 卡片通用區塊 */
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
             padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-poke);
@@ -323,20 +322,6 @@
             margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
             word-break: break-all; line-height: 1.5;
         }
-        .match-badge-box {
-            background: #FAF5FF;
-            border: 1.5px solid #D8B4FE;
-            color: #581C87;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            font-weight: 900;
-            font-size: 0.88rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
         .restaurant-item-box {
             display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
         }
@@ -349,7 +334,7 @@
             border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
         }
         .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .history-teams { 
             font-size: 0.86rem; line-height: 1.5; padding-top: 8px;
             border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
@@ -367,7 +352,6 @@
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
         
-        /* Modal 通用樣式 */
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.6); z-index: 1000;
@@ -440,7 +424,6 @@
         }
         .trainer-list-item:last-child { border-bottom: none; }
 
-        /* 場次池卡片與總和顯示 */
         .total-matches-box {
             background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
             color: #FFFFFF; border-radius: var(--radius-sm); padding: 14px 16px;
@@ -469,7 +452,7 @@
         </div>
     </div>
 
-    <!-- 2. 總場次資訊列 (位於標題下方、預訂對戰圖鑑上方) -->
+    <!-- 2. 總場次資訊列 (顯示實時扣除預約後的可用場次結果) -->
     <div class="top-summary-bar" id="topMatchesSummaryBar">
         <span class="top-summary-total" id="topTotalSummary">總場次: 0 場</span>
         <div class="top-summary-pools" id="topPoolsSummaryList"></div>
@@ -479,7 +462,6 @@
     <div class="box" id="upcomingHistoryBox">
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
-            <!-- 右側單一按鈕：本次使用場次 -->
             <div>
                 <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">
                     🎯 本次場次
@@ -558,7 +540,6 @@
             <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
 
-        <!-- 時間區間選擇器 -->
         <div id="filterContainer" class="filter-container">
             <div class="filter-title">🔍 選擇歷史時間區間</div>
             <div class="filter-date-grid">
@@ -589,7 +570,7 @@
         </button>
     </div>
 
-    <!-- 🔑 密碼驗證 Modal -->
+    <!-- Modals -->
     <div id="passwordModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -609,7 +590,6 @@
         </div>
     </div>
 
-    <!-- 🎯 本次對戰場次與主委加碼 Modal -->
     <div id="upcomingModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -636,7 +616,6 @@
         </div>
     </div>
 
-    <!-- 🔢 輸入場次數字 Modal -->
     <div id="matchInputModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -656,7 +635,6 @@
         </div>
     </div>
 
-    <!-- 🎯 對戰場次管理 Modal -->
     <div id="poolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -666,7 +644,7 @@
 
             <div class="total-matches-box">
                 <div class="total-matches-title">
-                    <span>🏆 總場次 (全部池加總)</span>
+                    <span>🏆 總場次 (原始總量)</span>
                 </div>
                 <div class="total-matches-count" id="modalTotalMatches">0</div>
             </div>
@@ -686,7 +664,6 @@
         </div>
     </div>
 
-    <!-- 🎯 選擇扣除場次池 Modal -->
     <div id="selectPoolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -701,7 +678,6 @@
         </div>
     </div>
 
-    <!-- ⚙️ 登場訓練家管理 Modal -->
     <div id="trainerModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -723,7 +699,6 @@
         </div>
     </div>
 
-    <!-- 📅 預組隊伍庫 Modal -->
     <div id="presetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -740,7 +715,6 @@
         </div>
     </div>
 
-    <!-- ⚙️ 選擇隊伍人數 Modal -->
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -756,7 +730,6 @@
         </div>
     </div>
 
-    <!-- 🍽️ 選擇/輸入餐廳 Modal -->
     <div id="restaurantModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -782,7 +755,6 @@
         </div>
     </div>
 
-    <!-- ✏️ 對戰圖鑑 Modal -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -876,7 +848,6 @@
 
         let presetClearStep = 0;
         let presetClearTimer = null;
-
         let isHistoryExpanded = false;
         let clearConfirmTimer = null;
         let clearStep = 0;
@@ -890,51 +861,6 @@
             teams: [],
             bye: ''
         };
-
-        function openPasswordModal(title, subtext, onSuccessCallback) {
-            document.getElementById('passwordModalTitle').innerText = title || "🔐 請輸入驗證密碼";
-            document.getElementById('passwordModalSubtext').innerText = subtext || "請輸入存取密碼以繼續：";
-            const pwdInput = document.getElementById('passwordModalInput');
-            pwdInput.value = "";
-            activePasswordCallback = onSuccessCallback;
-            document.getElementById('passwordModal').style.display = 'flex';
-            setTimeout(() => pwdInput.focus(), 100);
-        }
-
-        window.closePasswordModal = function() {
-            document.getElementById('passwordModal').style.display = 'none';
-            activePasswordCallback = null;
-        };
-
-        window.submitPasswordModal = function() {
-            const pwdInput = document.getElementById('passwordModalInput');
-            const pwd = pwdInput.value.trim();
-            if (activePasswordCallback) {
-                const isValid = activePasswordCallback(pwd);
-                if (isValid) {
-                    closePasswordModal();
-                }
-            }
-        };
-
-        function checkAndResetExpiredUpcomingUsage() {
-            if (!upcomingMatchUsage) return;
-            const usage = parseUpcomingUsage(upcomingMatchUsage);
-            if (usage.base <= 0 && usage.bonus <= 0) return;
-
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const sorted = getChronologicalHistory(historyRounds);
-            const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
-            const target = upcomingRounds.length > 0 ? upcomingRounds[0] : (sorted.length > 0 ? sorted[sorted.length - 1] : null);
-
-            if (target && target.eventDate) {
-                const targetDt = new Date(target.eventDate);
-                if (!isNaN(targetDt.getTime()) && targetDt < now) {
-                    set(upcomingUsageRef, null);
-                }
-            }
-        }
 
         function getTodayDateString() {
             const now = new Date();
@@ -968,9 +894,9 @@
         }
 
         function parseUpcomingUsage(val) {
-            if (!val) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "" };
+            if (!val) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "", eventDate: "" };
             if (typeof val === 'number') {
-                return { base: val, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "" };
+                return { base: val, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "", eventDate: "" };
             }
             return {
                 base: Number(val.base) || 0,
@@ -978,7 +904,8 @@
                 basePoolId: val.basePoolId || "",
                 bonusPoolId: val.bonusPoolId || "",
                 baseUsedName: val.baseUsedName || "",
-                bonusUsedName: val.bonusUsedName || ""
+                bonusUsedName: val.bonusUsedName || "",
+                eventDate: val.eventDate || ""
             };
         }
 
@@ -986,18 +913,74 @@
             return parseUpcomingUsage(upcomingMatchUsage);
         }
 
-        function releaseMatchPools(amount, poolId) {
-            if (!amount || amount <= 0) return;
-            if (!matchPoolsData || !matchPoolsData.pools) return;
+        function calculateRawTotalMatches() {
+            if (!matchPoolsData || !matchPoolsData.pools) return 0;
+            return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
+        }
 
-            let targetPool = matchPoolsData.pools.find(p => p.id === poolId);
-            if (targetPool) {
-                targetPool.count = (Number(targetPool.count) || 0) + amount;
-            } else {
-                if (matchPoolsData.pools.length > 0) {
-                    matchPoolsData.pools[0].count = (Number(matchPoolsData.pools[0].count) || 0) + amount;
-                }
+        function calculateNetAvailableTotalMatches() {
+            const rawTotal = calculateRawTotalMatches();
+            const usage = getUpcomingUsageValue();
+            const reserved = usage.base + usage.bonus;
+            return Math.max(0, rawTotal - reserved);
+        }
+
+        function updateTopMatchesSummary() {
+            const netTotal = calculateNetAvailableTotalMatches();
+            const totalEl = document.getElementById('topTotalSummary');
+            if (totalEl) totalEl.innerText = `總場次: ${netTotal} 場`;
+
+            const listEl = document.getElementById('topPoolsSummaryList');
+            if (listEl && matchPoolsData && matchPoolsData.pools) {
+                const usage = getUpcomingUsageValue();
+                let html = '';
+                matchPoolsData.pools.forEach(pool => {
+                    let resForPool = 0;
+                    if (usage.basePoolId === pool.id) resForPool += usage.base;
+                    if (usage.bonusPoolId === pool.id) resForPool += usage.bonus;
+
+                    const availInPool = Math.max(0, (Number(pool.count) || 0) - resForPool);
+                    html += `<span class="top-summary-item">${pool.name}: ${availInPool} 場</span>`;
+                });
+                listEl.innerHTML = html;
             }
+        }
+
+        function updateUpcomingUsageUI() {
+            const btn = document.getElementById('btnUpcomingMatchUsage');
+            if (!btn) return;
+
+            const usage = getUpcomingUsageValue();
+            const total = usage.base + usage.bonus;
+
+            if (total > 0) {
+                btn.classList.add('has-value');
+                let text = `🎯 本次場次: ${usage.base || total}`;
+                if (usage.bonus > 0) {
+                    text += ` (含加碼${usage.bonus})`;
+                }
+                btn.innerHTML = text;
+            } else {
+                btn.classList.remove('has-value');
+                btn.innerHTML = `🎯 本次場次`;
+            }
+        }
+
+        function updatePoolsUI() {
+            const netTotal = calculateNetAvailableTotalMatches();
+            const badge = document.getElementById('mainTotalMatchesBadge');
+            if (badge) badge.innerText = netTotal;
+
+            const modalTotal = document.getElementById('modalTotalMatches');
+            if (modalTotal) modalTotal.innerText = calculateRawTotalMatches();
+
+            const lastIncText = document.getElementById('lastAutoIncText');
+            if (lastIncText && matchPoolsData) {
+                lastIncText.innerText = matchPoolsData.lastUpdatedDate ? `上次結算: ${matchPoolsData.lastUpdatedDate}` : '今日已跨日更新';
+            }
+
+            updateTopMatchesSummary();
+            updateUpcomingUsageUI();
         }
 
         function deductFromPoolsDirectly(count, preferredPoolId) {
@@ -1027,92 +1010,75 @@
             return { success: remaining === 0, usedPoolName: usedPoolNames.join(' + ') };
         }
 
-        function calculateTotalMatches() {
-            if (!matchPoolsData || !matchPoolsData.pools) return 0;
-            return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
-        }
+        function checkAndProcessCrossDaySettlement() {
+            if (!upcomingMatchUsage) return;
+            const usage = parseUpcomingUsage(upcomingMatchUsage);
+            if (usage.base <= 0 && usage.bonus <= 0) return;
 
-        function calculateRawTotalMatches() {
-            return calculateTotalMatches();
-        }
+            if (!usage.eventDate || typeof usage.eventDate !== 'string' || usage.eventDate.length < 10) return;
+            const targetDateStr = usage.eventDate.split('T')[0];
+            const todayStr = getTodayDateString();
 
-        function updateTopMatchesSummary() {
-            const total = calculateTotalMatches();
-            
-            const totalEl = document.getElementById('topTotalSummary');
-            if (totalEl) totalEl.innerText = `總場次: ${total} 場`;
+            if (targetDateStr >= todayStr) return;
 
-            const listEl = document.getElementById('topPoolsSummaryList');
-            if (listEl && matchPoolsData && matchPoolsData.pools) {
-                let html = '';
-                matchPoolsData.pools.forEach(pool => {
-                    html += `<span class="top-summary-item">${pool.name}: ${pool.count || 0}</span>`;
-                });
-                listEl.innerHTML = html;
+            if (usage.base > 0 && usage.basePoolId) {
+                deductFromPoolsDirectly(usage.base, usage.basePoolId);
             }
-        }
-
-        function updateUpcomingUsageUI() {
-            const btn = document.getElementById('btnUpcomingMatchUsage');
-            if (!btn) return;
-
-            const usage = getUpcomingUsageValue();
-            const total = usage.base + usage.bonus;
-
-            if (total > 0) {
-                btn.classList.add('has-value');
-                let text = `🎯 本次場次: ${total}`;
-                if (usage.bonus > 0) {
-                    text += ` (含加碼${usage.bonus})`;
-                }
-                btn.innerHTML = text;
-            } else {
-                btn.classList.remove('has-value');
-                btn.innerHTML = `🎯 本次場次`;
+            if (usage.bonus > 0 && usage.bonusPoolId) {
+                deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
             }
-        }
 
-        /* 根據需求顯示格式：
-           - 預訂對戰圖鑑顯示： 本次場次:本次場次:所輸入場次 加碼場次 (例: 本次場次: 3 場, 主委加碼: 1 場)
-           - 歷史訓練家對戰圖鑑顯示： 場次:場次:所輸入場次 加碼場次 (例: 場次: 3 場, 主委加碼: 1 場)
-        */
-        function formatMatchUsageHTML(roundOrUsage, isHistoryMode = false) {
-            let base = 0, bonus = 0;
-            
-            if (roundOrUsage) {
-                base = roundOrUsage.baseCount || 0;
-                bonus = roundOrUsage.bonusCount || 0;
-                
-                if (base === 0 && bonus === 0 && roundOrUsage.usedMatchesCount) {
-                    base = roundOrUsage.usedMatchesCount;
+            if (matchPoolsData) {
+                matchPoolsData.lastUpdatedDate = todayStr;
+                set(matchPoolsRef, matchPoolsData);
+            }
+
+            if (historyRounds && historyRounds.length > 0) {
+                const targetRound = historyRounds.find(r => (r.eventDate || '').split('T')[0] === targetDateStr);
+                if (targetRound) {
+                    const targetIdx = targetRound.originalIndex !== undefined ? targetRound.originalIndex : historyRounds.indexOf(targetRound);
+                    const totalMatchesUsed = usage.base + usage.bonus;
+
+                    let matchUsageStr = `${totalMatchesUsed} 場`;
+                    if (usage.bonus > 0) {
+                        matchUsageStr = `${totalMatchesUsed} 場 (基本 ${usage.base} + 加碼 ${usage.bonus})`;
+                    }
+
+                    historyRounds[targetIdx].baseCount = usage.base;
+                    historyRounds[targetIdx].bonusCount = usage.bonus;
+                    historyRounds[targetIdx].usedMatchesCount = totalMatchesUsed;
+                    historyRounds[targetIdx].matchUsageText = matchUsageStr;
+
+                    set(historyRef, historyRounds);
                 }
             }
-            
-            if (base === 0 && bonus === 0 && !isHistoryMode) {
-                const usage = getUpcomingUsageValue();
-                base = usage.base || 0;
-                bonus = usage.bonus || 0;
-            }
 
-            const total = base + bonus;
-            if (total <= 0) return '';
-
-            let textParts = [];
-            if (base > 0) {
-                textParts.push(`${base} 場`);
-            }
-            if (bonus > 0) {
-                textParts.push(`主委加碼: ${bonus} 場`);
-            }
-
-            const prefixText = isHistoryMode ? '🎯 場次：' : '🎯 本次場次：';
-            const detailText = textParts.join(', ');
-
-            return `<div class="match-badge-box">
-                <span>${prefixText}${detailText}</span>
-                <span class="pool-badge" style="font-size:0.82rem;">共 ${total} 場</span>
-            </div>`;
+            set(upcomingUsageRef, null);
         }
+
+        window.openPasswordModal = function(title, subtext, onSuccessCallback) {
+            document.getElementById('passwordModalTitle').innerText = title || "🔐 請輸入驗證密碼";
+            document.getElementById('passwordModalSubtext').innerText = subtext || "請輸入存取密碼以繼續：";
+            const pwdInput = document.getElementById('passwordModalInput');
+            pwdInput.value = "";
+            activePasswordCallback = onSuccessCallback;
+            document.getElementById('passwordModal').style.display = 'flex';
+            setTimeout(() => pwdInput.focus(), 100);
+        };
+
+        window.closePasswordModal = function() {
+            document.getElementById('passwordModal').style.display = 'none';
+            activePasswordCallback = null;
+        };
+
+        window.submitPasswordModal = function() {
+            const pwdInput = document.getElementById('passwordModalInput');
+            const pwd = pwdInput.value.trim();
+            if (activePasswordCallback) {
+                const isValid = activePasswordCallback(pwd);
+                if (isValid) closePasswordModal();
+            }
+        };
 
         window.handleUpcomingUsageClick = function() {
             openPasswordModal(
@@ -1121,12 +1087,8 @@
                 (pwd) => {
                     if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
                         const usage = getUpcomingUsageValue();
-                        const baseTxt = document.getElementById('modalBaseMatchText');
-                        const bonusTxt = document.getElementById('modalBonusMatchText');
-
-                        if (baseTxt) baseTxt.innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
-                        if (bonusTxt) bonusTxt.innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
-
+                        document.getElementById('modalBaseMatchText').innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
+                        document.getElementById('modalBonusMatchText').innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
                         document.getElementById('upcomingModal').style.display = 'flex';
                         return true;
                     } else {
@@ -1146,9 +1108,7 @@
             currentInputMode = 'base';
             const usage = getUpcomingUsageValue();
             document.getElementById('matchInputModalTitle').innerText = '🎯 設定本次場次';
-            document.getElementById('matchInputModalSubtext').innerText = usage.base > 0 
-                ? `目前場次：${usage.base} 場\n請修改數量，或輸入 0 清除：`
-                : '請輸入本次場次數量：';
+            document.getElementById('matchInputModalSubtext').innerText = usage.base > 0 ? `目前場次：${usage.base} 場\n請修改數量，或輸入 0 清除：` : '請輸入本次場次數量：';
             document.getElementById('matchInputVal').value = usage.base || '';
             document.getElementById('matchInputModal').style.display = 'flex';
             setTimeout(() => {
@@ -1163,9 +1123,7 @@
             currentInputMode = 'bonus';
             const usage = getUpcomingUsageValue();
             document.getElementById('matchInputModalTitle').innerText = '🎁 設定主委加碼';
-            document.getElementById('matchInputModalSubtext').innerText = usage.bonus > 0 
-                ? `目前加碼：${usage.bonus} 場\n請修改數量，或輸入 0 清除：`
-                : '請輸入主委加碼場次數量：';
+            document.getElementById('matchInputModalSubtext').innerText = usage.bonus > 0 ? `目前加碼：${usage.bonus} 場\n請修改數量，或輸入 0 清除：` : '請輸入主委加碼場次數量：';
             document.getElementById('matchInputVal').value = usage.bonus || '';
             document.getElementById('matchInputModal').style.display = 'flex';
             setTimeout(() => {
@@ -1179,6 +1137,10 @@
             document.getElementById('matchInputModal').style.display = 'none';
         };
 
+        window.confirmMatchInput = function() {
+            submitMatchInput();
+        };
+
         window.submitMatchInput = function(valOverride) {
             let valStr = valOverride !== undefined ? String(valOverride) : document.getElementById('matchInputVal').value.trim();
             if (valStr === '') return;
@@ -1189,13 +1151,11 @@
             }
 
             const usage = getUpcomingUsageValue();
-            closeMatchInputModal();
+            const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
+            const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            usage.eventDate = `${dateInputVal}T${timeInputVal}`;
 
-            if (currentInputMode === 'base' && usage.base > 0) {
-                releaseMatchPools(usage.base, usage.basePoolId);
-            } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
-                releaseMatchPools(usage.bonus, usage.bonusPoolId);
-            }
+            closeMatchInputModal();
 
             if (num === 0) {
                 if (currentInputMode === 'base') {
@@ -1207,144 +1167,48 @@
                     usage.bonusPoolId = "";
                     usage.bonusUsedName = "";
                 }
-                set(matchPoolsRef, matchPoolsData);
                 saveUpcomingUsageState(usage);
-                alert("已清除該場次設定並將剩餘額度釋放回卡池！");
+                alert("已清除該預約場次設定！");
             } else {
-                const promptTitle = currentInputMode === 'base' 
-                    ? `請選擇【本次場次】要扣除的場次池 (需 ${num} 場)：` 
-                    : `請選擇【主委加碼】要扣除的場次池 (需 ${num} 場)：`;
+                const promptTitle = currentInputMode === 'base' ? `請選擇【本次場次】要使用的場次池 (預扣 ${num} 場)：` : `請選擇【主委加碼】要使用的場次池 (預扣 ${num} 場)：`;
                 
                 openPoolSelectionForAction((chosenPoolId) => {
-                    deductMatchPoolsInteractive(num, chosenPoolId, (res) => {
-                        if (!res || !res.success) {
-                            if (currentInputMode === 'base' && usage.base > 0) {
-                                deductFromPoolsDirectly(usage.base, usage.basePoolId);
-                            } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
-                                deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
-                            }
-                            return;
-                        }
-                        
-                        if (currentInputMode === 'base') {
-                            usage.base = num;
-                            usage.basePoolId = chosenPoolId;
-                            usage.baseUsedName = res.usedPoolName;
-                        } else {
-                            usage.bonus = num;
-                            usage.bonusPoolId = chosenPoolId;
-                            usage.bonusUsedName = res.usedPoolName;
-                        }
-                        set(matchPoolsRef, matchPoolsData);
-                        saveUpcomingUsageState(usage);
-                    });
-                }, promptTitle, () => {
-                    if (currentInputMode === 'base' && usage.base > 0) {
-                        deductFromPoolsDirectly(usage.base, usage.basePoolId);
-                    } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
-                        deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
+                    const pool = matchPoolsData.pools.find(p => p.id === chosenPoolId);
+                    const poolName = pool ? pool.name : "指定場次池";
+                    
+                    if (currentInputMode === 'base') {
+                        usage.base = num;
+                        usage.basePoolId = chosenPoolId;
+                        usage.baseUsedName = poolName;
+                    } else {
+                        usage.bonus = num;
+                        usage.bonusPoolId = chosenPoolId;
+                        usage.bonusUsedName = poolName;
                     }
-                });
+                    saveUpcomingUsageState(usage);
+                }, promptTitle);
             }
-        };
-
-        window.confirmMatchInput = function() {
-            submitMatchInput();
         };
 
         window.clearUpcomingUsageAndBonus = function() {
-            const usage = getUpcomingUsageValue();
-            if (usage.base > 0) releaseMatchPools(usage.base, usage.basePoolId);
-            if (usage.bonus > 0) releaseMatchPools(usage.bonus, usage.bonusPoolId);
-
-            set(matchPoolsRef, matchPoolsData);
             set(upcomingUsageRef, null);
-            
-            if (historyRounds && historyRounds.length > 0) {
-                const now = new Date();
-                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                const sorted = getChronologicalHistory(historyRounds);
-                const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
-                const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
-
-                if (target) {
-                    const targetIdx = target.originalIndex;
-                    delete historyRounds[targetIdx].baseCount;
-                    delete historyRounds[targetIdx].bonusCount;
-                    delete historyRounds[targetIdx].basePoolId;
-                    delete historyRounds[targetIdx].bonusPoolId;
-                    delete historyRounds[targetIdx].baseUsedName;
-                    delete historyRounds[targetIdx].bonusUsedName;
-                    delete historyRounds[targetIdx].usedMatchesCount;
-                    delete historyRounds[targetIdx].matchUsageText;
-                    delete historyRounds[targetIdx].usedPoolName;
-                    set(historyRef, historyRounds);
-                }
-            }
-
             closeUpcomingModal();
             updatePoolsUI();
-            alert("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
+            alert("已成功清空所有本次場次與加碼設定！");
         };
 
         function saveUpcomingUsageState(usageObj) {
-            if (usageObj.base <= 0 && usageObj.bonus <= 0) {
+            const dateInp = document.getElementById('eventDate');
+            const dateVal = (dateInp && dateInp.value) ? dateInp.value : getTodayDateString();
+            const timeInp = document.getElementById('eventTime');
+            const timeVal = (timeInp && timeInp.value) ? timeInp.value : '14:00';
+            
+            usageObj.eventDate = `${dateVal}T${timeVal}`;
+
+            if ((Number(usageObj.base) || 0) <= 0 && (Number(usageObj.bonus) || 0) <= 0) {
                 set(upcomingUsageRef, null);
             } else {
                 set(upcomingUsageRef, usageObj);
-            }
-
-            if (historyRounds && historyRounds.length > 0) {
-                const now = new Date();
-                const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-                const sorted = getChronologicalHistory(historyRounds);
-                const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
-                const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
-
-                if (target) {
-                    const targetIdx = target.originalIndex;
-                    const totalMatchesUsed = usageObj.base + usageObj.bonus;
-
-                    if (totalMatchesUsed > 0) {
-                        let matchUsageStr = `${totalMatchesUsed} 場`;
-                        if (usageObj.bonus > 0) {
-                            matchUsageStr = `${totalMatchesUsed} 場 (基本 ${usageObj.base} + 加碼 ${usageObj.bonus})`;
-                        }
-
-                        let usedPoolNames = [];
-                        if (usageObj.base > 0) {
-                            usedPoolNames.push(usageObj.baseUsedName || "自動扣除");
-                        }
-                        if (usageObj.bonus > 0) {
-                            let bName = usageObj.bonusUsedName || "自動扣除";
-                            if (!bName.includes('加碼')) bName += '(加碼)';
-                            usedPoolNames.push(bName);
-                        }
-
-                        historyRounds[targetIdx].baseCount = usageObj.base;
-                        historyRounds[targetIdx].bonusCount = usageObj.bonus;
-                        historyRounds[targetIdx].basePoolId = usageObj.basePoolId;
-                        historyRounds[targetIdx].bonusPoolId = usageObj.bonusPoolId;
-                        historyRounds[targetIdx].baseUsedName = usageObj.baseUsedName;
-                        historyRounds[targetIdx].bonusUsedName = usageObj.bonusUsedName;
-                        historyRounds[targetIdx].usedMatchesCount = totalMatchesUsed;
-                        historyRounds[targetIdx].matchUsageText = matchUsageStr;
-                        if (usedPoolNames.length > 0) {
-                            historyRounds[targetIdx].usedPoolName = usedPoolNames.join(' + ');
-                        }
-                    } else {
-                        delete historyRounds[targetIdx].baseCount;
-                        delete historyRounds[targetIdx].bonusCount;
-                        delete historyRounds[targetIdx].basePoolId;
-                        delete historyRounds[targetIdx].bonusPoolId;
-                        delete historyRounds[targetIdx].baseUsedName;
-                        delete historyRounds[targetIdx].bonusUsedName;
-                        delete historyRounds[targetIdx].usedMatchesCount;
-                        delete historyRounds[targetIdx].matchUsageText;
-                        delete historyRounds[targetIdx].usedPoolName;
-                    }
-                    set(historyRef, historyRounds);
-                }
             }
 
             updatePoolsUI();
@@ -1354,84 +1218,23 @@
         let onPoolSelectCallback = null;
         let onPoolCancelCallback = null;
 
-        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null, customEffPools = null) {
+        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null) {
             onPoolSelectCallback = callback;
             onPoolCancelCallback = cancelCallback;
             document.getElementById('selectPoolModalSubtext').innerText = titleText;
             const container = document.getElementById('selectPoolModalList');
-            
-            const pools = customEffPools || (matchPoolsData ? matchPoolsData.pools : []);
-            const availablePools = pools.filter(p => (Number(p.count) || 0) > 0);
+            const pools = matchPoolsData ? matchPoolsData.pools : [];
 
             let html = '';
-            if (availablePools.length === 0) {
-                html += `<div class="empty-text" style="color:var(--poke-red); font-weight:900;">⚠️ 目前無任何剩餘場次池！</div>`;
+            if (pools.length === 0) {
+                html += `<div class="empty-text" style="color:var(--poke-red); font-weight:900;">⚠️ 目前無任何場次池！</div>`;
             } else {
-                availablePools.forEach(pool => {
-                    html += `<button class="size-option-btn" onclick="confirmPoolSelect('${pool.id}')">🎯 ${pool.name} (剩餘 ${pool.count} 場)</button>`;
+                pools.forEach(pool => {
+                    html += `<button class="size-option-btn" onclick="confirmPoolSelect('${pool.id}')">🎯 ${pool.name} (庫存 ${pool.count} 場)</button>`;
                 });
             }
             container.innerHTML = html;
             document.getElementById('selectPoolModal').style.display = 'flex';
-        }
-
-        function deductMatchPoolsInteractive(neededCount, currentPoolId, onComplete, accumulated = []) {
-            if (!matchPoolsData || !matchPoolsData.pools) return;
-            let totalAvail = matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
-            
-            if (totalAvail <= 0 || totalAvail < neededCount) {
-                alert("請支援收銀!!!");
-                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
-                return;
-            }
-
-            if (!currentPoolId) {
-                promptNextPoolDeduction(neededCount, `請選擇要扣除的場次池 (尚需 ${neededCount} 場)：`, onComplete, accumulated);
-                return;
-            }
-
-            let targetPool = matchPoolsData.pools.find(p => p.id === currentPoolId);
-            let poolCount = targetPool ? (Number(targetPool.count) || 0) : 0;
-
-            if (!targetPool || poolCount <= 0) {
-                promptNextPoolDeduction(neededCount, `【${targetPool ? targetPool.name : '選擇的場次池'}】剩餘額度不足！請選擇其他場次池：`, onComplete, accumulated);
-                return;
-            }
-
-            if (poolCount >= neededCount) {
-                targetPool.count = poolCount - neededCount;
-                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: neededCount });
-                let usedNameStr = formatAccumulatedPoolNames(accumulated);
-                if (onComplete) onComplete({ success: true, usedPoolName: usedNameStr });
-            } else {
-                let deducted = poolCount;
-                let remainingNeeded = neededCount - deducted;
-                targetPool.count = 0;
-                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: deducted });
-                promptNextPoolDeduction(remainingNeeded, `「${targetPool.name}」已扣完 (${deducted} 場)，尚需扣除 ${remainingNeeded} 場，請選擇下一個場次池：`, onComplete, accumulated);
-            }
-        }
-
-        function formatAccumulatedPoolNames(accumulated) {
-            if (accumulated.length === 1) {
-                return accumulated[0].poolName;
-            }
-            return accumulated.map(a => `${a.poolName}(-${a.count})`).join(' + ');
-        }
-
-        function promptNextPoolDeduction(remainingNeeded, subtext, onComplete, accumulated = []) {
-            let availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
-            if (availablePools.length === 0) {
-                alert("請支援收銀!!!");
-                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
-                return;
-            }
-
-            openPoolSelectionForAction((chosenPoolId) => {
-                deductMatchPoolsInteractive(remainingNeeded, chosenPoolId, onComplete, accumulated);
-            }, subtext, () => {
-                if (onComplete) onComplete({ success: false, reason: "CANCELLED" });
-            });
         }
 
         window.confirmPoolSelect = function(poolId) {
@@ -1439,9 +1242,7 @@
             onPoolSelectCallback = null;
             onPoolCancelCallback = null;
             document.getElementById('selectPoolModal').style.display = 'none';
-            if (cb) {
-                cb(poolId);
-            }
+            if (cb) cb(poolId);
         };
 
         window.closeSelectPoolModal = function() {
@@ -1449,27 +1250,8 @@
             onPoolSelectCallback = null;
             onPoolCancelCallback = null;
             document.getElementById('selectPoolModal').style.display = 'none';
-            if (cancelCb) {
-                cancelCb();
-            }
+            if (cancelCb) cancelCb();
         };
-
-        function updatePoolsUI() {
-            const total = calculateTotalMatches();
-            const badge = document.getElementById('mainTotalMatchesBadge');
-            if (badge) badge.innerText = total;
-
-            const modalTotal = document.getElementById('modalTotalMatches');
-            if (modalTotal) modalTotal.innerText = calculateRawTotalMatches();
-
-            const lastIncText = document.getElementById('lastAutoIncText');
-            if (lastIncText) {
-                lastIncText.innerText = matchPoolsData.lastUpdatedDate ? `上次結算: ${matchPoolsData.lastUpdatedDate}` : '今日已跨日更新';
-            }
-
-            updateTopMatchesSummary();
-            updateUpcomingUsageUI();
-        }
 
         window.openPoolManagementModal = function() {
             openPasswordModal(
@@ -1519,9 +1301,7 @@
         };
 
         window.deletePool = function(poolId) {
-            if (matchPoolsData.pools.length <= 1) {
-                return alert("至少需保留一個對戰場次池！");
-            }
+            if (matchPoolsData.pools.length <= 1) return alert("至少需保留一個對戰場次池！");
             if (!confirm("確定要刪除此場次池嗎？")) return;
             matchPoolsData.pools = matchPoolsData.pools.filter(p => p.id !== poolId);
             renderPoolListModal();
@@ -1529,14 +1309,12 @@
 
         window.savePoolsFromModal = function() {
             if (!matchPoolsData || !matchPoolsData.pools) return;
-            
             matchPoolsData.pools.forEach((pool, idx) => {
                 const nameInp = document.getElementById(`poolName_${idx}`);
                 const countInp = document.getElementById(`poolCount_${idx}`);
                 if (nameInp) pool.name = nameInp.value.trim() || `場次池 ${idx + 1}`;
                 if (countInp) pool.count = Math.max(0, parseInt(countInp.value) || 0);
             });
-
             matchPoolsData.lastUpdatedDate = getTodayDateString();
             set(matchPoolsRef, matchPoolsData);
             closePoolManagementModal();
@@ -1549,11 +1327,8 @@
             const dateObj = new Date(dateVal + 'T00:00:00');
             const day = dateObj.getDay();
             const timeInput = document.getElementById('eventTime');
-            if (day === 3) {
-                timeInput.value = "14:00";
-            } else if (day === 6) {
-                timeInput.value = "13:00";
-            }
+            if (day === 3) timeInput.value = "14:00";
+            else if (day === 6) timeInput.value = "13:00";
         };
 
         window.onModalDateInputChange = function() {
@@ -1562,17 +1337,13 @@
             const dateObj = new Date(dateVal + 'T00:00:00');
             const day = dateObj.getDay();
             const timeInput = document.getElementById('editModalTime');
-            if (day === 3) {
-                timeInput.value = "14:00";
-            } else if (day === 6) {
-                timeInput.value = "13:00";
-            }
+            if (day === 3) timeInput.value = "14:00";
+            else if (day === 6) timeInput.value = "13:00";
         };
 
         function formatDateWithDay(dateStr, timeStr = '') {
             if (!dateStr) return '';
             const days = ['日', '一', '二', '三', '四', '五', '六'];
-            
             let cleanDate = dateStr;
             let cleanTime = timeStr;
             if (dateStr.includes('T')) {
@@ -1587,12 +1358,7 @@
             const mm = pad(dateObj.getMonth() + 1);
             const dd = pad(dateObj.getDate());
             const dayOfWeek = days[dateObj.getDay()];
-            
-            if (cleanTime) {
-                return `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${cleanTime}`;
-            } else {
-                return `${yyyy}-${mm}-${dd} (${dayOfWeek})`;
-            }
+            return cleanTime ? `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${cleanTime}` : `${yyyy}-${mm}-${dd} (${dayOfWeek})`;
         }
 
         function generateGoogleCalendarUrl(round) {
@@ -1606,35 +1372,23 @@
             }
             const cleanDate = datePart.replace(/-/g, '');
             const cleanTime = timePart.replace(/:/g, '') + '00';
-            
             const startDt = new Date(`${datePart}T${timePart}:00`);
             const endDt = new Date(startDt.getTime() + 2 * 60 * 60 * 1000);
-            
             const pad = (n) => String(n).padStart(2, '0');
             const endCleanDate = `${endDt.getFullYear()}${pad(endDt.getMonth()+1)}${pad(endDt.getDate())}`;
             const endCleanTime = `${pad(endDt.getHours())}${pad(endDt.getMinutes())}00`;
             const dates = `${cleanDate}T${cleanTime}/${endCleanDate}T${endCleanTime}`;
-            
             const title = encodeURIComponent("白熊保齡球");
-            
             let detailsText = "【白熊保齡球戰報】\n";
-            if (round.teams && round.teams.length > 0) {
-                round.teams.forEach((t, i) => {
-                    detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`;
-                });
-            }
+            if (round.teams) round.teams.forEach((t, i) => { detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`; });
             if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
             const details = encodeURIComponent(detailsText);
             const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
             return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
         }
 
-        window.openTeamSizeModal = function() {
-            document.getElementById('teamSizeModal').style.display = 'flex';
-        };
-        window.closeTeamSizeModal = function() {
-            document.getElementById('teamSizeModal').style.display = 'none';
-        };
+        window.openTeamSizeModal = function() { document.getElementById('teamSizeModal').style.display = 'flex'; };
+        window.closeTeamSizeModal = function() { document.getElementById('teamSizeModal').style.display = 'none'; };
         window.selectTeamSize = function(size) {
             selectedTeamSize = size;
             document.getElementById('selectedTeamSizeText').innerText = `${size} 人一組`;
@@ -1645,28 +1399,18 @@
             selectedRestaurantRaw = val;
             const parsed = parseRestaurantInput(val);
             const displaySpan = document.getElementById('selectedRestaurantText');
-            if (parsed.name && parsed.name !== "Google 地圖連結") {
-                displaySpan.innerText = `📍 ${parsed.name}`;
-            } else if (val) {
-                displaySpan.innerText = `📍 已貼上連結/餐廳`;
-            } else {
-                displaySpan.innerText = `尚未設定餐廳`;
-            }
+            if (parsed.name && parsed.name !== "Google 地圖連結") displaySpan.innerText = `📍 ${parsed.name}`;
+            else if (val) displaySpan.innerText = `📍 已貼上連結/餐廳`;
+            else displaySpan.innerText = `尚未設定餐廳`;
         }
 
         window.pasteClipboardMain = async function() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     const text = await navigator.clipboard.readText();
-                    if (text) {
-                        updateMainRestaurantUI(text.trim());
-                    }
-                } else {
-                    alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
-                }
-            } catch (err) {
-                alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
-            }
+                    if (text) updateMainRestaurantUI(text.trim());
+                } else alert("請授權剪貼簿讀取權限！");
+            } catch (err) { alert("請授權剪貼簿讀取權限！"); }
         };
 
         window.openRestaurantModal = function() {
@@ -1674,9 +1418,7 @@
             renderModalRestaurantList();
             document.getElementById('restaurantModal').style.display = 'flex';
         };
-        window.closeRestaurantModal = function() {
-            document.getElementById('restaurantModal').style.display = 'none';
-        };
+        window.closeRestaurantModal = function() { document.getElementById('restaurantModal').style.display = 'none'; };
         window.confirmRestaurantModal = function() {
             const val = document.getElementById('restaurantModalInput').value.trim();
             updateMainRestaurantUI(val);
@@ -1691,12 +1433,8 @@
                         document.getElementById('restaurantModalInput').value = text;
                         renderModalRestaurantList(text.trim().toLowerCase());
                     }
-                } else {
-                    alert("請手動長按輸入框貼上！");
-                }
-            } catch (err) {
-                alert("請授權剪貼簿讀取權限，或手動貼上！");
-            }
+                } else alert("請手動長按輸入框貼上！");
+            } catch (err) { alert("請手動貼上！"); }
         };
 
         window.filterModalRestaurants = function() {
@@ -1722,9 +1460,7 @@
             container.innerHTML = html;
         }
 
-        window.selectModalRestaurant = function(name) {
-            document.getElementById('restaurantModalInput').value = name;
-        };
+        window.selectModalRestaurant = function(name) { document.getElementById('restaurantModalInput').value = name; };
 
         function clearCurrentResultUI() {
             currentSessionResult = null;
@@ -1750,8 +1486,7 @@
 
         const nextDate = getNextTargetDay();
         const pad = (num) => String(num).padStart(2, '0');
-        const dateStr = `${nextDate.getFullYear()}-${pad(nextDate.getMonth()+1)}-${pad(nextDate.getDate())}`;
-        document.getElementById('eventDate').value = dateStr;
+        document.getElementById('eventDate').value = `${nextDate.getFullYear()}-${pad(nextDate.getMonth()+1)}-${pad(nextDate.getDate())}`;
         window.onDateInputChange();
 
         function initNameTags() {
@@ -1783,17 +1518,12 @@
                 }
             );
         };
-        window.closeTrainerManagerModal = function() {
-            document.getElementById('trainerModal').style.display = 'none';
-        };
+        window.closeTrainerManagerModal = function() { document.getElementById('trainerModal').style.display = 'none'; };
         window.addNewTrainerPreset = function() {
             const input = document.getElementById('newTrainerInput');
             const val = input.value.trim();
             if (!val) return;
-            if (defaultPresetNames.includes(val)) {
-                alert("該訓練家已存在於清單中！");
-                return;
-            }
+            if (defaultPresetNames.includes(val)) return alert("該訓練家已存在於清單中！");
             defaultPresetNames.push(val);
             set(trainerPresetsRef, defaultPresetNames);
             input.value = '';
@@ -1873,19 +1603,14 @@
             const container = document.getElementById('upcomingHistoryContent');
             const now = new Date();
             const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            const usage = getUpcomingUsageValue();
 
             if (historyRounds.length === 0) {
-                if (usage.base > 0 || usage.bonus > 0) {
-                    container.innerHTML = `<div class="pop-in">${formatMatchUsageHTML(null, false)}</div>`;
-                } else {
-                    container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
-                }
+                container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
                 return;
             }
 
             const sorted = getChronologicalHistory(historyRounds);
-            const upcomingRounds = sorted.filter(r => r.eventDate >= todayStr);
+            const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
             const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
 
             const calUrl = generateGoogleCalendarUrl(target);
@@ -1893,10 +1618,6 @@
 
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
-            
-            /* 顯眼標示預訂對戰圖鑑中的「本次場次:所輸入場次 加碼場次」 */
-            const matchUsageHtml = formatMatchUsageHTML(target, false);
-            if (matchUsageHtml) html += matchUsageHtml;
 
             html += formatRestaurantHTML(target);
             target.teams.forEach((team, index) => {
@@ -1946,15 +1667,11 @@
             let matchUsageStr = '';
             if (totalMatchesUsed > 0) {
                 matchUsageStr = `${totalMatchesUsed} 場`;
-                if (bonusCnt > 0) {
-                    matchUsageStr = `${totalMatchesUsed} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
-                }
+                if (bonusCnt > 0) matchUsageStr = `${totalMatchesUsed} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
             }
 
             let usedPoolNames = [];
-            if (usage.base > 0) {
-                usedPoolNames.push(usage.baseUsedName || "預設場次池");
-            }
+            if (usage.base > 0) usedPoolNames.push(usage.baseUsedName || "預設場次池");
             if (usage.bonus > 0) {
                 let bName = usage.bonusUsedName || "預設場次池";
                 if (!bName.includes('加碼')) bName += '(加碼)';
@@ -1979,9 +1696,7 @@
             function isPlayerInBye(byeData, player) {
                 if (!byeData) return false;
                 if (Array.isArray(byeData)) return byeData.includes(player);
-                if (typeof byeData === 'string') {
-                    return byeData.split(',').map(s => s.trim()).includes(player);
-                }
+                if (typeof byeData === 'string') return byeData.split(',').map(s => s.trim()).includes(player);
                 return false;
             }
 
@@ -1990,28 +1705,16 @@
                 const sorted = getChronologicalHistory(historyRounds);
                 const beforeRounds = sorted.filter(r => r.eventDate < targetDateVal).slice(-recentRoundsCount);
                 const afterRounds = sorted.filter(r => r.eventDate > targetDateVal).slice(0, recentRoundsCount);
-                const surroundingRounds = [...beforeRounds, ...afterRounds];
-
-                return surroundingRounds.some(round =>
-                    round.teams && round.teams.some(team => team.includes(p1) && team.includes(p2))
-                );
+                return [...beforeRounds, ...afterRounds].some(round => round.teams && round.teams.some(team => team.includes(p1) && team.includes(p2)));
             }
 
             function isByeInSurroundingRounds(player, targetDateVal, recentByeCount) {
                 if (!historyRounds || historyRounds.length === 0 || recentByeCount === 0) return false;
                 const sorted = getChronologicalHistory(historyRounds);
-
-                const roundsWithBye = sorted.filter(r => {
-                    if (!r.bye) return false;
-                    if (Array.isArray(r.bye)) return r.bye.length > 0;
-                    return String(r.bye).trim().length > 0;
-                });
-
+                const roundsWithBye = sorted.filter(r => r.bye && (Array.isArray(r.bye) ? r.bye.length > 0 : String(r.bye).trim().length > 0));
                 const beforeByeRounds = roundsWithBye.filter(r => r.eventDate < targetDateVal).slice(-recentByeCount);
                 const afterByeRounds = roundsWithBye.filter(r => r.eventDate > targetDateVal).slice(0, recentByeCount);
-                const surroundingByeRounds = [...beforeByeRounds, ...afterByeRounds];
-
-                return surroundingByeRounds.some(round => isPlayerInBye(round.bye, player));
+                return [...beforeByeRounds, ...afterByeRounds].some(round => isPlayerInBye(round.bye, player));
             }
 
             let validMatchFound = false;
@@ -2036,26 +1739,15 @@
                     if (remainder !== 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
-                            let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }))
-                                                           .filter(c => !isByeInSurroundingRounds(c.name, eventDateVal, level.byeHistory));
-                            if (candidates.length === 0) {
-                                candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
-                            }
+                            let candidates = currentPlayers.map((p, idx) => ({ name: p, idx })).filter(c => !isByeInSurroundingRounds(c.name, eventDateVal, level.byeHistory));
+                            if (candidates.length === 0) candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
                             
-                            let totalWeight = candidates.reduce((sum, c) => {
-                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                return sum + (isReduced ? 0.5 : 1.0);
-                            }, 0);
-
+                            let totalWeight = candidates.reduce((sum, c) => sum + (lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase()) ? 0.5 : 1.0), 0);
                             let rand = Math.random() * totalWeight;
                             let chosenIndex = candidates[0].idx;
                             for (let c of candidates) {
-                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                const w = isReduced ? 0.5 : 1.0;
-                                if (rand < w) {
-                                    chosenIndex = c.idx;
-                                    break;
-                                }
+                                const w = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase()) ? 0.5 : 1.0;
+                                if (rand < w) { chosenIndex = c.idx; break; }
                                 rand -= w;
                             }
                             currentBye.push(currentPlayers.splice(chosenIndex, 1)[0]);
@@ -2067,23 +1759,12 @@
 
                     for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
                         let group = currentPlayers.slice(i, i + selectedTeamSize);
-                        
-                        if (group.includes("團團") && group.includes("圓圓")) {
-                            if (Math.random() < 0.5) {
-                                isValid = false;
-                                break;
-                            }
-                        }
-
-                        if (group.includes("圓圓") && group.includes("圓仔")) {
-                            isYuanYuanAndZaiPaired = true;
-                        }
+                        if (group.includes("團團") && group.includes("圓圓") && Math.random() < 0.5) { isValid = false; break; }
+                        if (group.includes("圓圓") && group.includes("圓仔")) isYuanYuanAndZaiPaired = true;
 
                         for (let a = 0; a < group.length; a++) {
                             for (let b = a + 1; b < group.length; b++) {
-                                if (isPairInSurroundingRounds(group[a], group[b], eventDateVal, level.pairHistory)) {
-                                    isValid = false; break;
-                                }
+                                if (isPairInSurroundingRounds(group[a], group[b], eventDateVal, level.pairHistory)) { isValid = false; break; }
                             }
                             if (!isValid) break;
                         }
@@ -2091,11 +1772,7 @@
                         tempTeams.push(group);
                     }
 
-                    if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
-                        if (Math.random() < 0.5) {
-                            isValid = false;
-                        }
-                    }
+                    if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired && Math.random() < 0.5) isValid = false;
 
                     if (isValid) {
                         bestTeams = tempTeams;
@@ -2107,22 +1784,17 @@
                 if (validMatchFound) break;
             }
 
-            const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
             const newRound = {
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
                 mapUrl: restaurantData.url,
                 teams: bestTeams,
-                bye: byeString,
+                bye: Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || ''),
                 usedPoolName: usedPoolNameStr,
                 usedMatchesCount: totalMatchesUsed,
                 matchUsageText: matchUsageStr,
                 baseCount: usage.base || 0,
-                basePoolId: usage.basePoolId || "",
-                baseUsedName: usage.baseUsedName || "",
-                bonusCount: usage.bonus || 0,
-                bonusPoolId: usage.bonusPoolId || "",
-                bonusUsedName: usage.bonusUsedName || ""
+                bonusCount: usage.bonus || 0
             };
 
             currentSessionResult = newRound;
@@ -2142,94 +1814,53 @@
         function formatRestaurantHTML(round, originalIndex = null) {
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) {
-                name = extractPlaceNameFromUrl(name);
-            }
-            let content = '';
-            if (url) {
-                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
-            } else if (name) {
-                content = `🍽️ 📍 ${name}`;
-            } else {
-                content = `🍽️ 尚未設定餐廳`;
-            }
-
-            let editBtnHtml = '';
-            if (originalIndex !== null) {
-                editBtnHtml = `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>`;
-            }
-
-            return `<div class="result-item full-width restaurant-item-box">
-                <div>${content}</div>
-                ${editBtnHtml}
-            </div>`;
+            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
+            let content = url ? `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${(name && name !== "Google 地圖連結") ? name : "查看 Google 地圖"}</a>` : (name ? `🍽️ 📍 ${name}` : `🍽️ 尚未設定餐廳`);
+            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
+            return `<div class="result-item full-width restaurant-item-box"><div>${content}</div>${editBtnHtml}</div>`;
         }
 
         async function formatRoundText(round) {
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
-
             const calUrl = generateGoogleCalendarUrl(round);
-            if (calUrl) {
-                lines.push(`🗓️ 加入行事曆：${calUrl}`);
-            }
+            if (calUrl) lines.push(`🗓️ 加入行事曆：${calUrl}`);
 
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) {
-                name = extractPlaceNameFromUrl(name);
-            }
+            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
 
             if (url) {
                 if (name && name !== "Google 地圖連結") {
                     lines.push(`🍽️ 用餐餐廳：${name}`);
                     lines.push(`📍 地圖連結：${url}`);
-                } else {
-                    lines.push(`📍 地圖連結：${url}`);
-                }
-            } else if (name) {
-                const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
-                lines.push(`🍽️ 用餐餐廳：${name}`);
-                lines.push(`📍 地圖連結：${mapSearchUrl}`);
-            }
+                } else lines.push(`📍 地圖連結：${url}`);
+            } else if (name) lines.push(`🍽️ 用餐餐廳：${name}`);
 
-            round.teams.forEach((team, index) => {
-                lines.push(`第 ${index + 1} 組：${team.join(' & ')}`);
-            });
+            round.teams.forEach((team, index) => { lines.push(`第 ${index + 1} 組：${team.join(' & ')}`); });
             if (round.bye) lines.push(`此次爽打：${round.bye}`);
-
             return lines.join('\n');
         }
 
         window.copyCurrentResult = async function() {
             if (!currentSessionResult) return;
-            const text = await formatRoundText(currentSessionResult);
-            copyToClipboard(text);
+            copyToClipboard(await formatRoundText(currentSessionResult));
         };
 
         window.shareLineCurrentResult = async function() {
             if (!currentSessionResult) return;
-            const text = await formatRoundText(currentSessionResult);
-            shareToLine(text);
+            shareToLine(await formatRoundText(currentSessionResult));
         };
 
         window.shareLineByIndex = async function(index) {
-            if (historyRounds[index]) {
-                const text = await formatRoundText(historyRounds[index]);
-                shareToLine(text);
-            }
+            if (historyRounds[index]) shareToLine(await formatRoundText(historyRounds[index]));
         };
 
         function shareToLine(text) {
-            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
-            window.open(lineUrl, '_blank');
+            window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text)}`, '_blank');
         }
 
         window.copyRoundByIndex = async function(index) {
-            if (historyRounds[index]) {
-                const text = await formatRoundText(historyRounds[index]);
-                copyToClipboard(text);
-            }
+            if (historyRounds[index]) copyToClipboard(await formatRoundText(historyRounds[index]));
         };
 
         function fallbackCopyTextToClipboard(text) {
@@ -2242,28 +1873,16 @@
             textarea.focus();
             textarea.select();
             try {
-                const successful = document.execCommand("copy");
-                if (successful) {
-                    alert("已複製對戰戰報！");
-                } else {
-                    alert("複製失敗，請手動複製！");
-                }
-            } catch (err) {
-                alert("複製失敗，請手動複製！");
-            }
+                if (document.execCommand("copy")) alert("已複製對戰戰報！");
+                else alert("複製失敗！");
+            } catch (err) { alert("複製失敗！"); }
             document.body.removeChild(textarea);
         }
 
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => {
-                    alert("已複製對戰戰報！");
-                }).catch(() => {
-                    fallbackCopyTextToClipboard(text);
-                });
-            } else {
-                fallbackCopyTextToClipboard(text);
-            }
+                navigator.clipboard.writeText(text).then(() => alert("已複製對戰戰報！")).catch(() => fallbackCopyTextToClipboard(text));
+            } else fallbackCopyTextToClipboard(text);
         }
 
         function renderCurrentResult(round) {
@@ -2271,10 +1890,6 @@
             let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
-            
-            const matchUsageHtml = formatMatchUsageHTML(round, false);
-            if (matchUsageHtml) html += matchUsageHtml;
-
             html += formatRestaurantHTML(round);
             round.teams.forEach((team, index) => {
                 const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
@@ -2306,7 +1921,6 @@
             }
 
             filterContainer.style.display = isHistoryExpanded ? 'block' : 'none';
-
             const filteredRounds = getFilteredHistory();
             if (filteredRounds.length === 0) {
                 historyContainer.innerHTML = '<div class="empty-text">所選的時間區間內無紀錄</div>';
@@ -2315,7 +1929,6 @@
             }
 
             const sortedHistory = getChronologicalHistory(filteredRounds);
-
             if (!isHistoryExpanded) {
                 historyContainer.innerHTML = '';
                 toggleBtn.style.display = 'block';
@@ -2333,13 +1946,14 @@
                 }).join('');
                 let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
                 
-                /* 訓練家對戰圖鑑中顯示： 🎯 場次：場次:所輸入場次 加碼場次 */
-                const matchUsageHtml = formatMatchUsageHTML(round, true);
+                const usedMatches = round.usedMatchesCount || ((round.baseCount || 0) + (round.bonusCount || 0));
+                let matchBadgeHtml = usedMatches > 0 ? `<span class="pool-badge" style="font-size:0.78rem; font-weight:900;">場次: ${usedMatches}</span>` : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
                         <div class="history-date-title">
                             <span>📅 ${formatDateWithDay(round.eventDate)}</span>
+                            ${matchBadgeHtml}
                             <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
                         </div>
                         <div class="action-group">
@@ -2349,7 +1963,6 @@
                             <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
                         </div>
                     </div>
-                    ${matchUsageHtml}
                     <div class="history-teams">
                         ${restaurantHtml}
                         ${teamsHtml}
@@ -2372,13 +1985,11 @@
                         editingIndex = index;
                         const round = historyRounds[index];
                         if (!round) return false;
-
                         editingModalData = {
                             eventDate: round.eventDate || '',
                             teams: (round.teams || []).map(t => [...t]),
                             bye: round.bye || ''
                         };
-
                         if (editingModalData.eventDate.includes('T')) {
                             const parts = editingModalData.eventDate.split('T');
                             document.getElementById('editModalDate').value = parts[0];
@@ -2387,7 +1998,6 @@
                             document.getElementById('editModalDate').value = editingModalData.eventDate;
                             document.getElementById('editModalTime').value = '14:00';
                         }
-
                         renderModalTeams();
                         document.getElementById('editModal').style.display = 'flex';
                         return true;
@@ -2413,10 +2023,7 @@
             const input = document.getElementById('editModalNewPlayerName');
             const name = input.value.trim();
             if (!name) return;
-
-            if (editingModalData.teams.length === 0) {
-                editingModalData.teams.push([]);
-            }
+            if (editingModalData.teams.length === 0) editingModalData.teams.push([]);
             editingModalData.teams[editingModalData.teams.length - 1].push(name);
             input.value = '';
             renderModalTeams();
@@ -2443,11 +2050,7 @@
                 const dropZone = document.createElement('div');
                 dropZone.className = 'drop-zone';
                 dropZone.dataset.teamIndex = tIdx;
-
-                team.forEach((player, pIdx) => {
-                    dropZone.appendChild(createDraggableTag(player, tIdx, pIdx));
-                });
-
+                team.forEach((player, pIdx) => { dropZone.appendChild(createDraggableTag(player, tIdx, pIdx)); });
                 setupDropZone(dropZone);
                 groupDiv.appendChild(dropZone);
                 teamsContainer.appendChild(groupDiv);
@@ -2456,9 +2059,7 @@
             const byeZone = document.getElementById('editModalByeZone');
             byeZone.innerHTML = '';
             let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
-            byeArr.forEach((player, pIdx) => {
-                byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
-            });
+            byeArr.forEach((player, pIdx) => { byeZone.appendChild(createDraggableTag(player, 'bye', pIdx)); });
             setupDropZone(byeZone);
         }
 
@@ -2467,34 +2068,20 @@
             tag.className = 'draggable-player';
             tag.draggable = true;
             tag.innerText = name;
-
             const delBtn = document.createElement('button');
             delBtn.className = 'btn-del-p';
             delBtn.innerText = '×';
-            delBtn.onclick = (e) => {
-                e.stopPropagation();
-                removePlayerFromModal(teamIdx, pIdx);
-            };
-
+            delBtn.onclick = (e) => { e.stopPropagation(); removePlayerFromModal(teamIdx, pIdx); };
             tag.appendChild(delBtn);
             tag.addEventListener('dragstart', (e) => {
-                e.dataTransfer.setData('text/plain', JSON.stringify({
-                    fromTeam: teamIdx,
-                    fromIndex: pIdx,
-                    name: name
-                }));
+                e.dataTransfer.setData('text/plain', JSON.stringify({ fromTeam: teamIdx, fromIndex: pIdx, name: name }));
             });
             return tag;
         }
 
         function setupDropZone(dropZone) {
-            dropZone.addEventListener('dragover', (e) => {
-                e.preventDefault();
-                dropZone.classList.add('drag-over');
-            });
-            dropZone.addEventListener('dragleave', () => {
-                dropZone.classList.remove('drag-over');
-            });
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
             dropZone.addEventListener('drop', (e) => {
                 e.preventDefault();
                 dropZone.classList.remove('drag-over');
@@ -2502,7 +2089,6 @@
                 if (!rawData) return;
                 const data = JSON.parse(rawData);
                 const toTeam = dropZone.dataset.teamIndex;
-
                 let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
 
                 if (data.fromTeam === 'bye') {
@@ -2516,10 +2102,8 @@
                     byeArr.push(data.name);
                     editingModalData.bye = byeArr.join(', ');
                 } else {
-                    const targetTeamIdx = parseInt(toTeam);
-                    editingModalData.teams[targetTeamIdx].push(data.name);
+                    editingModalData.teams[parseInt(toTeam)].push(data.name);
                 }
-
                 renderModalTeams();
             });
         }
@@ -2530,71 +2114,52 @@
             const newTimeVal = document.getElementById('editModalTime').value || '14:00';
             if (!newDateVal) return alert("活動日期不能為空！");
 
-            const newDate = `${newDateVal}T${newTimeVal}`;
-            const cleanedTeams = editingModalData.teams.filter(t => t.length > 0);
-
             let updatedRounds = [...historyRounds];
             updatedRounds[editingIndex] = {
                 ...updatedRounds[editingIndex],
-                eventDate: newDate,
-                teams: cleanedTeams,
+                eventDate: `${newDateVal}T${newTimeVal}`,
+                teams: editingModalData.teams.filter(t => t.length > 0),
                 bye: editingModalData.bye
             };
-
             set(historyRef, updatedRounds);
             closeEditModal();
             alert("對戰紀錄變更成功！");
         };
 
         onValue(historyRef, (snapshot) => {
-            const data = snapshot.val();
-            historyRounds = data ? Object.values(data) : [];
-            checkAndResetExpiredUpcomingUsage();
+            historyRounds = snapshot.val() ? Object.values(snapshot.val()) : [];
+            checkAndProcessCrossDaySettlement();
             renderUpcomingHistory();
             renderHistory();
-            
-            if (currentSessionResult) {
-                renderCurrentResult(currentSessionResult);
-            } else {
-                clearCurrentResultUI();
-            }
+            if (currentSessionResult) renderCurrentResult(currentSessionResult);
+            else clearCurrentResultUI();
         });
 
         onValue(customRestaurantsRef, (snapshot) => {
-            const data = snapshot.val();
-            customRestaurants = data ? Object.values(data) : [];
+            customRestaurants = snapshot.val() ? Object.values(snapshot.val()) : [];
         });
 
         onValue(presetsRef, (snapshot) => {
-            const data = snapshot.val();
-            presetTeams = data ? Object.values(data) : [];
+            presetTeams = snapshot.val() ? Object.values(snapshot.val()) : [];
             presetTeams.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
             document.getElementById('presetBadgeCount').innerText = `(${presetTeams.length})`;
             renderPresetModalList();
         });
 
         onValue(trainerPresetsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && Array.isArray(data)) {
-                defaultPresetNames = data;
-            }
+            if (snapshot.val() && Array.isArray(snapshot.val())) defaultPresetNames = snapshot.val();
             initNameTags();
         });
 
         onValue(matchPoolsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && data.pools) {
-                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
-            } else {
-                matchPoolsData.lastUpdatedDate = getTodayDateString();
-                set(matchPoolsRef, matchPoolsData);
-            }
+            matchPoolsData = (snapshot.val() && snapshot.val().pools) ? checkAndApplyDailyAutoIncrement(snapshot.val()) : { lastUpdatedDate: getTodayDateString(), pools: matchPoolsData.pools };
+            if (!snapshot.val()) set(matchPoolsRef, matchPoolsData);
             updatePoolsUI();
         });
 
         onValue(upcomingUsageRef, (snapshot) => {
             upcomingMatchUsage = snapshot.val();
-            checkAndResetExpiredUpcomingUsage();
+            checkAndProcessCrossDaySettlement();
             updateUpcomingUsageUI();
             updatePoolsUI();
             renderUpcomingHistory();
@@ -2605,7 +2170,6 @@
             renderPresetModalList();
             document.getElementById('presetModal').style.display = 'flex';
         };
-
         window.closePresetModal = function() {
             resetPresetClearBtn();
             document.getElementById('presetModal').style.display = 'none';
@@ -2614,46 +2178,35 @@
         window.saveToPresets = function() {
             const dateInputVal = document.getElementById('eventDate').value;
             const timeInputVal = document.getElementById('eventTime').value || '14:00';
-            const rawText = document.getElementById('nameInput').value;
-            const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-
+            const players = document.getElementById('nameInput').value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             if (!dateInputVal) return alert("請選擇預組隊伍的日期！");
-            if (players.length < 2) return alert("請至少選擇 2 位登場訓練家再進行預估組隊！");
+            if (players.length < 2) return alert("請至少選擇 2 位登場訓練家！");
 
-            const id = 'preset_' + Date.now();
             const newPreset = {
-                id: id,
+                id: 'preset_' + Date.now(),
                 eventDate: `${dateInputVal}T${timeInputVal}`,
                 teamSize: selectedTeamSize,
                 restaurantRaw: selectedRestaurantRaw,
                 players: players
             };
-
-            let updatedPresets = [...presetTeams, newPreset];
-            set(presetsRef, updatedPresets);
+            set(presetsRef, [...presetTeams, newPreset]);
             alert("已成功將隊伍儲存至「預組隊伍庫」！");
         };
 
         window.loadPresetToMain = function(presetId) {
             const target = presetTeams.find(p => p.id === presetId);
             if (!target) return;
-
             activePresetId = target.id;
             if (target.eventDate.includes('T')) {
                 const parts = target.eventDate.split('T');
                 document.getElementById('eventDate').value = parts[0];
                 document.getElementById('eventTime').value = parts[1].slice(0, 5);
-            } else {
-                document.getElementById('eventDate').value = target.eventDate;
-            }
+            } else document.getElementById('eventDate').value = target.eventDate;
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
-
-            const textarea = document.getElementById('nameInput');
-            textarea.value = (target.players || []).join('\n');
+            document.getElementById('nameInput').value = (target.players || []).join('\n');
             syncTagsWithTextarea();
-
             closePresetModal();
             alert("已成功帶入該筆預組隊伍資料！");
         };
@@ -2662,53 +2215,36 @@
             if (event) event.stopPropagation();
             const target = presetTeams.find(p => p.id === presetId);
             if (!target) return;
-
             if (target.eventDate.includes('T')) {
                 const parts = target.eventDate.split('T');
                 document.getElementById('eventDate').value = parts[0];
                 document.getElementById('eventTime').value = parts[1].slice(0, 5);
-            } else {
-                document.getElementById('eventDate').value = target.eventDate;
-            }
+            } else document.getElementById('eventDate').value = target.eventDate;
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
-
-            const textarea = document.getElementById('nameInput');
-            textarea.value = (target.players || []).join('\n');
+            document.getElementById('nameInput').value = (target.players || []).join('\n');
             syncTagsWithTextarea();
-
             activePresetId = target.id;
-
             generateTeams();
-
-            let updatedPresets = presetTeams.filter(p => p.id !== presetId);
-            set(presetsRef, updatedPresets);
+            set(presetsRef, presetTeams.filter(p => p.id !== presetId));
             activePresetId = null;
         };
 
         window.generateAllPresetsInLoop = function() {
             if (presetTeams.length === 0) return alert("目前沒有任何預組隊伍！");
+            if (!confirm(`確定要將全部 ${presetTeams.length} 組預組隊伍進行隨機配對並匯入對戰圖鑑嗎？`)) return;
 
-            const count = presetTeams.length;
-            if (!confirm(`確定要將全部 ${count} 組預組隊伍進行隨機配對並匯入對戰圖鑑嗎？`)) return;
-
-            const targets = [...presetTeams];
-            targets.forEach(target => {
+            [...presetTeams].forEach(target => {
                 if (target.eventDate.includes('T')) {
                     const parts = target.eventDate.split('T');
                     document.getElementById('eventDate').value = parts[0];
                     document.getElementById('eventTime').value = parts[1].slice(0, 5);
-                } else {
-                    document.getElementById('eventDate').value = target.eventDate;
-                }
+                } else document.getElementById('eventDate').value = target.eventDate;
 
                 selectTeamSize(target.teamSize || 2);
                 updateMainRestaurantUI(target.restaurantRaw || '');
-
-                const textarea = document.getElementById('nameInput');
-                textarea.value = (target.players || []).join('\n');
-
+                document.getElementById('nameInput').value = (target.players || []).join('\n');
                 activePresetId = target.id;
                 generateTeams();
             });
@@ -2716,15 +2252,13 @@
             remove(presetsRef);
             activePresetId = null;
             closePresetModal();
-
             document.getElementById('currentResultSection').scrollIntoView({ behavior: 'smooth' });
-            alert(`🎉 已成功完成全數 ${count} 組預組隊伍的渡劫配對！`);
+            alert("🎉 已成功完成全數預組隊伍的配對！");
         };
 
         window.clearAllPresetsWithConfirm = function() {
             const btn = document.getElementById('btnClearPresets');
             if (presetTeams.length === 0) return alert("目前沒有預組隊伍！");
-
             if (presetClearStep === 0) {
                 presetClearStep = 1;
                 let countdown = 5;
@@ -2732,9 +2266,8 @@
                 btn.innerText = `⏳ 等待 ${countdown}s`;
                 presetClearTimer = setInterval(() => {
                     countdown--;
-                    if (countdown > 0) {
-                        btn.innerText = `⏳ 等待 ${countdown}s`;
-                    } else {
+                    if (countdown > 0) btn.innerText = `⏳ 等待 ${countdown}s`;
+                    else {
                         clearInterval(presetClearTimer);
                         presetClearStep = 2;
                         btn.disabled = false;
@@ -2752,30 +2285,24 @@
             if (presetClearTimer) clearInterval(presetClearTimer);
             presetClearStep = 0;
             const btn = document.getElementById('btnClearPresets');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerText = "🗑️ 清空預組";
-            }
+            if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空預組"; }
         }
 
         window.deletePreset = function(presetId, event) {
             if (event) event.stopPropagation();
             if (!confirm("確定要刪除此筆預組隊伍資料嗎？")) return;
-            let updatedPresets = presetTeams.filter(p => p.id !== presetId);
-            set(presetsRef, updatedPresets);
+            set(presetsRef, presetTeams.filter(p => p.id !== presetId));
             if (activePresetId === presetId) activePresetId = null;
         };
 
         function renderPresetModalList() {
             const container = document.getElementById('presetListContainer');
             const loopBtn = document.getElementById('btnPairAllPresets');
-
             if (presetTeams.length === 0) {
                 container.innerHTML = '<div class="empty-text">尚無預選隊伍紀錄</div>';
                 if (loopBtn) loopBtn.style.display = 'none';
                 return;
             }
-
             if (loopBtn) loopBtn.style.display = 'inline-flex';
 
             let html = '';
@@ -2783,13 +2310,11 @@
                 const pDateText = formatDateWithDay(p.eventDate);
                 const restData = parseRestaurantInput(p.restaurantRaw);
                 const restName = restData.name ? `📍 ${restData.name}` : '未指定餐廳';
-                const pListStr = (p.players || []).join('、');
-
                 html += `<div class="preset-card pop-in">
                     <div class="preset-date">📅 ${pDateText} (${p.teamSize || 2}人一組)</div>
                     <div class="preset-details">
                         <div>🍽️ ${restName}</div>
-                        <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
+                        <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${(p.players || []).join('、')}</div>
                     </div>
                     <div class="preset-actions">
                         <button class="btn-primary" style="padding: 6px 12px; font-size: 0.8rem; min-height:38px;" onclick="generateFromPreset('${p.id}', event)">⚡ 直接擲球配對</button>
@@ -2808,48 +2333,28 @@
                 if (placeMatch && placeMatch[1]) return placeMatch[1].replace(/\+/g, ' ');
                 const queryMatch = decodedUrl.match(/[?&]query=([^&]+)/);
                 if (queryMatch && queryMatch[1]) return queryMatch[1].replace(/\+/g, ' ').replace(/ 台灣$/, '');
-            } catch (e) {
-                console.error("解析網址失敗:", e);
-            }
+            } catch (e) {}
             return "Google 地圖連結";
         }
 
         function parseRestaurantInput(inputVal) {
             if (!inputVal) return { name: '', url: '' };
-            const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
-            if (isUrl) {
-                const extractedName = extractPlaceNameFromUrl(inputVal);
-                return { name: extractedName, url: inputVal };
-            }
-            return {
-                name: inputVal,
-                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
-            };
+            if (inputVal.startsWith('http://') || inputVal.startsWith('https://')) return { name: extractPlaceNameFromUrl(inputVal), url: inputVal };
+            return { name: inputVal, url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}` };
         }
 
         function getAllRestaurants() {
-            let set = new Set();
-            historyRounds.forEach(r => {
-                const name = r.restaurantName || r.restaurant;
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            customRestaurants.forEach(name => {
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            return Array.from(set);
+            let s = new Set();
+            historyRounds.forEach(r => { const name = r.restaurantName || r.restaurant; if (name && name !== "Google 地圖連結") s.add(name); });
+            customRestaurants.forEach(name => { if (name && name !== "Google 地圖連結") s.add(name); });
+            return Array.from(s);
         }
 
         window.deleteRestaurant = function(e, name) {
             e.stopPropagation();
-            let updatedRounds = historyRounds.map(round => {
-                if ((round.restaurantName === name) || (round.restaurant === name)) {
-                    return { ...round, restaurantName: '', restaurant: '' };
-                }
-                return round;
-            });
-            let updatedCustom = customRestaurants.filter(r => r !== name);
+            let updatedRounds = historyRounds.map(round => ((round.restaurantName === name || round.restaurant === name) ? { ...round, restaurantName: '', restaurant: '' } : round));
             set(historyRef, updatedRounds);
-            set(customRestaurantsRef, updatedCustom);
+            set(customRestaurantsRef, customRestaurants.filter(r => r !== name));
             renderModalRestaurantList();
         };
 
@@ -2858,24 +2363,15 @@
             if (!currentRound) return;
             const oldName = currentRound.restaurantName || currentRound.restaurant || '';
             const searchKeyword = oldName === "Google 地圖連結" ? "" : oldName;
-            const wantSearch = confirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`);
-            if (wantSearch) {
-                const searchUrl = searchKeyword 
-                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}`
-                    : `https://www.google.com/maps`;
-                window.open(searchUrl, '_blank');
+            if (confirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？`)) {
+                window.open(searchKeyword ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}` : `https://www.google.com/maps`, '_blank');
             }
             setTimeout(() => {
                 const newName = prompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword);
                 if (newName === null) return;
-                const trimmedName = newName.trim();
-                const restaurantData = parseRestaurantInput(trimmedName);
+                const restaurantData = parseRestaurantInput(newName.trim());
                 let updatedRounds = [...historyRounds];
-                updatedRounds[index] = {
-                    ...updatedRounds[index],
-                    restaurantName: restaurantData.name,
-                    mapUrl: restaurantData.url
-                };
+                updatedRounds[index] = { ...updatedRounds[index], restaurantName: restaurantData.name, mapUrl: restaurantData.url };
                 if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
                     customRestaurants.push(restaurantData.name);
                     set(customRestaurantsRef, customRestaurants);
@@ -2887,22 +2383,18 @@
         window.deleteSingleRoundByIndex = function(index) {
             const round = historyRounds[index];
             if (!round) return;
-            openPasswordModal(
-                "🔐 請輸入管理員密碼",
-                `確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`,
-                (pwd) => {
-                    if (pwd.trim() === AUTH_PASSWORD) {
-                        let updatedRounds = [...historyRounds];
-                        updatedRounds.splice(index, 1);
-                        set(historyRef, updatedRounds);
-                        alert("已成功刪除該筆戰報紀錄！");
-                        return true;
-                    } else {
-                        alert("密碼錯誤，無法刪除！");
-                        return false;
-                    }
+            openPasswordModal("🔐 請輸入管理員密碼", `確定要刪除此筆對戰紀錄嗎？\n請輸入管理密碼：`, (pwd) => {
+                if (pwd.trim() === AUTH_PASSWORD) {
+                    let updatedRounds = [...historyRounds];
+                    updatedRounds.splice(index, 1);
+                    set(historyRef, updatedRounds);
+                    alert("已成功刪除該筆戰報紀錄！");
+                    return true;
+                } else {
+                    alert("密碼錯誤，無法刪除！");
+                    return false;
                 }
-            );
+            });
         };
 
         window.clearCloudHistory = function() {
@@ -2915,9 +2407,8 @@
                 btn.innerText = `⏳ 等待 ${countdown}s`;
                 clearConfirmTimer = setInterval(() => {
                     countdown--;
-                    if (countdown > 0) {
-                        btn.innerText = `⏳ 等待 ${countdown}s`;
-                    } else {
+                    if (countdown > 0) btn.innerText = `⏳ 等待 ${countdown}s`;
+                    else {
                         clearInterval(clearConfirmTimer);
                         clearStep = 2;
                         btn.disabled = false;
@@ -2925,24 +2416,20 @@
                     }
                 }, 1000);
             } else if (clearStep === 2) {
-                openPasswordModal(
-                    "🔐 請輸入管理員密碼",
-                    "清空所有歷史紀錄為高風險操作，請輸入管理密碼：",
-                    (pwd) => {
-                        if (pwd.trim() === AUTH_PASSWORD) {
-                            remove(historyRef);
-                            remove(customRestaurantsRef);
-                            clearCurrentResultUI();
-                            alert("已清空所有歷史紀錄！");
-                            resetClearBtn();
-                            return true;
-                        } else {
-                            alert("密碼錯誤，無法清空！");
-                            resetClearBtn();
-                            return false;
-                        }
+                openPasswordModal("🔐 請輸入管理員密碼", "清空所有歷史紀錄為高風險操作，請輸入管理密碼：", (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        remove(historyRef);
+                        remove(customRestaurantsRef);
+                        clearCurrentResultUI();
+                        alert("已清空所有歷史紀錄！");
+                        resetClearBtn();
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法清空！");
+                        resetClearBtn();
+                        return false;
                     }
-                );
+                });
             }
         };
 
@@ -2950,10 +2437,7 @@
             if (clearConfirmTimer) clearInterval(clearConfirmTimer);
             clearStep = 0;
             const btn = document.getElementById('btnClearCloud');
-            if (btn) {
-                btn.disabled = false;
-                btn.innerText = "🗑️ 清空紀錄";
-            }
+            if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空紀錄"; }
         }
 
         initNameTags();
