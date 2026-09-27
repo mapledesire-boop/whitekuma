@@ -1702,16 +1702,22 @@
                 );
             }
 
-            function isByeInSurroundingRounds(player, targetDateVal) {
+            // 計算訓練家在前後10次對戰中擔任「爽打」的累計次數
+            function getSurroundingByeCount(player, targetDateVal, rangeCount = 10) {
                 const sorted = getChronologicalHistory(historyRounds);
                 const roundsWithBye = sorted.filter(r => {
                     if (!r.bye) return false;
                     if (Array.isArray(r.bye)) return r.bye.length > 0;
                     return String(r.bye).trim().length > 0;
                 });
-                const before = roundsWithBye.filter(r => r.eventDate < targetDateVal).slice(-3);
-                const after = roundsWithBye.filter(r => r.eventDate > targetDateVal).slice(0, 3);
-                return [...before, ...after].some(round => isPlayerInBye(round.bye, player));
+                const before = roundsWithBye.filter(r => r.eventDate < targetDateVal).slice(-rangeCount);
+                const after = roundsWithBye.filter(r => r.eventDate > targetDateVal).slice(0, rangeCount);
+                const surrounding = [...before, ...after];
+                let count = 0;
+                surrounding.forEach(round => {
+                    if (isPlayerInBye(round.bye, player)) count++;
+                });
+                return count;
             }
 
             let validMatchFound = false;
@@ -1735,20 +1741,24 @@
                     if (remainder !== 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
-                            let candidates = currentPlayers.map((p, idx) => ({ name: p, idx }));
-                            if (level.useByeCheck) {
-                                let filtered = candidates.filter(c => !isByeInSurroundingRounds(c.name, eventDateVal));
-                                if (filtered.length > 0) candidates = filtered;
-                            }
+                            let candidates = currentPlayers.map((p, idx) => ({
+                                name: p,
+                                idx: idx,
+                                byeCount: getSurroundingByeCount(p, eventDateVal, 10)
+                            }));
                             
-                            let totalWeight = candidates.reduce((sum, c) => {
+                            // 優先挑選前後10次中爽打次數最少（極小化重複）的訓練家
+                            let minByeCount = Math.min(...candidates.map(c => c.byeCount));
+                            let bestCandidates = candidates.filter(c => c.byeCount === minByeCount);
+                            
+                            let totalWeight = bestCandidates.reduce((sum, c) => {
                                 const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
                                 return sum + (isReduced ? 0.5 : 1.0);
                             }, 0);
 
                             let rand = Math.random() * totalWeight;
-                            let chosenIndex = candidates[0].idx;
-                            for (let c of candidates) {
+                            let chosenIndex = bestCandidates[0].idx;
+                            for (let c of bestCandidates) {
                                 const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
                                 const w = isReduced ? 0.5 : 1.0;
                                 if (rand < w) { chosenIndex = c.idx; break; }
