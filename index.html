@@ -176,14 +176,14 @@
         
         .input-group { margin-bottom: 12px; position: relative; }
         
-        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], select, textarea { 
+        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], textarea { 
             width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none;
             min-height: 46px;
         }
         
-        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, select:focus, textarea:focus { 
+        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; 
             box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
         }
@@ -291,7 +291,6 @@
         .filter-container {
             background: #F8FAFC; border-radius: var(--radius-sm); padding: 10px;
             margin-bottom: 12px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
-            display: none;
         }
         .filter-title {
             font-size: 0.82rem; font-weight: 800; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 4px;
@@ -336,12 +335,6 @@
         }
         .history-teams .full-width { grid-column: span 1; }
         
-        .toggle-history-btn {
-            width: 100%; text-align: center; padding: 10px; background: #FFFFFF; border: 2px dashed #CBD5E1;
-            border-radius: var(--radius-sm); color: var(--text-sub); font-size: 0.85rem; cursor: pointer;
-            margin-top: 6px; font-weight: 800; transition: var(--transition); min-height: 46px;
-        }
-        .toggle-history-btn:active { background-color: #F8FAFC; color: var(--text-main); }
         .empty-text { color: var(--text-sub); font-size: 0.85rem; text-align: center; padding: 14px 0; font-weight: 700; }
         
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
@@ -439,6 +432,25 @@
         }
         .pool-item-row input[type="text"] { flex: 1.2; }
         .pool-item-row input[type="number"] { flex: 0.8; text-align: center; }
+
+        .btn-category-trigger {
+            width: 100%;
+            padding: 12px 14px;
+            background: #FFFFFF;
+            border-radius: var(--radius-lg);
+            font-weight: 900;
+            font-size: 0.92rem;
+            cursor: pointer;
+            box-shadow: var(--shadow-poke);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 48px;
+            margin-bottom: 8px;
+        }
+        .btn-category-trigger:last-child { margin-bottom: 0; }
+        .btn-category-trigger:active { transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -534,28 +546,21 @@
             <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
         </div>
 
-        <div id="filterContainer" class="filter-container">
-            <div class="filter-title">🔍 選擇歷史時間區間</div>
-            <div class="filter-date-grid">
-                <input type="date" id="startDate">
-                <span class="filter-separator">至</span>
-                <input type="date" id="endDate">
-            </div>
-            <div class="filter-btn-grid">
-                <button class="btn-filter" onclick="applyDateFilter()">🔍 搜尋區間</button>
-                <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間</button>
-                <button class="btn-line" onclick="shareRangeHistoryToLine()">💬 分享區間</button>
-                <button class="btn-secondary" style="font-size:0.78rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
-            </div>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="btn-category-trigger" style="border: 2px solid var(--poke-blue); color: var(--poke-blue);" onclick="openUpcomingBattlesModal()">
+                <span>⚡ 未來對戰圖鑑</span>
+                <span style="background: var(--poke-blue-light); padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="upcomingBattlesBadgeCount">0 筆</span>
+            </button>
+            <button class="btn-category-trigger" style="border: 2px solid #64748B; color: #334155;" onclick="openHistoryBattlesModal()">
+                <span>📜 歷史對戰圖鑑</span>
+                <span style="background: #F1F5F9; padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="historyBattlesBadgeCount">0 筆</span>
+            </button>
         </div>
-
-        <div id="historyList"><div class="empty-text">連線至 Firebase 中...</div></div>
-        <button id="toggleHistoryBtn" class="toggle-history-btn" style="display: none;" onclick="toggleHistoryExpand()">👇 展開更多對戰圖鑑紀錄</button>
     </div>
 
     <div class="box" style="margin-top: 18px; border-color: #D8B4FE; background: #FAF5FF;">
         <div class="section-header" style="margin-bottom: 8px;">
-            <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
+            <h3 style="color: var(--poke-purple);">🎯 對戰場力管理專區</h3>
         </div>
         <button class="btn-pool-trigger" onclick="openPoolManagementModal()">
             <span>🔐 進入場次管理專區</span>
@@ -578,6 +583,46 @@
             <div class="btn-action" style="margin-top: 14px;">
                 <button class="action-btn btn-secondary" onclick="closePasswordModal()">取消</button>
                 <button class="action-btn btn-primary" onclick="submitPasswordModal()">確認驗證</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="upcomingBattlesModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⚡ 未來對戰圖鑑</h3>
+                <button class="modal-close" onclick="closeUpcomingBattlesModal()">✖</button>
+            </div>
+            <div id="upcomingBattlesListContainer">
+                <div class="empty-text">尚無預訂的未來對戰紀錄</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="historyBattlesModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>📜 歷史對戰圖鑑</h3>
+                <button class="modal-close" onclick="closeHistoryBattlesModal()">✖</button>
+            </div>
+
+            <div id="filterContainer" class="filter-container">
+                <div class="filter-title">🔍 選擇歷史時間區間</div>
+                <div class="filter-date-grid">
+                    <input type="date" id="startDate">
+                    <span class="filter-separator">至</span>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-btn-grid">
+                    <button class="btn-filter" onclick="applyDateFilter()">🔍 搜尋區間</button>
+                    <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間</button>
+                    <button class="btn-line" onclick="shareRangeHistoryToLine()">💬 分享區間</button>
+                    <button class="btn-secondary" style="font-size:0.78rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
+                </div>
+            </div>
+
+            <div id="historyBattlesListContainer">
+                <div class="empty-text">連線至 Firebase 中...</div>
             </div>
         </div>
     </div>
@@ -908,7 +953,6 @@
 
         let presetClearStep = 0;
         let presetClearTimer = null;
-        let isHistoryExpanded = false;
         let clearConfirmTimer = null;
         let clearStep = 0;
         let currentSessionResult = null;
@@ -1524,19 +1568,6 @@
             }
         };
 
-        window.onPresetModalDateInputChange = function() {
-            const dateVal = document.getElementById('editPresetDate').value;
-            if (!dateVal) return;
-            const dateObj = new Date(dateVal + 'T00:00:00');
-            const day = dateObj.getDay();
-            const timeInput = document.getElementById('editPresetTime');
-            if (day === 3) {
-                timeInput.value = "14:00";
-            } else if (day === 6) {
-                timeInput.value = "13:00";
-            }
-        };
-
         function formatDateWithDay(dateStr, timeStr = '') {
             if (!dateStr) return '';
             const days = ['日', '一', '二', '三', '四', '五', '六'];
@@ -1841,8 +1872,7 @@
 
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
-            const now = new Date();
-            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            const todayStr = getTodayDateString();
 
             if (historyRounds.length === 0) {
                 container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
@@ -1870,22 +1900,46 @@
             container.innerHTML = html;
         }
 
-        function getFilteredHistory() {
+        function getFilteredPastHistory() {
             const startVal = document.getElementById('startDate').value;
             const endVal = document.getElementById('endDate').value;
+            const todayStr = getTodayDateString();
+
             return historyRounds.filter(round => {
                 if (!round.eventDate) return false;
-                if (startVal && round.eventDate < startVal) return false;
-                if (endVal && round.eventDate > endVal) return false;
+                const datePart = round.eventDate.split('T')[0];
+                if (datePart >= todayStr) return false; // Exclude future
+                if (startVal && datePart < startVal) return false;
+                if (endVal && datePart > endVal) return false;
                 return true;
             });
         }
 
-        window.applyDateFilter = function() { renderHistory(); };
+        window.applyDateFilter = function() { renderHistoryBattlesModal(); };
         window.resetDateFilter = function() {
             document.getElementById('startDate').value = '';
             document.getElementById('endDate').value = '';
-            renderHistory();
+            renderHistoryBattlesModal();
+        };
+
+        window.copyRangeHistory = async function() {
+            const filtered = getFilteredPastHistory();
+            if (filtered.length === 0) return alert("無選定區間的戰報紀錄！");
+            let textList = [];
+            for (let r of filtered) {
+                textList.push(await formatRoundText(r));
+            }
+            copyToClipboard(textList.join('\n\n-------------------\n\n'));
+        };
+
+        window.shareRangeHistoryToLine = async function() {
+            const filtered = getFilteredPastHistory();
+            if (filtered.length === 0) return alert("無選定區間的戰報紀錄！");
+            let textList = [];
+            for (let r of filtered) {
+                textList.push(await formatRoundText(r));
+            }
+            shareToLine(textList.join('\n\n-------------------\n\n'));
         };
 
         window.generateTeams = function() {
@@ -2230,44 +2284,41 @@
             document.getElementById('lineCurrentBtn').style.display = 'inline-flex';
         }
 
-        window.toggleHistoryExpand = function() {
-            isHistoryExpanded = !isHistoryExpanded;
-            renderHistory();
+        function updateBattleLogBadges() {
+            const todayStr = getTodayDateString();
+            const upcomingCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] >= todayStr).length;
+            const historyCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] < todayStr).length;
+
+            const upBadge = document.getElementById('upcomingBattlesBadgeCount');
+            if (upBadge) upBadge.innerText = `${upcomingCount} 筆`;
+
+            const histBadge = document.getElementById('historyBattlesBadgeCount');
+            if (histBadge) histBadge.innerText = `${historyCount} 筆`;
+        }
+
+        window.openUpcomingBattlesModal = function() {
+            renderUpcomingBattlesModal();
+            document.getElementById('upcomingBattlesModal').style.display = 'flex';
         };
 
-        function renderHistory() {
-            const historyContainer = document.getElementById('historyList');
-            const toggleBtn = document.getElementById('toggleHistoryBtn');
-            const filterContainer = document.getElementById('filterContainer');
+        window.closeUpcomingBattlesModal = function() {
+            document.getElementById('upcomingBattlesModal').style.display = 'none';
+        };
 
-            if (historyRounds.length === 0) {
-                historyContainer.innerHTML = '<div class="empty-text">尚無對戰圖鑑紀錄</div>';
-                toggleBtn.style.display = 'none';
-                filterContainer.style.display = 'none';
-                resetClearBtn();
+        function renderUpcomingBattlesModal() {
+            const container = document.getElementById('upcomingBattlesListContainer');
+            if (!container) return;
+            const todayStr = getTodayDateString();
+            const sorted = getChronologicalHistory(historyRounds);
+            const upcomingList = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+
+            if (upcomingList.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無預訂的未來對戰紀錄</div>';
                 return;
             }
 
-            filterContainer.style.display = isHistoryExpanded ? 'block' : 'none';
-
-            const filteredRounds = getFilteredHistory();
-            if (filteredRounds.length === 0) {
-                historyContainer.innerHTML = '<div class="empty-text">所選的時間區間內無紀錄</div>';
-                toggleBtn.style.display = 'none';
-                return;
-            }
-
-            const sortedHistory = getChronologicalHistory(filteredRounds);
-
-            if (!isHistoryExpanded) {
-                historyContainer.innerHTML = '';
-                toggleBtn.style.display = 'block';
-                toggleBtn.innerText = `👇 展開對戰圖鑑紀錄 (共 ${filteredRounds.length} 筆)`;
-                return;
-            }
-
-            let html = "";
-            sortedHistory.forEach((round) => {
+            let html = '';
+            upcomingList.forEach(round => {
                 const originalIndex = round.originalIndex;
                 let restaurantHtml = formatRestaurantHTML(round, originalIndex);
                 let teamsHtml = round.teams.map((t, idx) => {
@@ -2304,9 +2355,69 @@
                 </div>`;
             });
 
-            historyContainer.innerHTML = html;
-            toggleBtn.style.display = 'block';
-            toggleBtn.innerText = `👆 收合對戰圖鑑`;
+            container.innerHTML = html;
+        }
+
+        window.openHistoryBattlesModal = function() {
+            renderHistoryBattlesModal();
+            document.getElementById('historyBattlesModal').style.display = 'flex';
+        };
+
+        window.closeHistoryBattlesModal = function() {
+            document.getElementById('historyBattlesModal').style.display = 'none';
+        };
+
+        function renderHistoryBattlesModal() {
+            const container = document.getElementById('historyBattlesListContainer');
+            if (!container) return;
+            const filteredPast = getFilteredPastHistory();
+
+            if (filteredPast.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無符合條件的歷史對戰紀錄</div>';
+                return;
+            }
+
+            const sortedPast = getChronologicalHistory(filteredPast);
+
+            let html = '';
+            sortedPast.forEach(round => {
+                const originalIndex = round.originalIndex;
+                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
+                let teamsHtml = round.teams.map((t, idx) => {
+                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
+                }).join('');
+                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+                
+                const totalMatches = round.baseCount !== undefined ? round.baseCount : (round.usedMatchesCount || 0);
+                let matchBadgeHtml = '';
+                if (totalMatches > 0) {
+                    matchBadgeHtml = `<span class="pool-badge" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">場次: ${totalMatches}</span>`;
+                }
+
+                html += `<div class="history-card pop-in">
+                    <div class="history-header">
+                        <div class="history-date-title">
+                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
+                            ${matchBadgeHtml}
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
+                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
+                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
+                        </div>
+                    </div>
+                    <div class="history-teams">
+                        ${restaurantHtml}
+                        ${teamsHtml}
+                        ${byeHtml}
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
         }
 
         window.openEditModal = function(index) {
@@ -2496,7 +2607,9 @@
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
             renderUpcomingHistory();
-            renderHistory();
+            updateBattleLogBadges();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
             renderPresetModalList();
             
             if (currentSessionResult) {
@@ -2691,6 +2804,19 @@
         window.closeEditPresetModal = function() {
             document.getElementById('editPresetModal').style.display = 'none';
             editingPresetId = null;
+        };
+
+        window.onPresetModalDateInputChange = function() {
+            const dateVal = document.getElementById('editPresetDate').value;
+            if (!dateVal) return;
+            const dateObj = new Date(dateVal + 'T00:00:00');
+            const day = dateObj.getDay();
+            const timeInput = document.getElementById('editPresetTime');
+            if (day === 3) {
+                timeInput.value = "14:00";
+            } else if (day === 6) {
+                timeInput.value = "13:00";
+            }
         };
 
         window.savePresetEdit = function() {
