@@ -317,20 +317,6 @@
             margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
             word-break: break-all; line-height: 1.5;
         }
-        .match-badge-box {
-            background: #FAF5FF;
-            border: 1.5px solid #D8B4FE;
-            color: #581C87;
-            padding: 8px 12px;
-            border-radius: var(--radius-sm);
-            margin-bottom: 8px;
-            font-weight: 900;
-            font-size: 0.88rem;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-        }
         .restaurant-item-box {
             display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap;
         }
@@ -368,6 +354,8 @@
             padding: 16px 12px; overflow-y: auto;
             backdrop-filter: blur(2px);
         }
+        #passwordModal { z-index: 2000; }
+        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal { z-index: 1100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 16px 16px 24px 16px;
@@ -768,9 +756,14 @@
                 <input type="text" id="editPresetRestaurant" placeholder="輸入餐廳名稱或 Google Map 連結...">
             </div>
 
+            <div class="label-header">
+                <label>👥 選擇登場訓練家</label>
+            </div>
+            <div class="tag-container" id="editPresetTagContainer"></div>
+
             <div class="input-group">
-                <label>📝 參賽訓練家名單（每行一位）</label>
-                <textarea id="editPresetPlayers" style="min-height:100px;" placeholder="每行一位訓練家姓名..."></textarea>
+                <label for="editPresetPlayers">📝 參賽訓練家名單（每行一位）</label>
+                <textarea id="editPresetPlayers" style="min-height:100px;" placeholder="點擊上方按鈕選取，或直接輸入..." oninput="syncPresetTagsWithTextarea()"></textarea>
             </div>
 
             <div class="btn-action" style="margin-top:20px; gap:10px;">
@@ -1731,6 +1724,7 @@
 
         function initNameTags() {
             const container = document.getElementById('tagContainer');
+            if (!container) return;
             container.innerHTML = '';
             defaultPresetNames.forEach(name => {
                 const tag = document.createElement('div');
@@ -1817,8 +1811,9 @@
 
         function syncTagsWithTextarea() {
             const textarea = document.getElementById('nameInput');
+            if (!textarea) return;
             let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-            const tags = document.querySelectorAll('.name-tag');
+            const tags = document.querySelectorAll('#tagContainer .name-tag');
             tags.forEach((tag) => {
                 const name = tag.innerText.replace(/^[⚡★]\s*/, '');
                 if (currentList.includes(name)) {
@@ -2530,6 +2525,7 @@
                 defaultPresetNames = data;
             }
             initNameTags();
+            if (window.initPresetNameTags) window.initPresetNameTags();
         });
 
         onValue(matchPoolsRef, (snapshot) => {
@@ -2610,24 +2606,86 @@
 
         window.openEditPresetModal = function(presetId, event) {
             if (event) event.stopPropagation();
-            const target = presetTeams.find(p => p.id === presetId);
-            if (!target) return;
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "編輯預組隊伍為管理功能，請輸入密碼：",
+                (pwd) => {
+                    if (pwd.trim() === "330") {
+                        const target = presetTeams.find(p => p.id === presetId);
+                        if (!target) return false;
 
-            editingPresetId = presetId;
-            if (target.eventDate && target.eventDate.includes('T')) {
-                const parts = target.eventDate.split('T');
-                document.getElementById('editPresetDate').value = parts[0];
-                document.getElementById('editPresetTime').value = parts[1].slice(0, 5);
+                        editingPresetId = presetId;
+                        if (target.eventDate && target.eventDate.includes('T')) {
+                            const parts = target.eventDate.split('T');
+                            document.getElementById('editPresetDate').value = parts[0];
+                            document.getElementById('editPresetTime').value = parts[1].slice(0, 5);
+                        } else {
+                            document.getElementById('editPresetDate').value = target.eventDate || '';
+                            document.getElementById('editPresetTime').value = '14:00';
+                        }
+
+                        document.getElementById('editPresetTeamSize').value = target.teamSize || 2;
+                        document.getElementById('editPresetRestaurant').value = target.restaurantRaw || '';
+                        document.getElementById('editPresetPlayers').value = (target.players || []).join('\n');
+
+                        window.initPresetNameTags();
+
+                        document.getElementById('editPresetModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法編輯預組隊伍！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.initPresetNameTags = function() {
+            const container = document.getElementById('editPresetTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => window.togglePresetName(name, tag);
+                container.appendChild(tag);
+            });
+            window.syncPresetTagsWithTextarea();
+        };
+
+        window.togglePresetName = function(name, element) {
+            const textarea = document.getElementById('editPresetPlayers');
+            if (!textarea) return;
+            let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const index = currentList.indexOf(name);
+            if (index === -1) {
+                currentList.push(name);
+                element.classList.add('active');
+                element.innerText = '★ ' + name;
             } else {
-                document.getElementById('editPresetDate').value = target.eventDate || '';
-                document.getElementById('editPresetTime').value = '14:00';
+                currentList.splice(index, 1);
+                element.classList.remove('active');
+                element.innerText = '⚡ ' + name;
             }
+            textarea.value = currentList.join('\n');
+        };
 
-            document.getElementById('editPresetTeamSize').value = target.teamSize || 2;
-            document.getElementById('editPresetRestaurant').value = target.restaurantRaw || '';
-            document.getElementById('editPresetPlayers').value = (target.players || []).join('\n');
-
-            document.getElementById('editPresetModal').style.display = 'flex';
+        window.syncPresetTagsWithTextarea = function() {
+            const textarea = document.getElementById('editPresetPlayers');
+            if (!textarea) return;
+            let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const tags = document.querySelectorAll('#editPresetTagContainer .name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentList.includes(name)) {
+                    tag.classList.add('active');
+                    tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active');
+                    tag.innerText = '⚡ ' + name;
+                }
+            });
         };
 
         window.closeEditPresetModal = function() {
@@ -2662,7 +2720,7 @@
             });
 
             set(presetsRef, updatedPresets);
-            closeEditPresetModal();
+            window.closeEditPresetModal();
             alert("已成功儲存該筆預組隊伍修改！");
         };
 
