@@ -884,6 +884,11 @@
                 <div id="editModalByeZone" class="drop-zone" data-team-index="bye"></div>
             </div>
 
+            <div class="label-header">
+                <label>👥 選擇登場訓練家</label>
+            </div>
+            <div class="tag-container" id="editModalTagContainer"></div>
+
             <div class="input-group">
                 <label>➕ 新增人員至對戰</label>
                 <div class="input-with-btn">
@@ -2639,30 +2644,121 @@
             }
             initNameTags();
             if (window.initPresetNameTags) window.initPresetNameTags();
+            if (window.initEditModalNameTags) window.initEditModalNameTags();
         });
+        window.openEditModal = function(index) {
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯對戰紀錄為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingIndex = index;
+                        const round = historyRounds[index];
+                        if (!round) return false;
 
-        onValue(matchPoolsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && data.pools) {
-                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
-            } else {
-                matchPoolsData.lastUpdatedDate = getTodayDateString();
-                set(matchPoolsRef, matchPoolsData);
+                        editingModalData = {
+                            eventDate: round.eventDate || '',
+                            teams: (round.teams || []).map(t => [...t]),
+                            bye: round.bye || ''
+                        };
+
+                        if (editingModalData.eventDate.includes('T')) {
+                            const parts = editingModalData.eventDate.split('T');
+                            document.getElementById('editModalDate').value = parts[0];
+                            document.getElementById('editModalTime').value = parts[1].slice(0, 5);
+                        } else {
+                            document.getElementById('editModalDate').value = editingModalData.eventDate;
+                            document.getElementById('editModalTime').value = '14:00';
+                        }
+
+                        renderModalTeams();
+                        window.initEditModalNameTags();
+                        document.getElementById('editModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        alert("密碼錯誤，無法編輯對戰！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        function getAllEditModalPlayers() {
+            let list = [];
+            if (editingModalData.teams) {
+                editingModalData.teams.forEach(t => {
+                    if (Array.isArray(t)) {
+                        t.forEach(p => { if (p) list.push(p.trim()); });
+                    }
+                });
             }
-            updatePoolsUI();
-        });
+            if (editingModalData.bye) {
+                let byeArr = typeof editingModalData.bye === 'string' ? editingModalData.bye.split(',') : editingModalData.bye;
+                if (Array.isArray(byeArr)) {
+                    byeArr.forEach(p => { if (p) list.push(p.trim()); });
+                }
+            }
+            return list;
+        }
 
-        onValue(upcomingUsageRef, (snapshot) => {
-            upcomingMatchUsage = snapshot.val();
-            updateUpcomingUsageUI();
-            updatePoolsUI();
-            renderUpcomingHistory();
-        });
+        window.initEditModalNameTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => window.toggleEditModalPlayer(name);
+                container.appendChild(tag);
+            });
+            window.syncEditModalTags();
+        };
 
-        window.openPresetModal = function() {
-            resetPresetClearBtn();
-            renderPresetModalList();
-            document.getElementById('presetModal').style.display = 'flex';
+        window.toggleEditModalPlayer = function(name) {
+            let currentPlayers = getAllEditModalPlayers();
+            if (currentPlayers.includes(name)) {
+                if (editingModalData.teams) {
+                    editingModalData.teams.forEach(team => {
+                        for (let i = team.length - 1; i >= 0; i--) {
+                            if (team[i] === name) team.splice(i, 1);
+                        }
+                    });
+                }
+                if (editingModalData.bye) {
+                    let byeArr = editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean);
+                    byeArr = byeArr.filter(p => p !== name);
+                    editingModalData.bye = byeArr.join(', ');
+                }
+            } else {
+                if (!editingModalData.teams || editingModalData.teams.length === 0) {
+                    editingModalData.teams = [[]];
+                }
+                editingModalData.teams[editingModalData.teams.length - 1].push(name);
+            }
+            renderModalTeams();
+        };
+
+        window.syncEditModalTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            const currentList = getAllEditModalPlayers();
+            const tags = container.querySelectorAll('.name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentList.includes(name)) {
+                    tag.classList.add('active');
+                    tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active');
+                    tag.innerText = '⚡ ' + name;
+                }
+            });
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+            editingIndex = null;
         };
 
         window.closePresetModal = function() {
@@ -2676,35 +2772,36 @@
             const rawText = document.getElementById('nameInput').value;
             const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
 
-            if (!dateInputVal) return alert("請選擇預組隊伍的日期！");
-            if (players.length < 2) return alert("請至少選擇 2 位登場訓練家再進行預估組隊！");
+        function renderModalTeams() {
+            const teamsContainer = document.getElementById('editModalTeamsContainer');
+            teamsContainer.innerHTML = '';
+            editingModalData.teams.forEach((team, tIdx) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.style.marginBottom = '8px';
+                groupDiv.innerHTML = `<div style="font-size:0.82rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.teamIndex = tIdx;
 
-            const id = 'preset_' + Date.now();
-            const newPreset = {
-                id: id,
-                eventDate: `${dateInputVal}T${timeInputVal}`,
-                teamSize: selectedTeamSize,
-                restaurantRaw: selectedRestaurantRaw,
-                players: players
-            };
+                team.forEach((player, pIdx) => {
+                    dropZone.appendChild(createDraggableTag(player, tIdx, pIdx));
+                });
 
-            let updatedPresets = [...presetTeams, newPreset];
-            set(presetsRef, updatedPresets);
-            alert("已成功將隊伍儲存至「預組隊伍庫」！");
-        };
+                setupDropZone(dropZone);
+                groupDiv.appendChild(dropZone);
+                teamsContainer.appendChild(groupDiv);
+            });
 
-        window.loadPresetToMain = function(presetId) {
-            const target = presetTeams.find(p => p.id === presetId);
-            if (!target) return;
+            const byeZone = document.getElementById('editModalByeZone');
+            byeZone.innerHTML = '';
+            let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
+            byeArr.forEach((player, pIdx) => {
+                byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
+            });
+            setupDropZone(byeZone);
 
-            activePresetId = target.id;
-            if (target.eventDate.includes('T')) {
-                const parts = target.eventDate.split('T');
-                document.getElementById('eventDate').value = parts[0];
-                document.getElementById('eventTime').value = parts[1].slice(0, 5);
-            } else {
-                document.getElementById('eventDate').value = target.eventDate;
-            }
+            window.syncEditModalTags();
+        }
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
