@@ -560,7 +560,7 @@
 
     <div class="box" style="margin-top: 18px; border-color: #D8B4FE; background: #FAF5FF;">
         <div class="section-header" style="margin-bottom: 8px;">
-            <h3 style="color: var(--poke-purple);">🎯 對戰場力管理專區</h3>
+            <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
         </div>
         <button class="btn-pool-trigger" onclick="openPoolManagementModal()">
             <span>🔐 進入場次管理專區</span>
@@ -575,7 +575,7 @@
                 <button class="modal-close" onclick="closePasswordModal()">✖</button>
             </div>
             <div id="passwordModalSubtext" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px;">
-                請輸入存取密碼以繼續：
+                請輸入驗證密碼以繼續：
             </div>
             <div class="input-group">
                 <input type="password" id="passwordModalInput" placeholder="請輸入密碼..." onkeydown="if(event.key==='Enter') submitPasswordModal()">
@@ -602,7 +602,7 @@
     <div id="historyBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>📜 歷史對戰圖鑑</h3>
+                <h3>📜 歷史對戰圖鑑 (上限 100 筆)</h3>
                 <button class="modal-close" onclick="closeHistoryBattlesModal()">✖</button>
             </div>
 
@@ -920,6 +920,8 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
+
+        // Core Refs
         const historyRef = ref(db, 'historyRounds');
         const customRestaurantsRef = ref(db, 'customRestaurants');
         const presetsRef = ref(db, 'presetTeams');
@@ -945,6 +947,7 @@
         let activePasswordCallback = null;
         let editingHistoryMatchIndex = null;
 
+        // ISOLATED MATCH POOLS STATE MANAGER
         let matchPoolsData = {
             lastUpdatedDate: "",
             pools: [
@@ -1470,7 +1473,7 @@
             round.usedMatchesCount = newTotal;
             round.matchUsageText = `${newTotal} 場`;
 
-            set(historyRef, updatedRounds);
+            saveHistoryWithLimit(updatedRounds);
             closeEditHistoryMatchModal();
             alert("歷史場次數值已成功修改！");
         };
@@ -1947,6 +1950,22 @@
             shareToLine(textList.join('\n\n-------------------\n\n'));
         };
 
+        function saveHistoryWithLimit(updatedHistory) {
+            const todayStr = getTodayDateString();
+            let pastRounds = updatedHistory.filter(r => (r.eventDate || '').split('T')[0] < todayStr);
+            let upcomingRounds = updatedHistory.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+
+            pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+
+            // Past rounds strictly limited to 100 entries
+            if (pastRounds.length > 100) {
+                pastRounds = pastRounds.slice(pastRounds.length - 100);
+            }
+
+            const finalHistory = [...pastRounds, ...upcomingRounds];
+            set(historyRef, finalHistory);
+        }
+
         window.generateTeams = function() {
             const rawText = document.getElementById('nameInput').value;
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
@@ -2134,8 +2153,7 @@
             renderCurrentResult(newRound);
 
             let updatedHistory = [...historyRounds, newRound];
-            if (updatedHistory.length > 30) updatedHistory = updatedHistory.slice(-30);
-            set(historyRef, updatedHistory);
+            saveHistoryWithLimit(updatedHistory);
 
             if (activePresetId) {
                 let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
@@ -2425,6 +2443,79 @@
             container.innerHTML = html;
         }
 
+        function getAllEditModalPlayers() {
+            let list = [];
+            if (editingModalData.teams) {
+                editingModalData.teams.forEach(t => {
+                    if (Array.isArray(t)) {
+                        t.forEach(p => { if (p) list.push(p.trim()); });
+                    }
+                });
+            }
+            if (editingModalData.bye) {
+                let byeArr = typeof editingModalData.bye === 'string' ? editingModalData.bye.split(',') : editingModalData.bye;
+                if (Array.isArray(byeArr)) {
+                    byeArr.forEach(p => { if (p) list.push(p.trim()); });
+                }
+            }
+            return list;
+        }
+
+        window.initEditModalNameTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => window.toggleEditModalPlayer(name);
+                container.appendChild(tag);
+            });
+            window.syncEditModalTags();
+        };
+
+        window.toggleEditModalPlayer = function(name) {
+            let currentPlayers = getAllEditModalPlayers();
+            if (currentPlayers.includes(name)) {
+                if (editingModalData.teams) {
+                    editingModalData.teams.forEach(team => {
+                        for (let i = team.length - 1; i >= 0; i--) {
+                            if (team[i] === name) team.splice(i, 1);
+                        }
+                    });
+                }
+                if (editingModalData.bye) {
+                    let byeArr = editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean);
+                    byeArr = byeArr.filter(p => p !== name);
+                    editingModalData.bye = byeArr.join(', ');
+                }
+            } else {
+                if (!editingModalData.teams || editingModalData.teams.length === 0) {
+                    editingModalData.teams = [[]];
+                }
+                editingModalData.teams[editingModalData.teams.length - 1].push(name);
+            }
+            renderModalTeams();
+        };
+
+        window.syncEditModalTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            const currentList = getAllEditModalPlayers();
+            const tags = container.querySelectorAll('.name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentList.includes(name)) {
+                    tag.classList.add('active');
+                    tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active');
+                    tag.innerText = '⚡ ' + name;
+                }
+            });
+        };
+
         window.openEditModal = function(index) {
             openPasswordModal(
                 "🔐 請輸入管理員密碼",
@@ -2451,6 +2542,7 @@
                         }
 
                         renderModalTeams();
+                        window.initEditModalNameTags();
                         document.getElementById('editModal').style.display = 'flex';
                         return true;
                     } else {
@@ -2522,6 +2614,8 @@
                 byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
             });
             setupDropZone(byeZone);
+
+            window.syncEditModalTags();
         }
 
         function createDraggableTag(name, teamIdx, pIdx) {
@@ -2603,7 +2697,7 @@
                 bye: editingModalData.bye
             };
 
-            set(historyRef, updatedRounds);
+            saveHistoryWithLimit(updatedRounds);
             closeEditModal();
             alert("對戰紀錄變更成功！");
         };
@@ -2646,119 +2740,30 @@
             if (window.initPresetNameTags) window.initPresetNameTags();
             if (window.initEditModalNameTags) window.initEditModalNameTags();
         });
-        window.openEditModal = function(index) {
-            openPasswordModal(
-                "🔐 請輸入管理員密碼",
-                "編輯對戰紀錄為管理功能，請輸入管理密碼：",
-                (pwd) => {
-                    if (pwd.trim() === AUTH_PASSWORD) {
-                        editingIndex = index;
-                        const round = historyRounds[index];
-                        if (!round) return false;
 
-                        editingModalData = {
-                            eventDate: round.eventDate || '',
-                            teams: (round.teams || []).map(t => [...t]),
-                            bye: round.bye || ''
-                        };
-
-                        if (editingModalData.eventDate.includes('T')) {
-                            const parts = editingModalData.eventDate.split('T');
-                            document.getElementById('editModalDate').value = parts[0];
-                            document.getElementById('editModalTime').value = parts[1].slice(0, 5);
-                        } else {
-                            document.getElementById('editModalDate').value = editingModalData.eventDate;
-                            document.getElementById('editModalTime').value = '14:00';
-                        }
-
-                        renderModalTeams();
-                        window.initEditModalNameTags();
-                        document.getElementById('editModal').style.display = 'flex';
-                        return true;
-                    } else {
-                        alert("密碼錯誤，無法編輯對戰！");
-                        return false;
-                    }
-                }
-            );
-        };
-
-        function getAllEditModalPlayers() {
-            let list = [];
-            if (editingModalData.teams) {
-                editingModalData.teams.forEach(t => {
-                    if (Array.isArray(t)) {
-                        t.forEach(p => { if (p) list.push(p.trim()); });
-                    }
-                });
+        // SAFE ISOLATED MATCH POOLS LISTENERS
+        onValue(matchPoolsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.pools && Array.isArray(data.pools)) {
+                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
+            } else if (!data) {
+                matchPoolsData.lastUpdatedDate = getTodayDateString();
+                set(matchPoolsRef, matchPoolsData);
             }
-            if (editingModalData.bye) {
-                let byeArr = typeof editingModalData.bye === 'string' ? editingModalData.bye.split(',') : editingModalData.bye;
-                if (Array.isArray(byeArr)) {
-                    byeArr.forEach(p => { if (p) list.push(p.trim()); });
-                }
-            }
-            return list;
-        }
+            updatePoolsUI();
+        });
 
-        window.initEditModalNameTags = function() {
-            const container = document.getElementById('editModalTagContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            defaultPresetNames.forEach(name => {
-                const tag = document.createElement('div');
-                tag.className = 'name-tag';
-                tag.innerText = '⚡ ' + name;
-                tag.onclick = () => window.toggleEditModalPlayer(name);
-                container.appendChild(tag);
-            });
-            window.syncEditModalTags();
-        };
+        onValue(upcomingUsageRef, (snapshot) => {
+            upcomingMatchUsage = snapshot.val();
+            updateUpcomingUsageUI();
+            updatePoolsUI();
+            renderUpcomingHistory();
+        });
 
-        window.toggleEditModalPlayer = function(name) {
-            let currentPlayers = getAllEditModalPlayers();
-            if (currentPlayers.includes(name)) {
-                if (editingModalData.teams) {
-                    editingModalData.teams.forEach(team => {
-                        for (let i = team.length - 1; i >= 0; i--) {
-                            if (team[i] === name) team.splice(i, 1);
-                        }
-                    });
-                }
-                if (editingModalData.bye) {
-                    let byeArr = editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean);
-                    byeArr = byeArr.filter(p => p !== name);
-                    editingModalData.bye = byeArr.join(', ');
-                }
-            } else {
-                if (!editingModalData.teams || editingModalData.teams.length === 0) {
-                    editingModalData.teams = [[]];
-                }
-                editingModalData.teams[editingModalData.teams.length - 1].push(name);
-            }
-            renderModalTeams();
-        };
-
-        window.syncEditModalTags = function() {
-            const container = document.getElementById('editModalTagContainer');
-            if (!container) return;
-            const currentList = getAllEditModalPlayers();
-            const tags = container.querySelectorAll('.name-tag');
-            tags.forEach((tag) => {
-                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
-                if (currentList.includes(name)) {
-                    tag.classList.add('active');
-                    tag.innerText = '★ ' + name;
-                } else {
-                    tag.classList.remove('active');
-                    tag.innerText = '⚡ ' + name;
-                }
-            });
-        };
-
-        window.closeEditModal = function() {
-            document.getElementById('editModal').style.display = 'none';
-            editingIndex = null;
+        window.openPresetModal = function() {
+            resetPresetClearBtn();
+            renderPresetModalList();
+            document.getElementById('presetModal').style.display = 'flex';
         };
 
         window.closePresetModal = function() {
@@ -2772,36 +2777,35 @@
             const rawText = document.getElementById('nameInput').value;
             const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
 
-        function renderModalTeams() {
-            const teamsContainer = document.getElementById('editModalTeamsContainer');
-            teamsContainer.innerHTML = '';
-            editingModalData.teams.forEach((team, tIdx) => {
-                const groupDiv = document.createElement('div');
-                groupDiv.style.marginBottom = '8px';
-                groupDiv.innerHTML = `<div style="font-size:0.82rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
-                const dropZone = document.createElement('div');
-                dropZone.className = 'drop-zone';
-                dropZone.dataset.teamIndex = tIdx;
+            if (!dateInputVal) return alert("請選擇預組隊伍的日期！");
+            if (players.length < 2) return alert("請至少選擇 2 位登場訓練家再進行預估組隊！");
 
-                team.forEach((player, pIdx) => {
-                    dropZone.appendChild(createDraggableTag(player, tIdx, pIdx));
-                });
+            const id = 'preset_' + Date.now();
+            const newPreset = {
+                id: id,
+                eventDate: `${dateInputVal}T${timeInputVal}`,
+                teamSize: selectedTeamSize,
+                restaurantRaw: selectedRestaurantRaw,
+                players: players
+            };
 
-                setupDropZone(dropZone);
-                groupDiv.appendChild(dropZone);
-                teamsContainer.appendChild(groupDiv);
-            });
+            let updatedPresets = [...presetTeams, newPreset];
+            set(presetsRef, updatedPresets);
+            alert("已成功將隊伍儲存至「預組隊伍庫」！");
+        };
 
-            const byeZone = document.getElementById('editModalByeZone');
-            byeZone.innerHTML = '';
-            let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
-            byeArr.forEach((player, pIdx) => {
-                byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
-            });
-            setupDropZone(byeZone);
+        window.loadPresetToMain = function(presetId) {
+            const target = presetTeams.find(p => p.id === presetId);
+            if (!target) return;
 
-            window.syncEditModalTags();
-        }
+            activePresetId = target.id;
+            if (target.eventDate.includes('T')) {
+                const parts = target.eventDate.split('T');
+                document.getElementById('eventDate').value = parts[0];
+                document.getElementById('eventTime').value = parts[1].slice(0, 5);
+            } else {
+                document.getElementById('eventDate').value = target.eventDate;
+            }
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
@@ -3154,7 +3158,7 @@
                 return round;
             });
             let updatedCustom = customRestaurants.filter(r => r !== name);
-            set(historyRef, updatedRounds);
+            saveHistoryWithLimit(updatedRounds);
             set(customRestaurantsRef, updatedCustom);
             renderModalRestaurantList();
         };
@@ -3186,7 +3190,7 @@
                     customRestaurants.push(restaurantData.name);
                     set(customRestaurantsRef, customRestaurants);
                 }
-                set(historyRef, updatedRounds);
+                saveHistoryWithLimit(updatedRounds);
             }, 300);
         };
 
@@ -3200,7 +3204,7 @@
                     if (pwd.trim() === AUTH_PASSWORD) {
                         let updatedRounds = [...historyRounds];
                         updatedRounds.splice(index, 1);
-                        set(historyRef, updatedRounds);
+                        saveHistoryWithLimit(updatedRounds);
                         alert("已成功刪除該筆戰報紀錄！");
                         return true;
                     } else {
