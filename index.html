@@ -176,14 +176,14 @@
         
         .input-group { margin-bottom: 12px; position: relative; }
         
-        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], textarea { 
+        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], select, textarea { 
             width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none;
             min-height: 46px;
         }
         
-        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus { 
+        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, select:focus, textarea:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; 
             box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
         }
@@ -738,6 +738,48 @@
         </div>
     </div>
 
+    <div id="editPresetModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ 編輯預組隊伍資訊</h3>
+                <button class="modal-close" onclick="closeEditPresetModal()">✖</button>
+            </div>
+            
+            <div class="input-group">
+                <label>📅 活動日期與時間</label>
+                <div style="display: flex; gap: 8px;">
+                    <input type="date" id="editPresetDate" style="flex: 1.2;" onchange="onPresetModalDateInputChange()">
+                    <input type="time" id="editPresetTime" style="flex: 0.8;">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>👥 對戰隊伍人數</label>
+                <select id="editPresetTeamSize">
+                    <option value="2">2 人一組</option>
+                    <option value="3">3 人一組</option>
+                    <option value="4">4 人一組</option>
+                    <option value="5">5 人一組</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label>🍽️ 用餐餐廳</label>
+                <input type="text" id="editPresetRestaurant" placeholder="輸入餐廳名稱或 Google Map 連結...">
+            </div>
+
+            <div class="input-group">
+                <label>📝 參賽訓練家名單（每行一位）</label>
+                <textarea id="editPresetPlayers" style="min-height:100px;" placeholder="每行一位訓練家姓名..."></textarea>
+            </div>
+
+            <div class="btn-action" style="margin-top:20px; gap:10px;">
+                <button class="action-btn btn-primary" onclick="savePresetEdit()">💾 儲存修改</button>
+                <button class="action-btn btn-secondary" onclick="closeEditPresetModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -854,6 +896,7 @@
         let customRestaurants = [];
         let presetTeams = [];
         let activePresetId = null;
+        let editingPresetId = null;
         let upcomingMatchUsage = null;
         let currentInputMode = 'base';
         let activePasswordCallback = null;
@@ -1481,6 +1524,19 @@
             const dateObj = new Date(dateVal + 'T00:00:00');
             const day = dateObj.getDay();
             const timeInput = document.getElementById('editModalTime');
+            if (day === 3) {
+                timeInput.value = "14:00";
+            } else if (day === 6) {
+                timeInput.value = "13:00";
+            }
+        };
+
+        window.onPresetModalDateInputChange = function() {
+            const dateVal = document.getElementById('editPresetDate').value;
+            if (!dateVal) return;
+            const dateObj = new Date(dateVal + 'T00:00:00');
+            const day = dateObj.getDay();
+            const timeInput = document.getElementById('editPresetTime');
             if (day === 3) {
                 timeInput.value = "14:00";
             } else if (day === 6) {
@@ -2552,6 +2608,64 @@
             alert("已成功帶入該筆預組隊伍資料！");
         };
 
+        window.openEditPresetModal = function(presetId, event) {
+            if (event) event.stopPropagation();
+            const target = presetTeams.find(p => p.id === presetId);
+            if (!target) return;
+
+            editingPresetId = presetId;
+            if (target.eventDate && target.eventDate.includes('T')) {
+                const parts = target.eventDate.split('T');
+                document.getElementById('editPresetDate').value = parts[0];
+                document.getElementById('editPresetTime').value = parts[1].slice(0, 5);
+            } else {
+                document.getElementById('editPresetDate').value = target.eventDate || '';
+                document.getElementById('editPresetTime').value = '14:00';
+            }
+
+            document.getElementById('editPresetTeamSize').value = target.teamSize || 2;
+            document.getElementById('editPresetRestaurant').value = target.restaurantRaw || '';
+            document.getElementById('editPresetPlayers').value = (target.players || []).join('\n');
+
+            document.getElementById('editPresetModal').style.display = 'flex';
+        };
+
+        window.closeEditPresetModal = function() {
+            document.getElementById('editPresetModal').style.display = 'none';
+            editingPresetId = null;
+        };
+
+        window.savePresetEdit = function() {
+            if (!editingPresetId) return;
+            const dateVal = document.getElementById('editPresetDate').value;
+            const timeVal = document.getElementById('editPresetTime').value || '14:00';
+            if (!dateVal) return alert("請選擇活動日期！");
+
+            const teamSize = parseInt(document.getElementById('editPresetTeamSize').value, 10) || 2;
+            const restaurantRaw = document.getElementById('editPresetRestaurant').value.trim();
+            const rawPlayers = document.getElementById('editPresetPlayers').value;
+            const players = rawPlayers.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+
+            if (players.length < 2) return alert("請至少輸入 2 位登場訓練家！");
+
+            let updatedPresets = presetTeams.map(p => {
+                if (p.id === editingPresetId) {
+                    return {
+                        ...p,
+                        eventDate: `${dateVal}T${timeVal}`,
+                        teamSize: teamSize,
+                        restaurantRaw: restaurantRaw,
+                        players: players
+                    };
+                }
+                return p;
+            });
+
+            set(presetsRef, updatedPresets);
+            closeEditPresetModal();
+            alert("已成功儲存該筆預組隊伍修改！");
+        };
+
         window.generateFromPreset = function(presetId, isDisabled, event) {
             if (event) event.stopPropagation();
             if (isDisabled) {
@@ -2694,8 +2808,11 @@
                 const btnText = isDisabled ? '⚔️ 狂刀三浪還在浪' : '⚡ 直接擲球配對';
 
                 html += `<div class="${cardClass}">
-                    <div class="preset-date">📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒 (需依序抽籤)' : ''}</div>
-                    <div class="preset-details">
+                    <div class="preset-date" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                        <span>📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒' : ''}</span>
+                        <button class="btn-edit" style="padding:3px 8px; font-size:0.78rem; min-height:30px; font-weight:800;" onclick="openEditPresetModal('${p.id}', event)">✏️ 編輯</button>
+                    </div>
+                    <div class="preset-details" style="margin-top:4px;">
                         <div>🍽️ ${restName}</div>
                         <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
                     </div>
