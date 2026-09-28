@@ -1864,9 +1864,7 @@
         }
 
         async function formatRoundText(round) {
-            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate)}`];
-            const calUrl = generateGoogleCalendarUrl(round);
-            if (calUrl) lines.push(`🗓️ 加入行事曆：${calUrl}`);
+            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate, round.eventTime)}`];
 
             const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
             let name = round.restaurantName || round.restaurant || '';
