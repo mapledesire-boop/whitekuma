@@ -135,21 +135,6 @@
         }
         .btn-sm-manage:active { background: #E2E8F0; transform: scale(0.95); }
 
-        .modal-rest-list { max-height: 260px; overflow-y: auto; margin-top: 10px; border-radius: var(--radius-sm); border: 1px solid #E2E8F0; }
-        .modal-rest-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 10px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 700;
-            cursor: pointer; transition: var(--transition); background: #FFFFFF; min-height: 44px;
-        }
-        .modal-rest-item:last-child { border-bottom: none; }
-        .modal-rest-item:active { background-color: #F1F5F9; }
-        .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .modal-rest-item .btn-del-rest {
-            background: none; border: none; color: #FF5350; cursor: pointer; padding: 6px 8px;
-            font-size: 0.92rem; border-radius: 6px; transition: var(--transition);
-        }
-        textarea { min-height: 80px; resize: vertical; }
-        
         .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px 0; }
         .name-tag { 
             padding: 6px 12px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
@@ -198,6 +183,23 @@
         .section-header h3 { margin: 0; font-size: 0.98rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         .action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         
+        .toast-container {
+            position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+            z-index: 9999; display: flex; flex-direction: column; gap: 8px;
+            pointer-events: none; width: 90%; max-width: 400px;
+        }
+        .toast-msg {
+            background: #1E293B; color: #FFFFFF; padding: 12px 18px; border-radius: 30px;
+            font-size: 0.88rem; font-weight: 800; text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1.5px solid #334155;
+            animation: toastPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: auto;
+        }
+        @keyframes toastPop {
+            from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
         .filter-container {
             background: #F8FAFC; border-radius: var(--radius-sm); padding: 10px;
             margin-bottom: 12px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
@@ -247,6 +249,7 @@
             padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(2px);
         }
         #passwordModal { z-index: 2000; }
+        #customConfirmModal, #customPromptModal { z-index: 3000; }
         #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal { z-index: 1100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
@@ -323,6 +326,8 @@
     </style>
 </head>
 <body>
+    <div id="toastContainer" class="toast-container"></div>
+
     <div class="header-container">
         <div class="header-title-box">
             <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="header-img">
@@ -435,6 +440,39 @@
             <span>🔐 進入場次管理專區</span>
             <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙️</span>
         </button>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="customConfirmModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 id="confirmModalTitle">❓ 請確認</h3>
+                <button class="modal-close" onclick="closeConfirmModal(false)">✖</button>
+            </div>
+            <div id="confirmModalText" style="font-size: 0.92rem; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line;"></div>
+            <div class="btn-action">
+                <button class="action-btn btn-secondary" onclick="closeConfirmModal(false)">取消</button>
+                <button class="action-btn btn-primary" id="confirmModalSubmitBtn" onclick="closeConfirmModal(true)">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Prompt Modal -->
+    <div id="customPromptModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 id="promptModalTitle">📝 請輸入資訊</h3>
+                <button class="modal-close" onclick="closePromptModal(null)">✖</button>
+            </div>
+            <div id="promptModalText" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px; white-space: pre-line;"></div>
+            <div class="input-group">
+                <input type="text" id="promptModalInput" onkeydown="if(event.key==='Enter') submitPromptModal()">
+            </div>
+            <div class="btn-action" style="margin-top: 14px;">
+                <button class="action-btn btn-secondary" onclick="closePromptModal(null)">取消</button>
+                <button class="action-btn btn-primary" onclick="submitPromptModal()">確定</button>
+            </div>
+        </div>
     </div>
 
     <!-- Password Modal -->
@@ -835,6 +873,10 @@
         let activePasswordCallback = null;
         let editingHistoryMatchIndex = null;
 
+        // Custom UI Dialog Handlers
+        let activeConfirmCallback = null;
+        let activePromptCallback = null;
+
         // ISOLATED MATCH POOLS STATE MANAGER
         let matchPoolsData = {
             lastUpdatedDate: "",
@@ -856,6 +898,63 @@
         let selectedRestaurantRaw = "";
         let editingIndex = null;
         let editingModalData = { eventDate: '', teams: [], bye: '' };
+
+        // Toast Notification System
+        window.showToast = function(msg) {
+            const container = document.getElementById('toastContainer');
+            if (!container) return;
+            const toast = document.createElement('div');
+            toast.className = 'toast-msg';
+            toast.innerText = msg;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(-10px)';
+                toast.style.transition = 'all 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        };
+
+        // Custom Confirm Dialog
+        window.showConfirm = function(text, onConfirm, onCancel = null, title = "❓ 請確認") {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalText').innerText = text;
+            activeConfirmCallback = { onConfirm, onCancel };
+            document.getElementById('customConfirmModal').style.display = 'flex';
+        };
+
+        window.closeConfirmModal = function(isConfirmed) {
+            document.getElementById('customConfirmModal').style.display = 'none';
+            if (activeConfirmCallback) {
+                if (isConfirmed && activeConfirmCallback.onConfirm) activeConfirmCallback.onConfirm();
+                else if (!isConfirmed && activeConfirmCallback.onCancel) activeConfirmCallback.onCancel();
+            }
+            activeConfirmCallback = null;
+        };
+
+        // Custom Prompt Dialog
+        window.showPrompt = function(text, defaultValue, onSubmit, title = "📝 請輸入資訊") {
+            document.getElementById('promptModalTitle').innerText = title;
+            document.getElementById('promptModalText').innerText = text;
+            const input = document.getElementById('promptModalInput');
+            input.value = defaultValue || '';
+            activePromptCallback = onSubmit;
+            document.getElementById('customPromptModal').style.display = 'flex';
+            setTimeout(() => { input.focus(); input.select(); }, 100);
+        };
+
+        window.closePromptModal = function(val) {
+            document.getElementById('customPromptModal').style.display = 'none';
+            if (activePromptCallback) {
+                activePromptCallback(val);
+            }
+            activePromptCallback = null;
+        };
+
+        window.submitPromptModal = function() {
+            const val = document.getElementById('promptModalInput').value;
+            closePromptModal(val);
+        };
 
         // ==========================================
         // 2. AUTHENTICATION & UTILITIES
@@ -955,17 +1054,17 @@
             textarea.focus();
             textarea.select();
             try {
-                if (document.execCommand("copy")) alert("已複製對戰戰報！");
-                else alert("複製失敗，請手動複製！");
+                if (document.execCommand("copy")) showToast("已複製對戰戰報！");
+                else showToast("複製失敗，請手動複製！");
             } catch (err) {
-                alert("複製失敗，請手動複製！");
+                showToast("複製失敗，請手動複製！");
             }
             document.body.removeChild(textarea);
         }
 
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => { alert("已複製對戰戰報！"); }).catch(() => { fallbackCopyTextToClipboard(text); });
+                navigator.clipboard.writeText(text).then(() => { showToast("已複製對戰戰報！"); }).catch(() => { fallbackCopyTextToClipboard(text); });
             } else {
                 fallbackCopyTextToClipboard(text);
             }
@@ -1063,7 +1162,8 @@
 
             if (total > 0) {
                 btn.classList.add('has-value');
-                let text = `🎯 本次場次: ${usage.base || total}`;
+                // 本次場次在主頁上的顯示： 本次場次: 總場次(含加碼場次)
+                let text = `🎯 本次場次: ${total}`;
                 if (usage.bonus > 0) text += ` (含加碼${usage.bonus})`;
                 btn.innerHTML = text;
             } else {
@@ -1105,7 +1205,7 @@
                         document.getElementById('upcomingModal').style.display = 'flex';
                         return true;
                     } else {
-                        alert("密碼錯誤，無法設定本次場次！");
+                        showToast("密碼錯誤，無法設定本次場次！");
                         return false;
                     }
                 }
@@ -1153,7 +1253,7 @@
             if (valStr === '') return;
             const num = parseInt(valStr, 10);
             if (isNaN(num) || num < 0) {
-                alert("請輸入有效的正整數數字！");
+                showToast("請輸入有效的正整數數字！");
                 return;
             }
 
@@ -1175,7 +1275,7 @@
                 }
                 set(matchPoolsRef, matchPoolsData);
                 saveUpcomingUsageState(usage);
-                alert("已清除該場次設定並將剩餘額度釋放回卡池！");
+                showToast("已清除該場次設定並將剩餘額度釋放回卡池！");
             } else {
                 const promptTitle = currentInputMode === 'base' 
                     ? `請選擇【本次場次】要扣除的場次池 (需 ${num} 場)：` 
@@ -1215,7 +1315,7 @@
             set(upcomingUsageRef, null);
             closeUpcomingModal();
             updatePoolsUI();
-            alert("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
+            showToast("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
         };
 
         function saveUpcomingUsageState(usageObj) {
@@ -1258,7 +1358,7 @@
             let totalAvail = matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
             
             if (totalAvail <= 0 || totalAvail < neededCount) {
-                alert("請支援收銀!!!");
+                showToast("請支援收銀!!!");
                 if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
                 return;
             }
@@ -1297,7 +1397,7 @@
         function promptNextPoolDeduction(remainingNeeded, subtext, onComplete, accumulated = []) {
             let availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
             if (availablePools.length === 0) {
-                alert("請支援收銀!!!");
+                showToast("請支援收銀!!!");
                 if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
                 return;
             }
@@ -1362,7 +1462,7 @@
                         document.getElementById('poolModal').style.display = 'flex';
                         return true;
                     } else {
-                        alert("密碼錯誤，無法進入對戰場次管理！");
+                        showToast("密碼錯誤，無法進入對戰場次管理！");
                         return false;
                     }
                 }
@@ -1394,10 +1494,11 @@
         };
 
         window.deletePool = function(poolId) {
-            if (matchPoolsData.pools.length <= 1) return alert("至少需保留一個對戰場次池！");
-            if (!confirm("確定要刪除此場次池嗎？")) return;
-            matchPoolsData.pools = matchPoolsData.pools.filter(p => p.id !== poolId);
-            renderPoolListModal();
+            if (matchPoolsData.pools.length <= 1) return showToast("至少需保留一個對戰場次池！");
+            showConfirm("確定要刪除此場次池嗎？", () => {
+                matchPoolsData.pools = matchPoolsData.pools.filter(p => p.id !== poolId);
+                renderPoolListModal();
+            });
         };
 
         window.savePoolsFromModal = function() {
@@ -1412,7 +1513,7 @@
             matchPoolsData.lastUpdatedDate = getTodayDateString();
             set(matchPoolsRef, matchPoolsData);
             closePoolManagementModal();
-            alert("對戰場次池設定已成功儲存！");
+            showToast("對戰場次池設定已成功儲存！");
         };
 
         // ==========================================
@@ -1458,8 +1559,8 @@
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     const text = await navigator.clipboard.readText();
                     if (text) updateMainRestaurantUI(text.trim());
-                } else alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
-            } catch (err) { alert("請授權剪貼簿讀取權限，或點擊欄位手動輸入！"); }
+                } else showToast("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
+            } catch (err) { showToast("請授權剪貼簿讀取權限，或點擊欄位手動輸入！"); }
         };
 
         window.openRestaurantModal = function() {
@@ -1482,8 +1583,8 @@
                         document.getElementById('restaurantModalInput').value = text;
                         renderModalRestaurantList(text.trim().toLowerCase());
                     }
-                } else alert("請手動長按輸入框貼上！");
-            } catch (err) { alert("請授權剪貼簿讀取權限，或手動貼上！"); }
+                } else showToast("請手動長按輸入框貼上！");
+            } catch (err) { showToast("請授權剪貼簿讀取權限，或手動貼上！"); }
         };
 
         window.filterModalRestaurants = function() {
@@ -1568,7 +1669,7 @@
                         document.getElementById('trainerModal').style.display = 'flex';
                         return true;
                     } else {
-                        alert("密碼錯誤，無法編輯訓練家！");
+                        showToast("密碼錯誤，無法編輯訓練家！");
                         return false;
                     }
                 }
@@ -1579,7 +1680,7 @@
             const input = document.getElementById('newTrainerInput');
             const val = input.value.trim();
             if (!val) return;
-            if (defaultPresetNames.includes(val)) return alert("該訓練家已存在於清單中！");
+            if (defaultPresetNames.includes(val)) return showToast("該訓練家已存在於清單中！");
             
             defaultPresetNames.push(val);
             set(trainerPresetsRef, defaultPresetNames);
@@ -1588,11 +1689,12 @@
             renderTrainerManagerList();
         };
         window.deleteTrainerPreset = function(name) {
-            if (!confirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`)) return;
-            defaultPresetNames = defaultPresetNames.filter(n => n !== name);
-            set(trainerPresetsRef, defaultPresetNames);
-            initNameTags();
-            renderTrainerManagerList();
+            showConfirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`, () => {
+                defaultPresetNames = defaultPresetNames.filter(n => n !== name);
+                set(trainerPresetsRef, defaultPresetNames);
+                initNameTags();
+                renderTrainerManagerList();
+            });
         };
         function renderTrainerManagerList() {
             const container = document.getElementById('trainerManagerList');
@@ -1634,7 +1736,6 @@
 
             pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
 
-            // Past rounds strictly limited to 100 entries max
             if (pastRounds.length > 100) {
                 pastRounds = pastRounds.slice(pastRounds.length - 100);
             }
@@ -1649,10 +1750,10 @@
             const dateInputVal = document.getElementById('eventDate').value;
             const timeInputVal = document.getElementById('eventTime').value || '14:00';
             
-            if (!dateInputVal) return alert("請選擇活動日期！");
+            if (!dateInputVal) return showToast("請選擇活動日期！");
             const eventDateVal = `${dateInputVal}T${timeInputVal}`;
 
-            if (players.length < selectedTeamSize) return alert(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
+            if (players.length < selectedTeamSize) return showToast(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
 
             const usage = getUpcomingUsageValue();
             const baseCnt = usage.base || 0;
@@ -1702,7 +1803,6 @@
                 );
             }
 
-            // 計算訓練家在前後10次對戰中擔任「爽打」的累計次數
             function getSurroundingByeCount(player, targetDateVal, rangeCount = 10) {
                 const sorted = getChronologicalHistory(historyRounds);
                 const roundsWithBye = sorted.filter(r => {
@@ -1747,7 +1847,6 @@
                                 byeCount: getSurroundingByeCount(p, eventDateVal, 10)
                             }));
                             
-                            // 優先挑選前後10次中爽打次數最少（極小化重複）的訓練家
                             let minByeCount = Math.min(...candidates.map(c => c.byeCount));
                             let bestCandidates = candidates.filter(c => c.byeCount === minByeCount);
                             
@@ -1948,8 +2047,8 @@
             const rawText = document.getElementById('nameInput').value;
             const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
 
-            if (!dateInputVal) return alert("請選擇預組隊伍的日期！");
-            if (players.length < 2) return alert("請至少選擇 2 位登場訓練家再進行預估組隊！");
+            if (!dateInputVal) return showToast("請選擇預組隊伍的日期！");
+            if (players.length < 2) return showToast("請至少選擇 2 位登場訓練家再進行預估組隊！");
 
             const id = 'preset_' + Date.now();
             const newPreset = {
@@ -1959,7 +2058,7 @@
 
             let updatedPresets = [...presetTeams, newPreset];
             set(presetsRef, updatedPresets);
-            alert("已成功將隊伍儲存至「預組隊伍庫」！");
+            showToast("已成功將隊伍儲存至「預組隊伍庫」！");
         };
 
         window.loadPresetToMain = function(presetId) {
@@ -1981,7 +2080,7 @@
             syncTagsWithTextarea();
 
             closePresetModal();
-            alert("已成功帶入該筆預組隊伍資料！");
+            showToast("已成功帶入該筆預組隊伍資料！");
         };
 
         window.openEditPresetModal = function(presetId, event) {
@@ -2012,7 +2111,7 @@
                         document.getElementById('editPresetModal').style.display = 'flex';
                         return true;
                     } else {
-                        alert("密碼錯誤，無法編輯預組隊伍！");
+                        showToast("密碼錯誤，無法編輯預組隊伍！");
                         return false;
                     }
                 }
@@ -2079,14 +2178,14 @@
             if (!editingPresetId) return;
             const dateVal = document.getElementById('editPresetDate').value;
             const timeVal = document.getElementById('editPresetTime').value || '14:00';
-            if (!dateVal) return alert("請選擇活動日期！");
+            if (!dateVal) return showToast("請選擇活動日期！");
 
             const teamSize = parseInt(document.getElementById('editPresetTeamSize').value, 10) || 2;
             const restaurantRaw = document.getElementById('editPresetRestaurant').value.trim();
             const rawPlayers = document.getElementById('editPresetPlayers').value;
             const players = rawPlayers.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 
-            if (players.length < 2) return alert("請至少輸入 2 位登場訓練家！");
+            if (players.length < 2) return showToast("請至少輸入 2 位登場訓練家！");
 
             let updatedPresets = presetTeams.map(p => {
                 if (p.id === editingPresetId) {
@@ -2097,12 +2196,12 @@
 
             set(presetsRef, updatedPresets);
             window.closeEditPresetModal();
-            alert("已成功儲存該筆預組隊伍修改！");
+            showToast("已成功儲存該筆預組隊伍修改！");
         };
 
         window.generateFromPreset = function(presetId, isDisabled, event) {
             if (event) event.stopPropagation();
-            if (isDisabled) return alert("狂刀三浪還在浪！請先依序將較早日期的預組隊伍進行擲球配對！");
+            if (isDisabled) return showToast("狂刀三浪還在浪！請先依序將較早日期的預組隊伍進行擲球配對！");
 
             const target = presetTeams.find(p => p.id === presetId);
             if (!target) return;
@@ -2129,40 +2228,41 @@
         };
 
         window.generateAllPresetsInLoop = function() {
-            if (presetTeams.length === 0) return alert("目前沒有任何預組隊伍！");
+            if (presetTeams.length === 0) return showToast("目前沒有任何預組隊伍！");
 
             let sortedPresets = [...presetTeams].sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
             const count = sortedPresets.length;
-            if (!confirm(`確定要將全部 ${count} 組預組隊伍依序進行隨機配對並匯入對戰圖鑑嗎？`)) return;
+            
+            showConfirm(`確定要將全部 ${count} 組預組隊伍依序進行隨機配對並匯入對戰圖鑑嗎？`, () => {
+                sortedPresets.forEach(target => {
+                    if (target.eventDate.includes('T')) {
+                        const parts = target.eventDate.split('T');
+                        document.getElementById('eventDate').value = parts[0];
+                        document.getElementById('eventTime').value = parts[1].slice(0, 5);
+                    } else document.getElementById('eventDate').value = target.eventDate;
 
-            sortedPresets.forEach(target => {
-                if (target.eventDate.includes('T')) {
-                    const parts = target.eventDate.split('T');
-                    document.getElementById('eventDate').value = parts[0];
-                    document.getElementById('eventTime').value = parts[1].slice(0, 5);
-                } else document.getElementById('eventDate').value = target.eventDate;
+                    selectTeamSize(target.teamSize || 2);
+                    updateMainRestaurantUI(target.restaurantRaw || '');
 
-                selectTeamSize(target.teamSize || 2);
-                updateMainRestaurantUI(target.restaurantRaw || '');
+                    const textarea = document.getElementById('nameInput');
+                    textarea.value = (target.players || []).join('\n');
 
-                const textarea = document.getElementById('nameInput');
-                textarea.value = (target.players || []).join('\n');
+                    activePresetId = target.id;
+                    generateTeams();
+                });
 
-                activePresetId = target.id;
-                generateTeams();
+                remove(presetsRef);
+                activePresetId = null;
+                closePresetModal();
+
+                document.getElementById('currentResultSection').scrollIntoView({ behavior: 'smooth' });
+                showToast(`🎉 已成功完成全數 ${count} 組預組隊伍的渡劫配對！`);
             });
-
-            remove(presetsRef);
-            activePresetId = null;
-            closePresetModal();
-
-            document.getElementById('currentResultSection').scrollIntoView({ behavior: 'smooth' });
-            alert(`🎉 已成功完成全數 ${count} 組預組隊伍的渡劫配對！`);
         };
 
         window.clearAllPresetsWithConfirm = function() {
             const btn = document.getElementById('btnClearPresets');
-            if (presetTeams.length === 0) return alert("目前沒有預組隊伍！");
+            if (presetTeams.length === 0) return showToast("目前沒有預組隊伍！");
 
             if (presetClearStep === 0) {
                 presetClearStep = 1;
@@ -2181,7 +2281,7 @@
                 }, 1000);
             } else if (presetClearStep === 2) {
                 remove(presetsRef);
-                alert("已成功清空所有預組隊伍！");
+                showToast("已成功清空所有預組隊伍！");
                 resetPresetClearBtn();
             }
         };
@@ -2195,10 +2295,11 @@
 
         window.deletePreset = function(presetId, event) {
             if (event) event.stopPropagation();
-            if (!confirm("確定要刪除此筆預組隊伍資料嗎？")) return;
-            let updatedPresets = presetTeams.filter(p => p.id !== presetId);
-            set(presetsRef, updatedPresets);
-            if (activePresetId === presetId) activePresetId = null;
+            showConfirm("確定要刪除此筆預組隊伍資料嗎？", () => {
+                let updatedPresets = presetTeams.filter(p => p.id !== presetId);
+                set(presetsRef, updatedPresets);
+                if (activePresetId === presetId) activePresetId = null;
+            });
         };
 
         function renderPresetModalList() {
@@ -2380,7 +2481,7 @@
 
         window.copyRangeHistory = async function() {
             const filtered = getFilteredPastHistory();
-            if (filtered.length === 0) return alert("無選定區間的戰報紀錄！");
+            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
             let textList = [];
             for (let r of filtered) textList.push(await formatRoundText(r));
             copyToClipboard(textList.join('\n\n-------------------\n\n'));
@@ -2388,7 +2489,7 @@
 
         window.shareRangeHistoryToLine = async function() {
             const filtered = getFilteredPastHistory();
-            if (filtered.length === 0) return alert("無選定區間的戰報紀錄！");
+            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
             let textList = [];
             for (let r of filtered) textList.push(await formatRoundText(r));
             shareToLine(textList.join('\n\n-------------------\n\n'));
@@ -2452,7 +2553,7 @@
                         openEditHistoryMatchModal(index);
                         return true;
                     } else {
-                        alert("密碼錯誤，無法修改歷史場次！");
+                        showToast("密碼錯誤，無法修改歷史場次！");
                         return false;
                     }
                 }
@@ -2481,7 +2582,7 @@
             if (editingHistoryMatchIndex === null) return;
             const valInp = document.getElementById('editHistoryMatchVal').value.trim();
             const newTotal = parseInt(valInp, 10);
-            if (isNaN(newTotal) || newTotal < 0) return alert("請輸入有效的正整數場次數量！");
+            if (isNaN(newTotal) || newTotal < 0) return showToast("請輸入有效的正整數場次數量！");
 
             let updatedRounds = [...historyRounds];
             let round = updatedRounds[editingHistoryMatchIndex];
@@ -2493,10 +2594,9 @@
 
             saveHistoryWithLimit(updatedRounds);
             closeEditHistoryMatchModal();
-            alert("歷史場次數值已成功修改！");
+            showToast("歷史場次數值已成功修改！");
         };
 
-        // EDIT BATTLE MODAL WITH QUICK TAG SELECTOR
         function getAllEditModalPlayers() {
             let list = [];
             if (editingModalData.teams) {
@@ -2594,7 +2694,7 @@
                         document.getElementById('editModal').style.display = 'flex';
                         return true;
                     } else {
-                        alert("密碼錯誤，無法編輯對戰！");
+                        showToast("密碼錯誤，無法編輯對戰！");
                         return false;
                     }
                 }
@@ -2725,7 +2825,7 @@
             if (editingIndex === null) return;
             const newDateVal = document.getElementById('editModalDate').value;
             const newTimeVal = document.getElementById('editModalTime').value || '14:00';
-            if (!newDateVal) return alert("活動日期不能為空！");
+            if (!newDateVal) return showToast("活動日期不能為空！");
 
             const newDate = `${newDateVal}T${newTimeVal}`;
             const cleanedTeams = editingModalData.teams.filter(t => t.length > 0);
@@ -2740,10 +2840,9 @@
 
             saveHistoryWithLimit(updatedRounds);
             closeEditModal();
-            alert("對戰紀錄變更成功！");
+            showToast("對戰紀錄變更成功！");
         };
 
-        // RESTAURANT MANAGEMENT & DELETION
         function extractPlaceNameFromUrl(url) {
             try {
                 const decodedUrl = decodeURIComponent(url);
@@ -2799,30 +2898,47 @@
             if (!currentRound) return;
             const oldName = currentRound.restaurantName || currentRound.restaurant || '';
             const searchKeyword = oldName === "Google 地圖連結" ? "" : oldName;
-            const wantSearch = confirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`);
-            if (wantSearch) {
+            
+            showConfirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`, () => {
                 const searchUrl = searchKeyword 
                     ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}`
                     : `https://www.google.com/maps`;
                 window.open(searchUrl, '_blank');
-            }
-            setTimeout(() => {
-                const newName = prompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword);
-                if (newName === null) return;
-                const trimmedName = newName.trim();
-                const restaurantData = parseRestaurantInput(trimmedName);
-                let updatedRounds = [...historyRounds];
-                updatedRounds[index] = {
-                    ...updatedRounds[index],
-                    restaurantName: restaurantData.name,
-                    mapUrl: restaurantData.url
-                };
-                if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                    customRestaurants.push(restaurantData.name);
-                    set(customRestaurantsRef, customRestaurants);
-                }
-                saveHistoryWithLimit(updatedRounds);
-            }, 300);
+                
+                showPrompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword, (newName) => {
+                    if (newName === null) return;
+                    const trimmedName = newName.trim();
+                    const restaurantData = parseRestaurantInput(trimmedName);
+                    let updatedRounds = [...historyRounds];
+                    updatedRounds[index] = {
+                        ...updatedRounds[index],
+                        restaurantName: restaurantData.name,
+                        mapUrl: restaurantData.url
+                    };
+                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                        customRestaurants.push(restaurantData.name);
+                        set(customRestaurantsRef, customRestaurants);
+                    }
+                    saveHistoryWithLimit(updatedRounds);
+                });
+            }, () => {
+                showPrompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword, (newName) => {
+                    if (newName === null) return;
+                    const trimmedName = newName.trim();
+                    const restaurantData = parseRestaurantInput(trimmedName);
+                    let updatedRounds = [...historyRounds];
+                    updatedRounds[index] = {
+                        ...updatedRounds[index],
+                        restaurantName: restaurantData.name,
+                        mapUrl: restaurantData.url
+                    };
+                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                        customRestaurants.push(restaurantData.name);
+                        set(customRestaurantsRef, customRestaurants);
+                    }
+                    saveHistoryWithLimit(updatedRounds);
+                });
+            });
         };
 
         window.deleteSingleRoundByIndex = function(index) {
@@ -2836,10 +2952,10 @@
                         let updatedRounds = [...historyRounds];
                         updatedRounds.splice(index, 1);
                         saveHistoryWithLimit(updatedRounds);
-                        alert("已成功刪除該筆戰報紀錄！");
+                        showToast("已成功刪除該筆戰報紀錄！");
                         return true;
                     } else {
-                        alert("密碼錯誤，無法刪除！");
+                        showToast("密碼錯誤，無法刪除！");
                         return false;
                     }
                 }
@@ -2873,11 +2989,11 @@
                             remove(historyRef);
                             remove(customRestaurantsRef);
                             clearCurrentResultUI();
-                            alert("已清空所有歷史紀錄！");
+                            showToast("已清空所有歷史紀錄！");
                             resetClearBtn();
                             return true;
                         } else {
-                            alert("密碼錯誤，無法清空！");
+                            showToast("密碼錯誤，無法清空！");
                             resetClearBtn();
                             return false;
                         }
