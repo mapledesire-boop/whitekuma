@@ -600,9 +600,17 @@
                 <div class="total-matches-count" id="modalTotalMatches">0</div>
             </div>
 
-            <div style="font-size: 0.82rem; color: #64748B; font-weight: 800; margin-bottom: 10px; display:flex; justify-content:space-between; align-items:center;">
-                <span>✨ 每日跨日全體場次池自動 +3</span>
-                <span id="lastAutoIncText" style="color:var(--poke-purple);">跨日檢查中...</span>
+            <!-- 可調整每日跨日自動增加數量的區塊 -->
+            <div style="font-size: 0.85rem; color: #475569; font-weight: 800; margin-bottom: 12px; background: #F8FAFC; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <label for="dailyIncrementInput" style="margin:0;">✨ 每日跨日全體場次池自動增加數：</label>
+                    <span id="lastAutoIncText" style="color:var(--poke-purple); font-size:0.78rem;">跨日檢查中...</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-weight:900; color:var(--poke-purple); font-size:1.1rem;">+</span>
+                    <input type="number" id="dailyIncrementInput" min="0" style="width:100px; text-align:center; font-weight:900; font-size:1rem; min-height:38px;" placeholder="3">
+                    <span style="font-size:0.85rem; color:#64748B;">場 / 天 (每池)</span>
+                </div>
             </div>
 
             <label>🎯 場次池列表與數值設定：</label>
@@ -875,6 +883,7 @@
 
         let matchPoolsData = {
             lastUpdatedDate: "",
+            dailyIncrement: 3,
             pools: [
                 { id: "pool_1", name: "場次池 A", count: 10 },
                 { id: "pool_2", name: "場次池 B", count: 10 },
@@ -1066,6 +1075,9 @@
 
         function checkAndApplyDailyAutoIncrement(data) {
             if (!data || !data.pools) return data;
+            if (data.dailyIncrement === undefined) {
+                data.dailyIncrement = 3;
+            }
             const todayStr = getTodayDateString();
             if (!data.lastUpdatedDate) {
                 data.lastUpdatedDate = todayStr;
@@ -1078,8 +1090,9 @@
                 const diffTime = Math.abs(d2 - d1);
                 const diffDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
                 
+                const incVal = Number(data.dailyIncrement) !== undefined ? Number(data.dailyIncrement) : 3;
                 data.pools.forEach(pool => {
-                    pool.count = (Number(pool.count) || 0) + (diffDays * 3);
+                    pool.count = (Number(pool.count) || 0) + (diffDays * incVal);
                 });
                 data.lastUpdatedDate = todayStr;
                 set(matchPoolsRef, data);
@@ -1530,6 +1543,11 @@
             const container = document.getElementById('poolListContainer');
             if (!matchPoolsData || !matchPoolsData.pools) return;
             
+            const incInp = document.getElementById('dailyIncrementInput');
+            if (incInp) {
+                incInp.value = matchPoolsData.dailyIncrement !== undefined ? matchPoolsData.dailyIncrement : 3;
+            }
+
             let html = '';
             matchPoolsData.pools.forEach((pool, idx) => {
                 html += `<div class="pool-item-row" id="poolRow_${pool.id}">
@@ -1558,6 +1576,13 @@
 
         window.savePoolsFromModal = function() {
             if (!matchPoolsData || !matchPoolsData.pools) return;
+
+            const incInp = document.getElementById('dailyIncrementInput');
+            if (incInp) {
+                const val = parseInt(incInp.value, 10);
+                matchPoolsData.dailyIncrement = isNaN(val) || val < 0 ? 0 : val;
+            }
+
             matchPoolsData.pools.forEach((pool, idx) => {
                 const nameInp = document.getElementById(`poolName_${idx}`);
                 const countInp = document.getElementById(`poolCount_${idx}`);
@@ -1568,7 +1593,7 @@
             matchPoolsData.lastUpdatedDate = getTodayDateString();
             set(matchPoolsRef, matchPoolsData);
             closePoolManagementModal();
-            showToast("對戰場次池設定已成功儲存！");
+            showToast("對戰場次池與每日增加數量設定已成功儲存！");
         };
 
         window.onDateInputChange = function() {
@@ -3096,8 +3121,10 @@
         onValue(matchPoolsRef, (snapshot) => {
             const data = snapshot.val();
             if (data && data.pools && Array.isArray(data.pools)) {
+                if (data.dailyIncrement === undefined) data.dailyIncrement = 3;
                 matchPoolsData = checkAndApplyDailyAutoIncrement(data);
             } else if (!data) {
+                matchPoolsData.dailyIncrement = 3;
                 matchPoolsData.lastUpdatedDate = getTodayDateString();
                 set(matchPoolsRef, matchPoolsData);
             }
