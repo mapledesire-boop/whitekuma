@@ -1123,8 +1123,37 @@
             };
         }
 
+        function getUpcomingTargetRound() {
+            if (!historyRounds || historyRounds.length === 0) return null;
+            const todayStr = getTodayDateString();
+            const sorted = getChronologicalHistory(historyRounds);
+            const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+            return upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+        }
+
         function getUpcomingUsageValue() {
-            return parseUpcomingUsage(upcomingMatchUsage);
+            const targetRound = getUpcomingTargetRound();
+            const parsed = parseUpcomingUsage(upcomingMatchUsage);
+            
+            if (targetRound) {
+                const targetDateStr = (targetRound.eventDate || '').split('T')[0];
+                const usageDateStr = (parsed.eventDate || '').split('T')[0];
+                
+                if (usageDateStr && usageDateStr === targetDateStr) {
+                    return parsed;
+                } else if (targetRound.baseCount !== undefined || targetRound.bonusCount !== undefined) {
+                    return {
+                        base: targetRound.baseCount || 0,
+                        bonus: targetRound.bonusCount || 0,
+                        basePoolId: parsed.basePoolId || "",
+                        bonusPoolId: parsed.bonusPoolId || "",
+                        baseUsedName: parsed.baseUsedName || "",
+                        bonusUsedName: parsed.bonusUsedName || "",
+                        eventDate: targetRound.eventDate || ""
+                    };
+                }
+            }
+            return parsed;
         }
 
         function releaseMatchPools(amount, poolId) {
@@ -1141,18 +1170,27 @@
 
         function syncUsageToHistoryRound(usageObj) {
             if (!historyRounds || historyRounds.length === 0) return;
-            const targetDateStr = usageObj.eventDate ? usageObj.eventDate.split('T')[0] : getTodayDateString();
+            const targetRound = getUpcomingTargetRound();
+            const targetDateStr = usageObj.eventDate ? usageObj.eventDate.split('T')[0] : (targetRound ? (targetRound.eventDate || '').split('T')[0] : getTodayDateString());
+            
             const sorted = getChronologicalHistory(historyRounds);
-            const target = sorted.find(r => (r.eventDate || '').split('T')[0] === targetDateStr);
-            if (target) {
+            const target = sorted.find(r => (r.eventDate || '').split('T')[0] === targetDateStr) || targetRound;
+
+            if (target && target.originalIndex !== undefined) {
                 let updatedRounds = [...historyRounds];
-                const total = (usageObj.base || 0) + (usageObj.bonus || 0);
+                const baseCnt = Number(usageObj.base) || 0;
+                const bonusCnt = Number(usageObj.bonus) || 0;
+                const total = baseCnt + bonusCnt;
+
+                let matchText = total > 0 ? `${total} 場` : '0 場';
+                if (bonusCnt > 0) matchText = `${total} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
+
                 updatedRounds[target.originalIndex] = {
                     ...updatedRounds[target.originalIndex],
-                    baseCount: usageObj.base || 0,
-                    bonusCount: usageObj.bonus || 0,
+                    baseCount: baseCnt,
+                    bonusCount: bonusCnt,
                     usedMatchesCount: total,
-                    matchUsageText: total > 0 ? `${total} 場` : '0 場'
+                    matchUsageText: matchText
                 };
                 saveHistoryWithLimit(updatedRounds);
             }
@@ -1164,18 +1202,6 @@
 
             const usage = getUpcomingUsageValue();
             let total = usage.base + usage.bonus;
-
-            const hasExplicitSetting = (upcomingMatchUsage !== null);
-            const todayStr = getTodayDateString();
-
-            if (!hasExplicitSetting && historyRounds && historyRounds.length > 0) {
-                const sorted = getChronologicalHistory(historyRounds);
-                const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
-                if (upcomingRounds.length > 0) {
-                    const target = upcomingRounds[0];
-                    total = target.baseCount !== undefined ? (target.baseCount + (target.bonusCount || 0)) : (target.usedMatchesCount || 0);
-                }
-            }
 
             if (total > 0) {
                 btn.classList.add('has-value');
@@ -1274,9 +1300,14 @@
             }
 
             const usage = getUpcomingUsageValue();
-            const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
-            const timeInputVal = document.getElementById('eventTime').value || '14:00';
-            usage.eventDate = `${dateInputVal}T${timeInputVal}`;
+            const targetRound = getUpcomingTargetRound();
+            if (targetRound && targetRound.eventDate) {
+                usage.eventDate = targetRound.eventDate;
+            } else {
+                const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
+                const timeInputVal = document.getElementById('eventTime').value || '14:00';
+                usage.eventDate = `${dateInputVal}T${timeInputVal}`;
+            }
 
             closeMatchInputModal();
 
@@ -1338,9 +1369,14 @@
         };
 
         function saveUpcomingUsageState(usageObj) {
-            const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
-            const timeInputVal = document.getElementById('eventTime').value || '14:00';
-            usageObj.eventDate = `${dateInputVal}T${timeInputVal}`;
+            const targetRound = getUpcomingTargetRound();
+            if (targetRound && targetRound.eventDate) {
+                usageObj.eventDate = targetRound.eventDate;
+            } else {
+                const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
+                const timeInputVal = document.getElementById('eventTime').value || '14:00';
+                usageObj.eventDate = `${dateInputVal}T${timeInputVal}`;
+            }
 
             set(upcomingUsageRef, usageObj);
             syncUsageToHistoryRound(usageObj);
@@ -2359,16 +2395,12 @@
 
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
-            const todayStr = getTodayDateString();
+            const target = getUpcomingTargetRound();
 
-            if (historyRounds.length === 0) {
+            if (!target) {
                 container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
                 return;
             }
-
-            const sorted = getChronologicalHistory(historyRounds);
-            const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
-            const target = upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
 
             const calUrl = generateGoogleCalendarUrl(target);
             let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
@@ -2435,7 +2467,7 @@
 
                 let matchBadgeHtml = totalMatches > 0 
                     ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>`
-                    : `<span class="btn-usage-badge" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊設定場次">🎯 場次: 未設定</span>`;
+                    : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
@@ -2535,7 +2567,7 @@
 
                 let matchBadgeHtml = totalMatches > 0 
                     ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>` 
-                    : `<span class="btn-usage-badge" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊設定場次">🎯 場次: 未設定</span>`;
+                    : '';
 
                 html += `<div class="history-card pop-in">
                     <div class="history-header">
