@@ -432,7 +432,7 @@
     <div class="box">
         <div class="section-header">
             <h3>📖 訓練家對戰圖鑑</h3>
-            <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️ 清空紀錄</button>
+            <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️️ 清空紀錄</button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -457,7 +457,7 @@
         </button>
     </div>
 
-    <!-- Modals -->
+    <!-- Custom Confirm Modal -->
     <div id="customConfirmModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -472,23 +472,7 @@
         </div>
     </div>
 
-    <div id="customPromptModal" class="modal-backdrop" style="display: none;">
-        <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header">
-                <h3 id="promptModalTitle">📝 請輸入資訊</h3>
-                <button class="modal-close" onclick="closePromptModal(null)">✖</button>
-            </div>
-            <div id="promptModalText" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px; white-space: pre-line;"></div>
-            <div class="input-group">
-                <input type="text" id="promptModalInput" onkeydown="if(event.key==='Enter') submitPromptModal()">
-            </div>
-            <div class="btn-action" style="margin-top: 14px;">
-                <button class="action-btn btn-secondary" onclick="closePromptModal(null)">取消</button>
-                <button class="action-btn btn-primary" onclick="submitPromptModal()">確定</button>
-            </div>
-        </div>
-    </div>
-
+    <!-- Password Modal -->
     <div id="passwordModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -508,6 +492,7 @@
         </div>
     </div>
 
+    <!-- Upcoming Battles Modal -->
     <div id="upcomingBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -520,6 +505,7 @@
         </div>
     </div>
 
+    <!-- History Battles Modal -->
     <div id="historyBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -548,6 +534,7 @@
         </div>
     </div>
 
+    <!-- Match Usage Modal -->
     <div id="upcomingModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -574,6 +561,7 @@
         </div>
     </div>
 
+    <!-- Match Input Modal -->
     <div id="matchInputModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -593,6 +581,7 @@
         </div>
     </div>
 
+    <!-- Match Pools Management Modal -->
     <div id="poolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -629,6 +618,7 @@
         </div>
     </div>
 
+    <!-- Select Pool Modal -->
     <div id="selectPoolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -643,6 +633,7 @@
         </div>
     </div>
 
+    <!-- Edit History Match Modal -->
     <div id="editHistoryMatchModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -662,6 +653,7 @@
         </div>
     </div>
 
+    <!-- Trainer Manager Modal -->
     <div id="trainerModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -683,6 +675,7 @@
         </div>
     </div>
 
+    <!-- Presets Modal -->
     <div id="presetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -699,6 +692,7 @@
         </div>
     </div>
 
+    <!-- Edit Preset Modal -->
     <div id="editPresetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -746,10 +740,11 @@
         </div>
     </div>
 
+    <!-- Team Size Modal -->
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>⚙ 選擇對戰隊伍人數</h3>
+                <h3>⚙️️ 選擇對戰隊伍人數</h3>
                 <button class="modal-close" onclick="closeTeamSizeModal()">✖</button>
             </div>
             <div class="size-option-list">
@@ -761,6 +756,7 @@
         </div>
     </div>
 
+    <!-- Restaurant Selection Modal -->
     <div id="restaurantModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -786,6 +782,7 @@
         </div>
     </div>
 
+    <!-- Edit History Record Modal -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -931,29 +928,6 @@
             activeConfirmCallback = null;
         };
 
-        window.showPrompt = function(text, defaultValue, onSubmit, title = "📝 請輸入資訊") {
-            document.getElementById('promptModalTitle').innerText = title;
-            document.getElementById('promptModalText').innerText = text;
-            const input = document.getElementById('promptModalInput');
-            input.value = defaultValue || '';
-            activePromptCallback = onSubmit;
-            document.getElementById('customPromptModal').style.display = 'flex';
-            setTimeout(() => { input.focus(); input.select(); }, 100);
-        };
-
-        window.closePromptModal = function(val) {
-            document.getElementById('customPromptModal').style.display = 'none';
-            if (activePromptCallback) {
-                activePromptCallback(val);
-            }
-            activePromptCallback = null;
-        };
-
-        window.submitPromptModal = function() {
-            const val = document.getElementById('promptModalInput').value;
-            closePromptModal(val);
-        };
-
         function openPasswordModal(title, subtext, onSuccessCallback) {
             document.getElementById('passwordModalTitle').innerText = title || "🔐 請輸入驗證密碼";
             document.getElementById('passwordModalSubtext').innerText = subtext || "請輸入驗證密碼以繼續：";
@@ -1039,12 +1013,11 @@
             return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
         }
 
-        function fallbackCopyTextToClipboard(text) {
+        function copyToClipboard(text) {
             const textarea = document.createElement("textarea");
             textarea.value = text;
             textarea.style.position = "fixed";
             textarea.style.left = "-9999px";
-            textarea.style.top = "0";
             document.body.appendChild(textarea);
             textarea.focus();
             textarea.select();
@@ -1055,14 +1028,6 @@
                 showToast("複製失敗，請手動複製！");
             }
             document.body.removeChild(textarea);
-        }
-
-        function copyToClipboard(text) {
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(text).then(() => { showToast("已複製對戰戰報！"); }).catch(() => { fallbackCopyTextToClipboard(text); });
-            } else {
-                fallbackCopyTextToClipboard(text);
-            }
         }
 
         function shareToLine(text) {
@@ -1122,7 +1087,6 @@
                          .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
         }
 
-        // 取得接下來日期最接近的預訂對戰場次
         function getUpcomingTargetRound() {
             if (!historyRounds || historyRounds.length === 0) return null;
             const todayStr = getTodayDateString();
@@ -1131,7 +1095,6 @@
             return upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
         }
 
-        // 取得當前預訂對戰場次的「本次場次」資訊
         function getUpcomingUsageValue() {
             const targetRound = getUpcomingTargetRound();
             if (!targetRound) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "" };
@@ -1143,7 +1106,6 @@
             };
         }
 
-        // 歸還場次點數給場次池
         function releaseMatchPools(amount, poolId) {
             if (!amount || amount <= 0) return;
             if (!matchPoolsData || !matchPoolsData.pools) return;
@@ -1156,7 +1118,6 @@
             }
         }
 
-        // 將更新後的場次數值寫入當前的預訂對戰場次紀錄中
         function updateTargetRoundMatchUsage(baseCnt, bonusCnt, basePoolId = "", bonusPoolId = "") {
             const targetRound = getUpcomingTargetRound();
             if (!targetRound || targetRound.originalIndex === undefined) return;
@@ -1591,10 +1552,12 @@
             renderModalRestaurantList();
             document.getElementById('restaurantModal').style.display = 'flex';
         };
+
         window.closeRestaurantModal = function() { 
             document.getElementById('restaurantModal').style.display = 'none'; 
             editingRestaurantIndex = null;
         };
+
         window.confirmRestaurantModal = function() {
             const val = document.getElementById('restaurantModalInput').value.trim();
             if (editingRestaurantIndex !== null) {
@@ -1721,6 +1684,7 @@
             );
         };
         window.closeTrainerManagerModal = function() { document.getElementById('trainerModal').style.display = 'none'; };
+        
         window.addNewTrainerPreset = function() {
             const input = document.getElementById('newTrainerInput');
             const val = input.value.trim();
@@ -1733,6 +1697,7 @@
             initNameTags();
             renderTrainerManagerList();
         };
+
         window.deleteTrainerPreset = function(name) {
             showConfirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`, () => {
                 defaultPresetNames = defaultPresetNames.filter(n => n !== name);
@@ -1741,6 +1706,7 @@
                 renderTrainerManagerList();
             });
         };
+
         function renderTrainerManagerList() {
             const container = document.getElementById('trainerManagerList');
             if (defaultPresetNames.length === 0) {
@@ -1973,9 +1939,9 @@
             let content = '';
             if (url) {
                 const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽 <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
             } else if (name) content = `🍽️ 📍 ${name}`;
-            else content = `🍽 尚未設定餐廳`;
+            else content = `🍽️ 尚未設定餐廳`;
 
             let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
 
@@ -2370,7 +2336,6 @@
             container.innerHTML = html;
         }
 
-        // 渲染「預訂對戰圖鑑」（頂部顯示最接近的活動）
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
             const target = getUpcomingTargetRound();
@@ -2923,14 +2888,27 @@
             renderModalRestaurantList();
         };
 
+        // 點擊對戰圖鑑的「✏️ 編輯餐廳」：需經過管理員密碼驗證 (765765765) 才能修改
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
             if (!currentRound) return;
-            editingRestaurantIndex = index;
-            const currentName = currentRound.restaurantName || currentRound.restaurant || '';
-            document.getElementById('restaurantModalInput').value = currentName === "Google 地圖連結" ? "" : currentName;
-            renderModalRestaurantList();
-            document.getElementById('restaurantModal').style.display = 'flex';
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯對戰餐廳為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingRestaurantIndex = index;
+                        const currentName = currentRound.restaurantName || currentRound.restaurant || '';
+                        document.getElementById('restaurantModalInput').value = currentName === "Google 地圖連結" ? "" : currentName;
+                        renderModalRestaurantList();
+                        document.getElementById('restaurantModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯餐廳！");
+                        return false;
+                    }
+                }
+            );
         };
 
         window.deleteSingleRoundByIndex = function(index) {
@@ -3001,7 +2979,7 @@
             if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空紀錄"; }
         }
 
-        // Firebase 監聽
+        // Firebase 監聽事件
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
