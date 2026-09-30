@@ -226,7 +226,6 @@
         .restaurant-item-box { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
         .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
-        .pool-badge { background: var(--poke-purple-light); color: var(--poke-purple); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #D8B4FE; display: inline-block; cursor: pointer; }
 
         .history-card {
             background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px;
@@ -243,6 +242,21 @@
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
         
+        .modal-rest-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; max-height: 200px; overflow-y: auto; }
+        .modal-rest-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 8px 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0;
+            border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 800;
+            cursor: pointer; transition: var(--transition);
+        }
+        .modal-rest-item:active { background: #E2E8F0; }
+        .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
+        .modal-rest-item .btn-del-rest {
+            background: #FFEAE8; border: 1px solid #FFC4C2; color: #D83A37;
+            border-radius: 6px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer;
+            margin-left: auto; flex-shrink: 0;
+        }
+
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.6); z-index: 1000;
@@ -288,11 +302,10 @@
         }
         .draggable-player .btn-del-p:active { background: var(--poke-red); color: white; }
 
-        .preset-card, .pool-card {
+        .preset-card {
             background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: var(--radius-sm);
             padding: 12px; margin-bottom: 10px; position: relative; transition: var(--transition);
         }
-        .pool-card { border-color: #E9D5FF; }
         .preset-card:active { background: var(--poke-blue-light); border-color: var(--poke-blue); }
         .preset-card.disabled-preset { background: #F1F5F9; border-color: #CBD5E1; opacity: 0.65; cursor: not-allowed; }
         .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.92rem; margin-bottom: 4px; }
@@ -344,6 +357,7 @@
         <div class="top-summary-pools" id="topPoolsSummaryList"></div>
     </div>
 
+    <!-- 1. 預定對戰圖鑑（接下來日期最接近的對戰場次） -->
     <div class="box" id="upcomingHistoryBox">
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
@@ -443,7 +457,7 @@
         </button>
     </div>
 
-    <!-- Custom Confirm Modal -->
+    <!-- Modals -->
     <div id="customConfirmModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -458,7 +472,6 @@
         </div>
     </div>
 
-    <!-- Custom Prompt Modal -->
     <div id="customPromptModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -476,7 +489,6 @@
         </div>
     </div>
 
-    <!-- Password Modal -->
     <div id="passwordModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -496,7 +508,6 @@
         </div>
     </div>
 
-    <!-- Upcoming Battles Modal -->
     <div id="upcomingBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -509,7 +520,6 @@
         </div>
     </div>
 
-    <!-- History Battles Modal -->
     <div id="historyBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -538,7 +548,6 @@
         </div>
     </div>
 
-    <!-- Upcoming Match Usage Config Modal -->
     <div id="upcomingModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -565,7 +574,6 @@
         </div>
     </div>
 
-    <!-- Match Input Modal -->
     <div id="matchInputModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -585,7 +593,6 @@
         </div>
     </div>
 
-    <!-- Match Pools Management Modal -->
     <div id="poolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -600,7 +607,6 @@
                 <div class="total-matches-count" id="modalTotalMatches">0</div>
             </div>
 
-            <!-- 可調整每日跨日自動增加數量的區塊 -->
             <div style="font-size: 0.85rem; color: #475569; font-weight: 800; margin-bottom: 12px; background: #F8FAFC; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <label for="dailyIncrementInput" style="margin:0;">✨ 每日跨日全體場次池自動增加數：</label>
@@ -623,7 +629,6 @@
         </div>
     </div>
 
-    <!-- Select Pool Modal -->
     <div id="selectPoolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -638,7 +643,6 @@
         </div>
     </div>
 
-    <!-- Edit History Match Modal -->
     <div id="editHistoryMatchModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -658,7 +662,6 @@
         </div>
     </div>
 
-    <!-- Trainer Manager Modal -->
     <div id="trainerModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -680,7 +683,6 @@
         </div>
     </div>
 
-    <!-- Presets Modal -->
     <div id="presetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -697,7 +699,6 @@
         </div>
     </div>
 
-    <!-- Edit Preset Modal -->
     <div id="editPresetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -745,11 +746,10 @@
         </div>
     </div>
 
-    <!-- Team Size Modal -->
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>⚙️ 選擇對戰隊伍人數</h3>
+                <h3>⚙ 選擇對戰隊伍人數</h3>
                 <button class="modal-close" onclick="closeTeamSizeModal()">✖</button>
             </div>
             <div class="size-option-list">
@@ -761,7 +761,6 @@
         </div>
     </div>
 
-    <!-- Restaurant Selection Modal -->
     <div id="restaurantModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -787,7 +786,6 @@
         </div>
     </div>
 
-    <!-- Edit History Record Modal -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -857,7 +855,6 @@
         const presetsRef = ref(db, 'presetTeams');
         const trainerPresetsRef = ref(db, 'trainerPresets');
         const matchPoolsRef = ref(db, 'matchPoolsData');
-        const upcomingUsageRef = ref(db, 'upcomingMatchUsage');
 
         // Passwords
         const AUTH_PASSWORD = "765765765";
@@ -873,10 +870,10 @@
         let presetTeams = [];
         let activePresetId = null;
         let editingPresetId = null;
-        let upcomingMatchUsage = null;
         let currentInputMode = 'base';
         let activePasswordCallback = null;
         let editingHistoryMatchIndex = null;
+        let editingRestaurantIndex = null;
 
         let activeConfirmCallback = null;
         let activePromptCallback = null;
@@ -1120,22 +1117,12 @@
             }
         }
 
-        function parseUpcomingUsage(val) {
-            if (!val) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "", eventDate: "" };
-            if (typeof val === 'number') {
-                return { base: val, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "", eventDate: "" };
-            }
-            return {
-                base: Number(val.base) || 0,
-                bonus: Number(val.bonus) || 0,
-                basePoolId: val.basePoolId || "",
-                bonusPoolId: val.bonusPoolId || "",
-                baseUsedName: val.baseUsedName || "",
-                bonusUsedName: val.bonusUsedName || "",
-                eventDate: val.eventDate || ""
-            };
+        function getChronologicalHistory(rounds = historyRounds) {
+            return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
+                         .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
         }
 
+        // 取得接下來日期最接近的預訂對戰場次
         function getUpcomingTargetRound() {
             if (!historyRounds || historyRounds.length === 0) return null;
             const todayStr = getTodayDateString();
@@ -1144,31 +1131,19 @@
             return upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
         }
 
+        // 取得當前預訂對戰場次的「本次場次」資訊
         function getUpcomingUsageValue() {
             const targetRound = getUpcomingTargetRound();
-            const parsed = parseUpcomingUsage(upcomingMatchUsage);
-            
-            if (targetRound) {
-                const targetDateStr = (targetRound.eventDate || '').split('T')[0];
-                const usageDateStr = (parsed.eventDate || '').split('T')[0];
-                
-                if (usageDateStr && usageDateStr === targetDateStr) {
-                    return parsed;
-                } else if (targetRound.baseCount !== undefined || targetRound.bonusCount !== undefined) {
-                    return {
-                        base: targetRound.baseCount || 0,
-                        bonus: targetRound.bonusCount || 0,
-                        basePoolId: parsed.basePoolId || "",
-                        bonusPoolId: parsed.bonusPoolId || "",
-                        baseUsedName: parsed.baseUsedName || "",
-                        bonusUsedName: parsed.bonusUsedName || "",
-                        eventDate: targetRound.eventDate || ""
-                    };
-                }
-            }
-            return parsed;
+            if (!targetRound) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "" };
+            return {
+                base: targetRound.baseCount || 0,
+                bonus: targetRound.bonusCount || 0,
+                basePoolId: targetRound.basePoolId || "",
+                bonusPoolId: targetRound.bonusPoolId || ""
+            };
         }
 
+        // 歸還場次點數給場次池
         function releaseMatchPools(amount, poolId) {
             if (!amount || amount <= 0) return;
             if (!matchPoolsData || !matchPoolsData.pools) return;
@@ -1181,32 +1156,31 @@
             }
         }
 
-        function syncUsageToHistoryRound(usageObj) {
-            if (!historyRounds || historyRounds.length === 0) return;
+        // 將更新後的場次數值寫入當前的預訂對戰場次紀錄中
+        function updateTargetRoundMatchUsage(baseCnt, bonusCnt, basePoolId = "", bonusPoolId = "") {
             const targetRound = getUpcomingTargetRound();
-            const targetDateStr = usageObj.eventDate ? usageObj.eventDate.split('T')[0] : (targetRound ? (targetRound.eventDate || '').split('T')[0] : getTodayDateString());
-            
-            const sorted = getChronologicalHistory(historyRounds);
-            const target = sorted.find(r => (r.eventDate || '').split('T')[0] === targetDateStr) || targetRound;
+            if (!targetRound || targetRound.originalIndex === undefined) return;
 
-            if (target && target.originalIndex !== undefined) {
-                let updatedRounds = [...historyRounds];
-                const baseCnt = Number(usageObj.base) || 0;
-                const bonusCnt = Number(usageObj.bonus) || 0;
-                const total = baseCnt + bonusCnt;
+            let updatedRounds = [...historyRounds];
+            const base = Number(baseCnt) || 0;
+            const bonus = Number(bonusCnt) || 0;
+            const total = base + bonus;
 
-                let matchText = total > 0 ? `${total} 場` : '0 場';
-                if (bonusCnt > 0) matchText = `${total} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
+            let matchText = total > 0 ? `${total} 場` : '0 場';
+            if (bonus > 0) matchText = `${total} 場 (基本 ${base} + 加碼 ${bonus})`;
 
-                updatedRounds[target.originalIndex] = {
-                    ...updatedRounds[target.originalIndex],
-                    baseCount: baseCnt,
-                    bonusCount: bonusCnt,
-                    usedMatchesCount: total,
-                    matchUsageText: matchText
-                };
-                saveHistoryWithLimit(updatedRounds);
-            }
+            updatedRounds[targetRound.originalIndex] = {
+                ...updatedRounds[targetRound.originalIndex],
+                baseCount: base,
+                bonusCount: bonus,
+                basePoolId: basePoolId || targetRound.basePoolId || "",
+                bonusPoolId: bonusPoolId || targetRound.bonusPoolId || "",
+                usedMatchesCount: total,
+                matchUsageText: matchText
+            };
+            saveHistoryWithLimit(updatedRounds);
+            updatePoolsUI();
+            renderUpcomingHistory();
         }
 
         function updateUpcomingUsageUI() {
@@ -1214,7 +1188,7 @@
             if (!btn) return;
 
             const usage = getUpcomingUsageValue();
-            let total = usage.base + usage.bonus;
+            let total = (usage.base || 0) + (usage.bonus || 0);
 
             if (total > 0) {
                 btn.classList.add('has-value');
@@ -1245,6 +1219,9 @@
         }
 
         window.handleUpcomingUsageClick = function() {
+            const target = getUpcomingTargetRound();
+            if (!target) return showToast("目前沒有預訂的對戰場次可供設定！");
+
             openPasswordModal(
                 "🔐 請輸入驗證密碼",
                 "請輸入驗證密碼以繼續：",
@@ -1313,15 +1290,6 @@
             }
 
             const usage = getUpcomingUsageValue();
-            const targetRound = getUpcomingTargetRound();
-            if (targetRound && targetRound.eventDate) {
-                usage.eventDate = targetRound.eventDate;
-            } else {
-                const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
-                const timeInputVal = document.getElementById('eventTime').value || '14:00';
-                usage.eventDate = `${dateInputVal}T${timeInputVal}`;
-            }
-
             closeMatchInputModal();
 
             if (currentInputMode === 'base' && usage.base > 0) releaseMatchPools(usage.base, usage.basePoolId);
@@ -1329,12 +1297,11 @@
 
             if (num === 0) {
                 if (currentInputMode === 'base') {
-                    usage.base = 0; usage.basePoolId = ""; usage.baseUsedName = "";
+                    updateTargetRoundMatchUsage(0, usage.bonus, "", usage.bonusPoolId);
                 } else {
-                    usage.bonus = 0; usage.bonusPoolId = ""; usage.bonusUsedName = "";
+                    updateTargetRoundMatchUsage(usage.base, 0, usage.basePoolId, "");
                 }
                 set(matchPoolsRef, matchPoolsData);
-                saveUpcomingUsageState(usage);
                 showToast("已清除該場次設定並將剩餘額度釋放回卡池！");
             } else {
                 const promptTitle = currentInputMode === 'base' 
@@ -1350,12 +1317,12 @@
                         }
                         
                         if (currentInputMode === 'base') {
-                            usage.base = num; usage.basePoolId = chosenPoolId; usage.baseUsedName = res.usedPoolName;
+                            updateTargetRoundMatchUsage(num, usage.bonus, chosenPoolId, usage.bonusPoolId);
                         } else {
-                            usage.bonus = num; usage.bonusPoolId = chosenPoolId; usage.bonusUsedName = res.usedPoolName;
+                            updateTargetRoundMatchUsage(usage.base, num, usage.basePoolId, chosenPoolId);
                         }
                         set(matchPoolsRef, matchPoolsData);
-                        saveUpcomingUsageState(usage);
+                        showToast("對戰場次已成功設定並自場次池扣除！");
                     });
                 }, promptTitle, () => {
                     if (currentInputMode === 'base' && usage.base > 0) deductFromPoolsDirectly(usage.base, usage.basePoolId);
@@ -1371,32 +1338,11 @@
             if (usage.base > 0) releaseMatchPools(usage.base, usage.basePoolId);
             if (usage.bonus > 0) releaseMatchPools(usage.bonus, usage.bonusPoolId);
 
-            const clearedUsage = { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseUsedName: "", bonusUsedName: "", eventDate: "" };
-            set(upcomingUsageRef, clearedUsage);
-            syncUsageToHistoryRound(clearedUsage);
-
+            updateTargetRoundMatchUsage(0, 0, "", "");
             set(matchPoolsRef, matchPoolsData);
             closeUpcomingModal();
-            updatePoolsUI();
             showToast("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
         };
-
-        function saveUpcomingUsageState(usageObj) {
-            const targetRound = getUpcomingTargetRound();
-            if (targetRound && targetRound.eventDate) {
-                usageObj.eventDate = targetRound.eventDate;
-            } else {
-                const dateInputVal = document.getElementById('eventDate').value || getTodayDateString();
-                const timeInputVal = document.getElementById('eventTime').value || '14:00';
-                usageObj.eventDate = `${dateInputVal}T${timeInputVal}`;
-            }
-
-            set(upcomingUsageRef, usageObj);
-            syncUsageToHistoryRound(usageObj);
-
-            updatePoolsUI();
-            renderUpcomingHistory();
-        }
 
         let onPoolSelectCallback = null;
         let onPoolCancelCallback = null;
@@ -1645,10 +1591,32 @@
             renderModalRestaurantList();
             document.getElementById('restaurantModal').style.display = 'flex';
         };
-        window.closeRestaurantModal = function() { document.getElementById('restaurantModal').style.display = 'none'; };
+        window.closeRestaurantModal = function() { 
+            document.getElementById('restaurantModal').style.display = 'none'; 
+            editingRestaurantIndex = null;
+        };
         window.confirmRestaurantModal = function() {
             const val = document.getElementById('restaurantModalInput').value.trim();
-            updateMainRestaurantUI(val);
+            if (editingRestaurantIndex !== null) {
+                const restaurantData = parseRestaurantInput(val);
+                let updatedRounds = [...historyRounds];
+                if (updatedRounds[editingRestaurantIndex]) {
+                    updatedRounds[editingRestaurantIndex] = {
+                        ...updatedRounds[editingRestaurantIndex],
+                        restaurantName: restaurantData.name,
+                        mapUrl: restaurantData.url
+                    };
+                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                        customRestaurants.push(restaurantData.name);
+                        set(customRestaurantsRef, customRestaurants);
+                    }
+                    saveHistoryWithLimit(updatedRounds);
+                    showToast("餐廳資訊已成功修改！");
+                }
+                editingRestaurantIndex = null;
+            } else {
+                updateMainRestaurantUI(val);
+            }
             closeRestaurantModal();
         };
 
@@ -1798,11 +1766,6 @@
             syncTagsWithTextarea();
         };
 
-        function getChronologicalHistory(rounds = historyRounds) {
-            return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
-                         .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-        }
-
         function saveHistoryWithLimit(updatedHistory) {
             const todayStr = getTodayDateString();
             let pastRounds = updatedHistory.filter(r => (r.eventDate || '').split('T')[0] < todayStr);
@@ -1828,17 +1791,6 @@
             const eventDateVal = `${dateInputVal}T${timeInputVal}`;
 
             if (players.length < selectedTeamSize) return showToast(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
-
-            const usage = getUpcomingUsageValue();
-            const baseCnt = usage.base || 0;
-            const bonusCnt = usage.bonus || 0;
-            const totalMatchesUsed = (baseCnt + bonusCnt);
-
-            let matchUsageStr = '';
-            if (totalMatchesUsed > 0) {
-                matchUsageStr = `${totalMatchesUsed} 場`;
-                if (bonusCnt > 0) matchUsageStr = `${totalMatchesUsed} 場 (基本 ${baseCnt} + 加碼 ${bonusCnt})`;
-            }
 
             const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
             if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
@@ -1984,10 +1936,10 @@
                 mapUrl: restaurantData.url,
                 teams: bestTeams,
                 bye: byeString,
-                usedMatchesCount: totalMatchesUsed,
-                matchUsageText: matchUsageStr,
-                baseCount: usage.base || 0,
-                bonusCount: usage.bonus || 0
+                usedMatchesCount: 0,
+                matchUsageText: '0 場',
+                baseCount: 0,
+                bonusCount: 0
             };
 
             currentSessionResult = newRound;
@@ -2021,9 +1973,9 @@
             let content = '';
             if (url) {
                 const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
+                content = `🍽 <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
             } else if (name) content = `🍽️ 📍 ${name}`;
-            else content = `🍽️ 尚未設定餐廳`;
+            else content = `🍽 尚未設定餐廳`;
 
             let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
 
@@ -2346,7 +2298,7 @@
                         clearInterval(presetClearTimer);
                         presetClearStep = 2;
                         btn.disabled = false;
-                        btn.innerText = "⚠️ 確定要清空嗎？";
+                        btn.innerText = "⚠ 確定要清空嗎？";
                     }
                 }, 1000);
             } else if (presetClearStep === 2) {
@@ -2418,12 +2370,14 @@
             container.innerHTML = html;
         }
 
+        // 渲染「預訂對戰圖鑑」（頂部顯示最接近的活動）
         function renderUpcomingHistory() {
             const container = document.getElementById('upcomingHistoryContent');
             const target = getUpcomingTargetRound();
 
             if (!target) {
                 container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
+                updateUpcomingUsageUI();
                 return;
             }
 
@@ -2442,6 +2396,7 @@
             html += `</div>`;
 
             container.innerHTML = html;
+            updateUpcomingUsageUI();
         }
 
         function updateBattleLogBadges() {
@@ -2971,49 +2926,11 @@
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
             if (!currentRound) return;
-            const oldName = currentRound.restaurantName || currentRound.restaurant || '';
-            const searchKeyword = oldName === "Google 地圖連結" ? "" : oldName;
-            
-            showConfirm(`目前餐廳：${searchKeyword || '尚未設定'}\n\n是否開啟 Google 地圖尋找正確餐廳？\n(開啟後可複製餐廳分享連結貼回，系統會自動轉換名稱)`, () => {
-                const searchUrl = searchKeyword 
-                    ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(searchKeyword + ' 台灣')}`
-                    : `https://www.google.com/maps`;
-                window.open(searchUrl, '_blank');
-                
-                showPrompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword, (newName) => {
-                    if (newName === null) return;
-                    const trimmedName = newName.trim();
-                    const restaurantData = parseRestaurantInput(trimmedName);
-                    let updatedRounds = [...historyRounds];
-                    updatedRounds[index] = {
-                        ...updatedRounds[index],
-                        restaurantName: restaurantData.name,
-                        mapUrl: restaurantData.url
-                    };
-                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                        customRestaurants.push(restaurantData.name);
-                        set(customRestaurantsRef, customRestaurants);
-                    }
-                    saveHistoryWithLimit(updatedRounds);
-                });
-            }, () => {
-                showPrompt("請輸入/貼上正確的餐廳名稱或 Google 地圖網址：", searchKeyword, (newName) => {
-                    if (newName === null) return;
-                    const trimmedName = newName.trim();
-                    const restaurantData = parseRestaurantInput(trimmedName);
-                    let updatedRounds = [...historyRounds];
-                    updatedRounds[index] = {
-                        ...updatedRounds[index],
-                        restaurantName: restaurantData.name,
-                        mapUrl: restaurantData.url
-                    };
-                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                        customRestaurants.push(restaurantData.name);
-                        set(customRestaurantsRef, customRestaurants);
-                    }
-                    saveHistoryWithLimit(updatedRounds);
-                });
-            });
+            editingRestaurantIndex = index;
+            const currentName = currentRound.restaurantName || currentRound.restaurant || '';
+            document.getElementById('restaurantModalInput').value = currentName === "Google 地圖連結" ? "" : currentName;
+            renderModalRestaurantList();
+            document.getElementById('restaurantModal').style.display = 'flex';
         };
 
         window.deleteSingleRoundByIndex = function(index) {
@@ -3084,6 +3001,7 @@
             if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空紀錄"; }
         }
 
+        // Firebase 監聽
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
@@ -3129,13 +3047,6 @@
                 set(matchPoolsRef, matchPoolsData);
             }
             updatePoolsUI();
-        });
-
-        onValue(upcomingUsageRef, (snapshot) => {
-            upcomingMatchUsage = snapshot.val();
-            updateUpcomingUsageUI();
-            updatePoolsUI();
-            renderUpcomingHistory();
         });
 
         function getNextTargetDay() {
