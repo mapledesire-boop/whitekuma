@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>白熊保齡球 🎳</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -10,10 +10,10 @@
     
     <style>
         :root {
-            --bg-color: #F4F7FA;
+            --bg-color: #F3F6FA;
             --card-bg: #FFFFFF;
-            --poke-red: #FF5350;
-            --poke-red-hover: #E04340;
+            --poke-red: #FF4757;
+            --poke-red-hover: #E03343;
             --poke-yellow: #FFCB05;
             --poke-blue: #2A75BB;
             --poke-blue-light: #EBF3FF;
@@ -23,63 +23,64 @@
             --text-main: #1E293B;
             --text-sub: #64748B;
             --border-line: #E2E8F0;
-            --radius-lg: 20px;
-            --radius-sm: 12px;
-            --shadow-poke: 0 8px 24px rgba(42, 117, 187, 0.06);
-            --transition: all 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius-lg: 22px;
+            --radius-sm: 14px;
+            --shadow-poke: 0 10px 28px rgba(42, 117, 187, 0.08);
+            --transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
-            font-family: 'M PLUS Rounded 1c', -apple-system, sans-serif;
-            max-width: 500px; margin: 0 auto; padding: 12px 12px 50px 12px; 
+            font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 500px; margin: 0 auto; padding: 12px 12px 65px 12px; 
             background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
         }
 
-        .header-container { text-align: center; margin: 4px 0 10px 0; }
+        .header-container { text-align: center; margin: 6px 0 12px 0; }
         .header-title-box {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: #FFFFFF; padding: 8px 20px; border-radius: 30px;
-            border: 2px solid var(--poke-red); box-shadow: 0 4px 14px rgba(255, 83, 80, 0.15);
+            background: #FFFFFF; padding: 8px 22px; border-radius: 30px;
+            border: 2px solid var(--poke-red); box-shadow: 0 4px 16px rgba(255, 71, 87, 0.18);
         }
-        .header-img { width: 32px; height: 32px; object-fit: contain; }
+        .header-img { width: 34px; height: 34px; object-fit: contain; }
         .header-title { 
-            font-size: 1.25rem; font-weight: 900; color: #2C2C2C; 
+            font-size: 1.3rem; font-weight: 900; color: #2C2C2C; 
             margin: 0; letter-spacing: 0.5px;
         }
         .subtitle { 
-            font-size: 0.8rem; color: var(--poke-red); margin-top: 4px; font-weight: 800;
+            font-size: 0.82rem; color: var(--poke-red); margin-top: 6px; font-weight: 800;
             display: flex; align-items: center; justify-content: center; gap: 4px;
         }
 
         .top-summary-bar {
             background: linear-gradient(135deg, #2A75BB 0%, #8B5CF6 100%);
-            color: #FFFFFF; border-radius: var(--radius-sm); padding: 10px 14px;
-            margin-bottom: 12px; font-weight: 800; font-size: 0.85rem;
-            box-shadow: 0 4px 14px rgba(42, 117, 187, 0.18);
+            color: #FFFFFF; border-radius: var(--radius-sm); padding: 12px 14px;
+            margin-bottom: 12px; font-weight: 800; font-size: 0.88rem;
+            box-shadow: 0 6px 18px rgba(42, 117, 187, 0.2);
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
         }
-        .top-summary-total { color: #FFCB05; font-size: 1rem; font-weight: 900; letter-spacing: 0.5px; }
+        .top-summary-total { color: #FFCB05; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.5px; }
         .top-summary-pools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; width: 100%; }
         .top-summary-item {
-            background: rgba(255, 255, 255, 0.22); padding: 3px 10px; border-radius: 12px;
-            white-space: nowrap; font-size: 0.78rem; backdrop-filter: blur(4px);
+            background: rgba(255, 255, 255, 0.22); padding: 4px 10px; border-radius: 12px;
+            white-space: nowrap; font-size: 0.78rem; backdrop-filter: blur(6px); font-weight: 800;
         }
 
         .btn-usage-badge {
             background: #FFF7D6; border: 1.5px solid #FFE885; color: #8A6D00; font-weight: 800;
-            border-radius: 20px; padding: 5px 12px; font-size: 0.8rem; cursor: pointer;
+            border-radius: 20px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer;
             display: inline-flex; align-items: center; gap: 4px; transition: var(--transition);
-            white-space: nowrap; box-shadow: 0 2px 6px rgba(0,0,0,0.04); min-height: 34px;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.04); min-height: 36px;
         }
         .btn-usage-badge:active { transform: scale(0.95); background: #FFE885; }
         .btn-usage-badge.has-value { background: #E6F9ED; border-color: #A3E9BC; color: #047857; font-weight: 900; }
 
         .btn-preset-trigger {
-            margin-top: 4px; margin-bottom: 12px; width: 100%; padding: 10px 14px; background: #FFFFFF;
+            margin-top: 4px; margin-bottom: 12px; width: 100%; padding: 12px 14px; background: #FFFFFF;
             border: 2px solid var(--poke-blue); color: var(--poke-blue); border-radius: var(--radius-lg);
-            font-weight: 900; font-size: 0.92rem; cursor: pointer; box-shadow: var(--shadow-poke);
-            transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 46px;
+            font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: var(--shadow-poke);
+            transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px;
         }
         .btn-preset-trigger:active { transform: scale(0.98); background: var(--poke-blue-light); }
 
@@ -93,55 +94,55 @@
 
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
-            padding: 16px; margin-bottom: 12px; box-shadow: var(--shadow-poke);
-            border: 1px solid var(--border-line); position: relative; overflow: hidden;
+            padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-poke);
+            border: 1.5px solid var(--border-line); position: relative; overflow: hidden;
         }
 
-        label { font-size: 0.88rem; color: #334155; font-weight: 800; display: block; margin-bottom: 6px; }
+        label { font-size: 0.9rem; color: #334155; font-weight: 800; display: block; margin-bottom: 6px; }
         .label-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
         .label-header label { margin-bottom: 0; }
-        .input-group { margin-bottom: 12px; position: relative; }
+        .input-group { margin-bottom: 14px; position: relative; }
         
-        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], textarea { 
-            width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
-            font-size: 15px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
-            font-weight: 700; transition: var(--transition); -webkit-appearance: none; min-height: 46px;
+        input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], textarea, select { 
+            width: 100%; padding: 12px 14px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
+            font-size: 16px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
+            font-weight: 700; transition: var(--transition); -webkit-appearance: none; min-height: 48px;
         }
-        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus { 
+        input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus, select:focus { 
             outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
         }
         .input-with-btn { display: flex; gap: 8px; align-items: center; }
         .input-with-btn input { flex: 1; }
         
         .btn-paste {
-            padding: 0 14px; border: 2px solid #D0E1FD; background-color: var(--poke-blue-light); color: var(--poke-blue);
-            border-radius: var(--radius-sm); font-weight: 800; font-size: 0.88rem; cursor: pointer;
-            transition: var(--transition); white-space: nowrap; display: flex; align-items: center; min-height: 46px; flex-shrink: 0;
+            padding: 0 16px; border: 2px solid #D0E1FD; background-color: var(--poke-blue-light); color: var(--poke-blue);
+            border-radius: var(--radius-sm); font-weight: 800; font-size: 0.9rem; cursor: pointer;
+            transition: var(--transition); white-space: nowrap; display: flex; align-items: center; min-height: 48px; flex-shrink: 0;
         }
         .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
         
         .btn-team-size, .btn-select-trigger {
-            width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
-            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.92rem;
+            width: 100%; padding: 12px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
+            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.95rem;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            transition: var(--transition); min-height: 46px; text-align: left; flex: 1; overflow: hidden;
+            transition: var(--transition); min-height: 48px; text-align: left; flex: 1; overflow: hidden;
         }
         .btn-team-size:active, .btn-select-trigger:active { background-color: #E2E8F0; }
         .btn-select-trigger span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         
         .btn-sm-manage {
             background: #F1F5F9; border: 1.5px solid #CBD5E1; color: #475569;
-            padding: 4px 10px; border-radius: 20px; font-size: 0.78rem; font-weight: 800;
+            padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 800;
             cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 4px;
         }
         .btn-sm-manage:active { background: #E2E8F0; transform: scale(0.95); }
 
-        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 12px 0; }
+        .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px 0; }
         .name-tag { 
-            padding: 6px 12px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
-            border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 800;
+            padding: 8px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
+            border-radius: 20px; cursor: pointer; font-size: 0.88rem; font-weight: 800;
             transition: var(--transition); user-select: none; display: inline-flex; align-items: center; 
-            justify-content: center; min-height: 38px;
+            justify-content: center; min-height: 40px;
         }
         .name-tag:active { transform: scale(0.92); }
         .name-tag.active { 
@@ -149,14 +150,14 @@
             box-shadow: 2px 2px 0px #334155; transform: translateY(-1px);
         }
         
-        .btn-action { margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-action { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
         button.action-btn { 
-            flex: 1; min-width: 100px; padding: 10px 8px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
-            font-size: 0.9rem; font-weight: 900; min-height: 46px; font-family: inherit;
+            flex: 1; min-width: 100px; padding: 12px 10px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
+            font-size: 0.95rem; font-weight: 900; min-height: 48px; font-family: inherit;
             display: inline-flex; align-items: center; justify-content: center; transition: var(--transition);
         }
         
-        .btn-primary { background-color: var(--poke-red); color: white; box-shadow: 0 4px 12px rgba(255, 83, 80, 0.3); border: 2px solid #D83A37; flex: 1.5; }
+        .btn-primary { background-color: var(--poke-red); color: white; box-shadow: 0 4px 14px rgba(255, 71, 87, 0.35); border: 2px solid #E03343; flex: 1.5; }
         .btn-primary:active { transform: scale(0.96); background-color: var(--poke-red-hover); }
 
         .btn-preset-save { background-color: #FFF7D6; color: #8A6D00; border: 2px solid #FFE885; }
@@ -166,10 +167,10 @@
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
         .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter, .btn-purple {
-            white-space: nowrap; flex-shrink: 0; font-size: 0.8rem; font-weight: 800; 
-            border-radius: 8px; padding: 6px 10px; cursor: pointer; display: inline-flex;
+            white-space: nowrap; flex-shrink: 0; font-size: 0.82rem; font-weight: 800; 
+            border-radius: 10px; padding: 6px 12px; cursor: pointer; display: inline-flex;
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
-            min-height: 38px; box-sizing: border-box; transition: var(--transition);
+            min-height: 40px; box-sizing: border-box; transition: var(--transition);
         }
         .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
         .btn-danger:disabled { background-color: #E2E8F0; color: #94A3B8; border-color: #CBD5E1; cursor: not-allowed; opacity: 0.8; }
@@ -180,8 +181,8 @@
         .btn-purple { background-color: var(--poke-purple-light); color: var(--poke-purple); border: 1.5px solid #D8B4FE; }
         .btn-filter:active, .btn-purple:active { transform: scale(0.95); }
         
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; gap: 6px; flex-wrap: wrap; }
-        .section-header h3 { margin: 0; font-size: 0.98rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; flex-wrap: wrap; }
+        .section-header h3 { margin: 0; font-size: 1rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
         .action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         
         .toast-container {
@@ -191,7 +192,7 @@
         }
         .toast-msg {
             background: #1E293B; color: #FFFFFF; padding: 12px 18px; border-radius: 30px;
-            font-size: 0.88rem; font-weight: 800; text-align: center;
+            font-size: 0.9rem; font-weight: 800; text-align: center;
             box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1.5px solid #334155;
             animation: toastPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
@@ -202,15 +203,15 @@
         }
 
         .filter-container {
-            background: #F8FAFC; border-radius: var(--radius-sm); padding: 10px;
-            margin-bottom: 12px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            background: #F8FAFC; border-radius: var(--radius-sm); padding: 12px;
+            margin-bottom: 14px; border: 1.5px solid #E2E8F0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
         }
-        .filter-title { font-size: 0.82rem; font-weight: 800; color: #475569; margin-bottom: 6px; display: flex; align-items: center; gap: 4px; }
-        .filter-date-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 8px; }
-        .filter-date-grid input[type="date"] { padding: 6px 4px; font-size: 0.8rem; text-align: center; min-height: 40px; border-radius: 8px; }
-        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.82rem; }
+        .filter-title { font-size: 0.85rem; font-weight: 800; color: #475569; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
+        .filter-date-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 10px; }
+        .filter-date-grid input[type="date"] { padding: 6px 6px; font-size: 0.85rem; text-align: center; min-height: 42px; border-radius: 10px; }
+        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
         .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
-        .filter-btn-grid button { flex: 1; min-height: 38px; font-size: 0.78rem; padding: 4px 2px; }
+        .filter-btn-grid button { flex: 1; min-height: 40px; font-size: 0.8rem; padding: 4px 4px; }
         
         .pop-in { animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
         @keyframes popIn {
@@ -219,121 +220,122 @@
         }
         
         .result-item { 
-            padding: 10px 12px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
-            margin-bottom: 8px; font-size: 0.88rem; font-weight: 700; border: 1.5px solid #E2E8F0;
+            padding: 12px 14px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
+            margin-bottom: 8px; font-size: 0.92rem; font-weight: 700; border: 1.5px solid #E2E8F0;
             word-break: break-all; line-height: 1.5;
         }
         .restaurant-item-box { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
-        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 2px 8px; border-radius: 6px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
+        .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
+        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
 
         .history-card {
-            background: #FFFFFF; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 10px;
-            border: 1.5px solid #E2E8F0; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03); transition: var(--transition);
+            background: #FFFFFF; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;
+            border: 1.5px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: var(--transition);
         }
-        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 8px; }
-        .history-date-title { font-size: 0.92rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+        .history-date-title { font-size: 0.95rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
         .history-teams { 
-            font-size: 0.86rem; line-height: 1.5; padding-top: 8px;
-            border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 6px; font-weight: 700;
+            font-size: 0.88rem; line-height: 1.55; padding-top: 10px;
+            border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 8px; font-weight: 700;
         }
         .history-teams .full-width { grid-column: span 1; }
-        .empty-text { color: var(--text-sub); font-size: 0.85rem; text-align: center; padding: 14px 0; font-weight: 700; }
+        .empty-text { color: var(--text-sub); font-size: 0.88rem; text-align: center; padding: 16px 0; font-weight: 700; }
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
         .restaurant-link:active { text-decoration: underline; }
         
-        .modal-rest-list { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; max-height: 200px; overflow-y: auto; }
+        .modal-rest-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
         .modal-rest-item {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 8px 12px; background: #F8FAFC; border: 1.5px solid #E2E8F0;
-            border-radius: var(--radius-sm); font-size: 0.88rem; font-weight: 800;
+            padding: 10px 14px; background: #F8FAFC; border: 1.5px solid #E2E8F0;
+            border-radius: var(--radius-sm); font-size: 0.9rem; font-weight: 800;
             cursor: pointer; transition: var(--transition);
         }
         .modal-rest-item:active { background: #E2E8F0; }
         .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
         .modal-rest-item .btn-del-rest {
             background: #FFEAE8; border: 1px solid #FFC4C2; color: #D83A37;
-            border-radius: 6px; padding: 3px 8px; font-size: 0.78rem; cursor: pointer;
+            border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer;
             margin-left: auto; flex-shrink: 0;
         }
 
         .modal-backdrop {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(15, 23, 42, 0.6); z-index: 1000;
+            background: rgba(15, 23, 42, 0.65); z-index: 1000;
             display: flex; justify-content: center; align-items: flex-start;
-            padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(2px);
+            padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
         }
         #passwordModal { z-index: 2000; }
         #customConfirmModal, #customPromptModal { z-index: 3000; }
         #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal { z-index: 1100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
-            width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 16px 16px 24px 16px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.2); margin-top: 10px; animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; padding: 18px 18px 26px 18px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.22); margin-top: 10px; animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-line); padding-bottom: 10px; margin-bottom: 12px; }
-        .modal-header h3 { margin: 0; font-size: 1.02rem; font-weight: 900; }
-        .modal-close { background: none; border: none; font-size: 1.3rem; cursor: pointer; color: var(--text-sub); padding: 4px 8px; line-height: 1; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-line); padding-bottom: 12px; margin-bottom: 14px; }
+        .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 900; }
+        .modal-close { background: none; border: none; font-size: 1.4rem; cursor: pointer; color: var(--text-sub); padding: 4px 8px; line-height: 1; }
         
-        .size-option-list { display: flex; flex-direction: column; gap: 8px; margin: 12px 0; }
+        .size-option-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
         .size-option-btn {
-            padding: 12px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
-            font-size: 0.95rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
-            transition: var(--transition); min-height: 46px; display: flex; justify-content: space-between; align-items: center;
+            padding: 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
+            font-size: 0.98rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
+            transition: var(--transition); min-height: 48px; display: flex; justify-content: space-between; align-items: center;
         }
         .size-option-btn:active, .size-option-btn.active { background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155; }
         .drop-zone {
             background: #F8FAFC; border: 2px dashed #CBD5E1; border-radius: var(--radius-sm);
-            padding: 8px; min-height: 50px; display: flex; flex-wrap: wrap; gap: 6px;
+            padding: 10px; min-height: 52px; display: flex; flex-wrap: wrap; gap: 8px;
             align-items: center; margin-top: 6px; transition: var(--transition);
         }
         .drop-zone.drag-over { background: var(--poke-blue-light); border-color: var(--poke-blue); }
         .draggable-player {
             background: var(--poke-yellow); color: #1E293B; border: 1.5px solid #334155;
-            padding: 5px 10px; border-radius: 20px; font-weight: 800; font-size: 0.82rem;
-            cursor: grab; display: inline-flex; align-items: center; gap: 4px;
+            padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.85rem;
+            cursor: grab; display: inline-flex; align-items: center; gap: 6px;
             user-select: none; transition: transform 0.1s; line-height: 1.2;
         }
         .draggable-player:active { cursor: grabbing; transform: scale(0.95); }
         .draggable-player .btn-del-p {
-            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 20px; height: 20px;
-            display: inline-flex; justify-content: center; align-items: center; font-size: 0.85rem;
+            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 22px; height: 22px;
+            display: inline-flex; justify-content: center; align-items: center; font-size: 0.9rem;
             cursor: pointer; color: #333; margin-left: 2px; font-weight: bold;
         }
         .draggable-player .btn-del-p:active { background: var(--poke-red); color: white; }
 
         .preset-card {
             background: #F8FAFC; border: 2px solid #E2E8F0; border-radius: var(--radius-sm);
-            padding: 12px; margin-bottom: 10px; position: relative; transition: var(--transition);
+            padding: 14px; margin-bottom: 12px; position: relative; transition: var(--transition);
         }
         .preset-card:active { background: var(--poke-blue-light); border-color: var(--poke-blue); }
-        .preset-card.disabled-preset { background: #F1F5F9; border-color: #CBD5E1; opacity: 0.65; cursor: not-allowed; }
-        .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.92rem; margin-bottom: 4px; }
+        .preset-card.disabled-preset { background: #F1F5F9; border-color: #CBD5E1; opacity: 0.7; cursor: not-allowed; }
+        .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.95rem; margin-bottom: 6px; }
         .preset-card.disabled-preset .preset-date { color: #64748B; }
-        .preset-details { font-size: 0.82rem; color: #475569; font-weight: 700; line-height: 1.5; }
-        .preset-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
+        .preset-details { font-size: 0.85rem; color: #475569; font-weight: 700; line-height: 1.5; }
+        .preset-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
 
-        .trainer-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.88rem; font-weight: 800; }
+        .trainer-list-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; border-bottom: 1px solid #F1F5F9; font-size: 0.9rem; font-weight: 800; }
         .trainer-list-item:last-child { border-bottom: none; }
 
         .total-matches-box {
             background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
-            color: #FFFFFF; border-radius: var(--radius-sm); padding: 14px 16px;
+            color: #FFFFFF; border-radius: var(--radius-sm); padding: 16px 18px;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px; box-shadow: 0 4px 12px rgba(139, 92, 246, 0.25);
+            margin-bottom: 14px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.28);
         }
-        .total-matches-title { font-size: 1rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
-        .total-matches-count { font-size: 1.6rem; font-weight: 900; color: #FFCB05; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+        .total-matches-title { font-size: 1.02rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .total-matches-count { font-size: 1.7rem; font-weight: 900; color: #FFCB05; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
-        .pool-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+        .pool-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .pool-item-row input[type="text"] { flex: 1.2; }
         .pool-item-row input[type="number"] { flex: 0.8; text-align: center; }
 
         .btn-category-trigger {
-            width: 100%; padding: 12px 14px; background: #FFFFFF; border-radius: var(--radius-lg);
-            font-weight: 900; font-size: 0.92rem; cursor: pointer; box-shadow: var(--shadow-poke);
+            width: 100%; padding: 14px 16px; background: #FFFFFF; border-radius: var(--radius-lg);
+            font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: var(--shadow-poke);
             transition: var(--transition); display: flex; align-items: center; justify-content: space-between;
-            min-height: 48px; margin-bottom: 8px;
+            min-height: 50px; margin-bottom: 8px;
         }
         .btn-category-trigger:last-child { margin-bottom: 0; }
         .btn-category-trigger:active { transform: scale(0.98); }
@@ -432,7 +434,7 @@
     <div class="box">
         <div class="section-header">
             <h3>📖 訓練家對戰圖鑑</h3>
-            <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑️️ 清空紀錄</button>
+            <button id="btnClearCloud" class="btn-danger" onclick="clearCloudHistory()">🗑 清空紀錄</button>
         </div>
 
         <div style="display: flex; flex-direction: column; gap: 8px;">
@@ -453,7 +455,7 @@
         </div>
         <button class="btn-pool-trigger" onclick="openPoolManagementModal()">
             <span>🔐 進入場次管理專區</span>
-            <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙️</span>
+            <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙️️</span>
         </button>
     </div>
 
@@ -464,7 +466,7 @@
                 <h3 id="confirmModalTitle">❓ 請確認</h3>
                 <button class="modal-close" onclick="closeConfirmModal(false)">✖</button>
             </div>
-            <div id="confirmModalText" style="font-size: 0.92rem; color: #334155; font-weight: 800; margin-bottom: 16px; white-space: pre-line;"></div>
+            <div id="confirmModalText" style="font-size: 0.95rem; color: #334155; font-weight: 800; margin-bottom: 18px; white-space: pre-line;"></div>
             <div class="btn-action">
                 <button class="action-btn btn-secondary" onclick="closeConfirmModal(false)">取消</button>
                 <button class="action-btn btn-primary" id="confirmModalSubmitBtn" onclick="closeConfirmModal(true)">確定</button>
@@ -472,14 +474,13 @@
         </div>
     </div>
 
-    <!-- Password Modal -->
     <div id="passwordModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3 id="passwordModalTitle">🔐 請輸入驗證密碼</h3>
                 <button class="modal-close" onclick="closePasswordModal()">✖</button>
             </div>
-            <div id="passwordModalSubtext" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px;">
+            <div id="passwordModalSubtext" style="font-size: 0.9rem; color: #475569; font-weight: 800; margin-bottom: 14px;">
                 請輸入驗證密碼以繼續：
             </div>
             <div class="input-group">
@@ -524,7 +525,7 @@
                     <button class="btn-filter" onclick="applyDateFilter()">🔍 搜尋區間</button>
                     <button class="btn-copy" onclick="copyRangeHistory()">📋 複製區間</button>
                     <button class="btn-line" onclick="shareRangeHistoryToLine()">💬 分享區間</button>
-                    <button class="btn-secondary" style="font-size:0.78rem; border-radius:8px;" onclick="resetDateFilter()">重置</button>
+                    <button class="btn-secondary" style="font-size:0.8rem; border-radius:10px;" onclick="resetDateFilter()">重置</button>
                 </div>
             </div>
 
@@ -541,20 +542,20 @@
                 <h3>🎯 本次對戰場次設定與加碼</h3>
                 <button class="modal-close" onclick="closeUpcomingModal()">✖</button>
             </div>
-            <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px;">
+            <div style="font-size: 0.9rem; color: #475569; font-weight: 800; margin-bottom: 14px;">
                 請選擇要設定或編輯的場次項目：
             </div>
             <div class="size-option-list">
                 <button class="size-option-btn" onclick="triggerSetBaseMatches()">
                     <span>🎯 本次場次</span>
-                    <span id="modalBaseMatchText" style="font-size:0.82rem; color:#64748B;"></span>
+                    <span id="modalBaseMatchText" style="font-size:0.85rem; color:#64748B;"></span>
                 </button>
                 <button class="size-option-btn" style="background:#FFF7D6; border-color:#FFE885; color:#8A6D00;" onclick="triggerSetBonusMatches()">
                     <span>🎁 主委加碼</span>
-                    <span id="modalBonusMatchText" style="font-size:0.82rem; color:#8A6D00; font-weight:900;"></span>
+                    <span id="modalBonusMatchText" style="font-size:0.85rem; color:#8A6D00; font-weight:900;"></span>
                 </button>
             </div>
-            <div style="margin-top: 14px; display: flex; gap: 8px;">
+            <div style="margin-top: 16px; display: flex; gap: 8px;">
                 <button class="action-btn btn-danger" style="flex:1;" onclick="clearUpcomingUsageAndBonus()">🗑️ 清空所有設定</button>
                 <button class="action-btn btn-secondary" style="flex:1;" onclick="closeUpcomingModal()">關閉</button>
             </div>
@@ -568,13 +569,13 @@
                 <h3 id="matchInputModalTitle">🎯 設定本次場次</h3>
                 <button class="modal-close" onclick="closeMatchInputModal()">✖</button>
             </div>
-            <div id="matchInputModalSubtext" style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px; white-space: pre-line;">
+            <div id="matchInputModalSubtext" style="font-size: 0.9rem; color: #475569; font-weight: 800; margin-bottom: 14px; white-space: pre-line;">
                 請輸入場次數量：
             </div>
             <div class="input-group">
-                <input type="number" id="matchInputVal" min="0" placeholder="請輸入場次數字 (輸入 0 清除)" style="font-size: 1.1rem; text-align: center; font-weight: 900;" onkeydown="if(event.key==='Enter') confirmMatchInput()">
+                <input type="number" id="matchInputVal" min="0" placeholder="請輸入場次數字 (輸入 0 清除)" style="font-size: 1.15rem; text-align: center; font-weight: 900;" onkeydown="if(event.key==='Enter') confirmMatchInput()">
             </div>
-            <div class="btn-action" style="margin-top: 14px;">
+            <div class="btn-action" style="margin-top: 16px;">
                 <button class="action-btn btn-danger" style="flex:1;" onclick="submitMatchInput(0)">🗑️ 清除設定</button>
                 <button class="action-btn btn-primary" style="flex:1.5;" onclick="confirmMatchInput()">下一步 (選擇卡池) ➔</button>
             </div>
@@ -596,22 +597,22 @@
                 <div class="total-matches-count" id="modalTotalMatches">0</div>
             </div>
 
-            <div style="font-size: 0.85rem; color: #475569; font-weight: 800; margin-bottom: 12px; background: #F8FAFC; padding: 10px 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0;">
+            <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 14px; background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <label for="dailyIncrementInput" style="margin:0;">✨ 每日跨日全體場次池自動增加數：</label>
-                    <span id="lastAutoIncText" style="color:var(--poke-purple); font-size:0.78rem;">跨日檢查中...</span>
+                    <span id="lastAutoIncText" style="color:var(--poke-purple); font-size:0.8rem;">跨日檢查中...</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                    <span style="font-weight:900; color:var(--poke-purple); font-size:1.1rem;">+</span>
-                    <input type="number" id="dailyIncrementInput" min="0" style="width:100px; text-align:center; font-weight:900; font-size:1rem; min-height:38px;" placeholder="3">
-                    <span style="font-size:0.85rem; color:#64748B;">場 / 天 (每池)</span>
+                    <span style="font-weight:900; color:var(--poke-purple); font-size:1.15rem;">+</span>
+                    <input type="number" id="dailyIncrementInput" min="0" style="width:100px; text-align:center; font-weight:900; font-size:1.05rem; min-height:42px;" placeholder="3">
+                    <span style="font-size:0.88rem; color:#64748B;">場 / 天 (每池)</span>
                 </div>
             </div>
 
             <label>🎯 場次池列表與數值設定：</label>
-            <div id="poolListContainer" style="margin-bottom: 12px;"></div>
+            <div id="poolListContainer" style="margin-bottom: 14px;"></div>
 
-            <div class="btn-action" style="margin-top: 14px;">
+            <div class="btn-action" style="margin-top: 16px;">
                 <button class="action-btn btn-purple" style="flex:1;" onclick="addNewPool()">➕ 新增場次池</button>
                 <button class="action-btn btn-primary" style="flex:1;" onclick="savePoolsFromModal()">💾 儲存修改</button>
             </div>
@@ -625,9 +626,9 @@
                 <h3 id="selectPoolModalTitle">🎯 選擇要扣除場次池</h3>
                 <button class="modal-close" onclick="closeSelectPoolModal()">✖</button>
             </div>
-            <p id="selectPoolModalSubtext" style="font-size:0.88rem; font-weight:800; color:#475569; margin-top:0;">請選擇扣除此場次扣量的場次池：</p>
+            <p id="selectPoolModalSubtext" style="font-size:0.9rem; font-weight:800; color:#475569; margin-top:0;">請選擇扣除此場次扣量的場次池：</p>
             <div id="selectPoolModalList" class="size-option-list"></div>
-            <div class="btn-action" style="margin-top: 12px;">
+            <div class="btn-action" style="margin-top: 14px;">
                 <button class="action-btn btn-secondary" onclick="closeSelectPoolModal()">取消</button>
             </div>
         </div>
@@ -640,13 +641,13 @@
                 <h3>✏️ 修改歷史紀錄場次</h3>
                 <button class="modal-close" onclick="closeEditHistoryMatchModal()">✖</button>
             </div>
-            <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 12px;">
+            <div style="font-size: 0.9rem; color: #475569; font-weight: 800; margin-bottom: 14px;">
                 請輸入該場次新的場次數字：
             </div>
             <div class="input-group">
-                <input type="number" id="editHistoryMatchVal" min="0" placeholder="請輸入場次數字..." style="font-size: 1.1rem; text-align: center; font-weight: 900;" onkeydown="if(event.key==='Enter') saveHistoryMatchEdit()">
+                <input type="number" id="editHistoryMatchVal" min="0" placeholder="請輸入場次數字..." style="font-size: 1.15rem; text-align: center; font-weight: 900;" onkeydown="if(event.key==='Enter') saveHistoryMatchEdit()">
             </div>
-            <div class="btn-action" style="margin-top: 14px;">
+            <div class="btn-action" style="margin-top: 16px;">
                 <button class="action-btn btn-secondary" onclick="closeEditHistoryMatchModal()">取消</button>
                 <button class="action-btn btn-primary" onclick="saveHistoryMatchEdit()">💾 確定修改</button>
             </div>
@@ -667,9 +668,9 @@
                     <button class="btn-paste" style="background:var(--poke-yellow); color:#1E293B; border-color:#D4A000;" onclick="addNewTrainerPreset()">新增</button>
                 </div>
             </div>
-            <label style="margin-top:12px;">目前預設訓練家名單：</label>
+            <label style="margin-top:14px;">目前預設訓練家名單：</label>
             <div id="trainerManagerList" class="modal-rest-list"></div>
-            <div class="btn-action" style="margin-top: 14px;">
+            <div class="btn-action" style="margin-top: 16px;">
                 <button class="action-btn btn-primary" onclick="closeTrainerManagerModal()">✅ 完成</button>
             </div>
         </div>
@@ -681,11 +682,11 @@
             <div class="modal-header">
                 <h3>📅 預組隊伍庫</h3>
                 <div style="display: flex; gap: 6px; align-items: center;">
-                    <button id="btnClearPresets" class="btn-danger" style="padding: 6px 10px; font-size: 0.8rem; min-height: 38px;" onclick="clearAllPresetsWithConfirm()">🗑️ 清空預組</button>
+                    <button id="btnClearPresets" class="btn-danger" style="padding: 6px 10px; font-size: 0.82rem; min-height: 38px;" onclick="clearAllPresetsWithConfirm()">🗑️ 清空預組</button>
                     <button class="modal-close" onclick="closePresetModal()">✖</button>
                 </div>
             </div>
-            <button id="btnPairAllPresets" class="action-btn btn-primary" style="width: 100%; margin-bottom: 12px; font-size: 0.95rem; min-height: 46px;" onclick="generateAllPresetsInLoop()">🔥 組隊渡劫一時爽</button>
+            <button id="btnPairAllPresets" class="action-btn btn-primary" style="width: 100%; margin-bottom: 14px; font-size: 0.98rem; min-height: 48px;" onclick="generateAllPresetsInLoop()">🔥 組隊渡劫一時爽</button>
             <div id="presetListContainer">
                 <div class="empty-text">無預選隊伍紀錄</div>
             </div>
@@ -744,7 +745,7 @@
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>⚙️️ 選擇對戰隊伍人數</h3>
+                <h3>⚙ 選擇對戰隊伍人數</h3>
                 <button class="modal-close" onclick="closeTeamSizeModal()">✖</button>
             </div>
             <div class="size-option-list">
@@ -772,10 +773,10 @@
                 </div>
             </div>
 
-            <label style="margin-top: 12px;">歷史常用餐廳列表（點擊快速帶入）：</label>
+            <label style="margin-top: 14px;">歷史常用餐廳列表（點擊快速帶入）：</label>
             <div id="modalRestaurantList" class="modal-rest-list"></div>
 
-            <div class="btn-action" style="margin-top: 16px;">
+            <div class="btn-action" style="margin-top: 18px;">
                 <button class="action-btn btn-primary" onclick="confirmRestaurantModal()">✅ 確認送出</button>
                 <button class="action-btn btn-secondary" onclick="closeRestaurantModal()">取消</button>
             </div>
@@ -786,7 +787,7 @@
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>✏️ 編輯對戰紀錄</h3>
+                <h3>✏ 編輯對戰紀錄</h3>
                 <button class="modal-close" onclick="closeEditModal()">✖</button>
             </div>
             
@@ -801,7 +802,7 @@
             <div class="input-group">
                 <label>👥 對戰組合（拖曳人員以變更分組）</label>
                 <div id="editModalTeamsContainer"></div>
-                <button class="btn-secondary" style="width:100%; margin-top:10px; border-radius:10px; min-height:44px; font-weight:800;" onclick="addModalTeamGroup()">➕ 新增一組</button>
+                <button class="btn-secondary" style="width:100%; margin-top:10px; border-radius:12px; min-height:46px; font-weight:800;" onclick="addModalTeamGroup()">➕ 新增一組</button>
             </div>
 
             <div class="input-group">
@@ -873,7 +874,6 @@
         let editingRestaurantIndex = null;
 
         let activeConfirmCallback = null;
-        let activePromptCallback = null;
 
         let matchPoolsData = {
             lastUpdatedDate: "",
@@ -1812,6 +1812,16 @@
                 return count;
             }
 
+            // 計算訓練家在全部歷史紀錄中的總爽打次數
+            function getTotalByeCount(player) {
+                if (!historyRounds || historyRounds.length === 0) return 0;
+                let count = 0;
+                historyRounds.forEach(round => {
+                    if (isPlayerInBye(round.bye, player)) count++;
+                });
+                return count;
+            }
+
             let validMatchFound = false;
             let bestTeams = [], bestBye = [];
             const constraintLevels = [
@@ -1833,25 +1843,45 @@
                     if (remainder !== 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
-                            let candidates = currentPlayers.map((p, idx) => ({
-                                name: p,
-                                idx: idx,
-                                byeCount: getSurroundingByeCount(p, eventDateVal, 10)
-                            }));
+                            let candidates = currentPlayers.map((p, idx) => {
+                                const surrBye = getSurroundingByeCount(p, eventDateVal, 10);
+                                const totBye = getTotalByeCount(p);
+                                return {
+                                    name: p,
+                                    idx: idx,
+                                    surroundingByeCount: surrBye,
+                                    totalByeCount: totBye,
+                                    // 綜合計算爽打分數：近期 10 場權重 (x4) + 歷史總爽打次數 (x1)，讓長期爽打更勻稱
+                                    byeScore: (surrBye * 4) + totBye
+                                };
+                            });
                             
-                            let minByeCount = Math.min(...candidates.map(c => c.byeCount));
-                            let bestCandidates = candidates.filter(c => c.byeCount === minByeCount);
+                            let minScore = Math.min(...candidates.map(c => c.byeScore));
+                            let bestCandidates = candidates.filter(c => c.byeScore === minScore);
                             
+                            // 若最小分數候選人不足 2 位，擴展納入次小分數者以維持隨機樂趣
+                            if (bestCandidates.length < 2 && candidates.length > 2) {
+                                let nextMinScores = candidates.filter(c => c.byeScore > minScore).map(c => c.byeScore);
+                                if (nextMinScores.length > 0) {
+                                    let nextMin = Math.min(...nextMinScores);
+                                    bestCandidates = candidates.filter(c => c.byeScore <= nextMin);
+                                }
+                            }
+
                             let totalWeight = bestCandidates.reduce((sum, c) => {
                                 const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                return sum + (isReduced ? 0.5 : 1.0);
+                                const baseW = isReduced ? 0.5 : 1.0;
+                                const scorePenalty = 1 / (1 + (c.byeScore - minScore));
+                                return sum + (baseW * scorePenalty);
                             }, 0);
 
                             let rand = Math.random() * totalWeight;
                             let chosenIndex = bestCandidates[0].idx;
                             for (let c of bestCandidates) {
                                 const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
-                                const w = isReduced ? 0.5 : 1.0;
+                                const baseW = isReduced ? 0.5 : 1.0;
+                                const scorePenalty = 1 / (1 + (c.byeScore - minScore));
+                                const w = baseW * scorePenalty;
                                 if (rand < w) { chosenIndex = c.idx; break; }
                                 rand -= w;
                             }
@@ -2734,7 +2764,7 @@
             editingModalData.teams.forEach((team, tIdx) => {
                 const groupDiv = document.createElement('div');
                 groupDiv.style.marginBottom = '8px';
-                groupDiv.innerHTML = `<div style="font-size:0.82rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
+                groupDiv.innerHTML = `<div style="font-size:0.85rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
                 const dropZone = document.createElement('div');
                 dropZone.className = 'drop-zone';
                 dropZone.dataset.teamIndex = tIdx;
@@ -2888,7 +2918,6 @@
             renderModalRestaurantList();
         };
 
-        // 點擊對戰圖鑑的「✏️ 編輯餐廳」：需經過管理員密碼驗證 (765765765) 才能修改
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
             if (!currentRound) return;
@@ -2979,7 +3008,6 @@
             if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空紀錄"; }
         }
 
-        // Firebase 監聽事件
         onValue(historyRef, (snapshot) => {
             const data = snapshot.val();
             historyRounds = data ? Object.values(data) : [];
