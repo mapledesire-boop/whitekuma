@@ -10,77 +10,92 @@
     
     <style>
         :root {
-            --bg-color: #F3F6FA;
+            --bg-color: #F8FAFC;
             --card-bg: #FFFFFF;
             --poke-red: #FF4757;
-            --poke-red-hover: #E03343;
+            --poke-red-hover: #EE3545;
             --poke-yellow: #FFCB05;
+            --poke-yellow-hover: #EAB208;
             --poke-blue: #2A75BB;
-            --poke-blue-light: #EBF3FF;
+            --poke-blue-light: #EEF6FF;
             --poke-purple: #8B5CF6;
-            --poke-purple-light: #F3E8FF;
+            --poke-purple-light: #F5F3FF;
             --line-green: #06C755;
-            --text-main: #1E293B;
+            --text-main: #0F172A;
             --text-sub: #64748B;
             --border-line: #E2E8F0;
-            --radius-lg: 22px;
-            --radius-sm: 14px;
-            --shadow-poke: 0 10px 28px rgba(42, 117, 187, 0.08);
-            --transition: all 0.22s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --radius-lg: 24px;
+            --radius-sm: 16px;
+            --shadow-subtle: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+            --shadow-poke: 0 10px 28px -4px rgba(42, 117, 187, 0.12);
+            --shadow-hover: 0 14px 32px -4px rgba(42, 117, 187, 0.18);
+            --transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent; 
+            -webkit-touch-callout: none;
+        }
         
         body { 
             font-family: 'M PLUS Rounded 1c', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 500px; margin: 0 auto; padding: 12px 12px 65px 12px; 
-            background-color: var(--bg-color); color: var(--text-main); line-height: 1.5;
+            max-width: 500px; 
+            margin: 0 auto; 
+            padding: 12px 12px calc(75px + env(safe-area-inset-bottom)) 12px; 
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            line-height: 1.5;
             -webkit-font-smoothing: antialiased;
         }
 
-        .header-container { text-align: center; margin: 6px 0 12px 0; }
+        .header-container { text-align: center; margin: 6px 0 14px 0; }
         .header-title-box {
             display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            background: #FFFFFF; padding: 8px 22px; border-radius: 30px;
-            border: 2px solid var(--poke-red); box-shadow: 0 4px 16px rgba(255, 71, 87, 0.18);
+            background: #FFFFFF; padding: 10px 22px; border-radius: 40px;
+            border: 2px solid var(--poke-red); box-shadow: 0 6px 18px rgba(255, 71, 87, 0.15);
+            transition: var(--transition);
         }
-        .header-img { width: 34px; height: 34px; object-fit: contain; }
+        .header-title-box:active { transform: scale(0.98); }
+        .header-img { width: 34px; height: 34px; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1)); }
         .header-title { 
-            font-size: 1.3rem; font-weight: 900; color: #2C2C2C; 
+            font-size: 1.3rem; font-weight: 900; color: #1E293B; 
             margin: 0; letter-spacing: 0.5px;
         }
         .subtitle { 
             font-size: 0.82rem; color: var(--poke-red); margin-top: 6px; font-weight: 800;
-            display: flex; align-items: center; justify-content: center; gap: 4px;
+            display: flex; align-items: center; justify-content: center; gap: 4px; opacity: 0.95;
         }
 
         .top-summary-bar {
-            background: linear-gradient(135deg, #2A75BB 0%, #8B5CF6 100%);
+            background: linear-gradient(135deg, #2A75BB 0%, #7C3AED 100%);
             color: #FFFFFF; border-radius: var(--radius-sm); padding: 12px 14px;
             margin-bottom: 12px; font-weight: 800; font-size: 0.88rem;
-            box-shadow: 0 6px 18px rgba(42, 117, 187, 0.2);
+            box-shadow: 0 8px 20px rgba(42, 117, 187, 0.2);
             display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        .top-summary-total { color: #FFCB05; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.5px; }
+        .top-summary-total { color: #FFCB05; font-size: 1.05rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.15); }
         .top-summary-pools { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px; width: 100%; }
         .top-summary-item {
             background: rgba(255, 255, 255, 0.22); padding: 4px 10px; border-radius: 12px;
-            white-space: nowrap; font-size: 0.78rem; backdrop-filter: blur(6px); font-weight: 800;
+            white-space: nowrap; font-size: 0.78rem; backdrop-filter: blur(8px); font-weight: 800;
+            border: 1px solid rgba(255, 255, 255, 0.25);
         }
 
         .btn-usage-badge {
-            background: #FFF7D6; border: 1.5px solid #FFE885; color: #8A6D00; font-weight: 800;
-            border-radius: 20px; padding: 6px 14px; font-size: 0.82rem; cursor: pointer;
+            background: #FFFBEB; border: 1.5px solid #FDE68A; color: #B45309; font-weight: 800;
+            border-radius: 20px; padding: 6px 12px; font-size: 0.82rem; cursor: pointer;
             display: inline-flex; align-items: center; gap: 4px; transition: var(--transition);
-            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.04); min-height: 36px;
+            white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.03); min-height: 36px;
         }
-        .btn-usage-badge:active { transform: scale(0.95); background: #FFE885; }
-        .btn-usage-badge.has-value { background: #E6F9ED; border-color: #A3E9BC; color: #047857; font-weight: 900; }
+        .btn-usage-badge:active { transform: scale(0.95); background: #FDE68A; }
+        .btn-usage-badge.has-value { background: #ECFDF5; border-color: #A7F3D0; color: #047857; font-weight: 900; }
 
         .btn-preset-trigger {
-            margin-top: 4px; margin-bottom: 12px; width: 100%; padding: 12px 14px; background: #FFFFFF;
+            margin-top: 2px; margin-bottom: 12px; width: 100%; padding: 12px 16px; background: #FFFFFF;
             border: 2px solid var(--poke-blue); color: var(--poke-blue); border-radius: var(--radius-lg);
             font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: var(--shadow-poke);
-            transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px;
+            transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 48px;
         }
         .btn-preset-trigger:active { transform: scale(0.98); background: var(--poke-blue-light); }
 
@@ -94,8 +109,9 @@
 
         .box { 
             background-color: var(--card-bg); border-radius: var(--radius-lg); 
-            padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-poke);
-            border: 1.5px solid var(--border-line); position: relative; overflow: hidden;
+            padding: 16px 16px 18px 16px; margin-bottom: 14px; box-shadow: var(--shadow-poke);
+            border: 1px solid var(--border-line); position: relative; overflow: hidden;
+            transition: var(--transition);
         }
 
         label { font-size: 0.9rem; color: #334155; font-weight: 800; display: block; margin-bottom: 6px; }
@@ -104,26 +120,26 @@
         .input-group { margin-bottom: 14px; position: relative; }
         
         input[type="datetime-local"], input[type="date"], input[type="time"], input[type="text"], input[type="number"], input[type="password"], textarea, select { 
-            width: 100%; padding: 12px 14px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
+            width: 100%; padding: 10px 12px; border: 2px solid #E2E8F0; border-radius: var(--radius-sm); 
             font-size: 16px; font-family: inherit; background-color: #F8FAFC; color: var(--text-main); 
             font-weight: 700; transition: var(--transition); -webkit-appearance: none; min-height: 48px;
         }
         input[type="date"]:focus, input[type="time"]:focus, input[type="text"]:focus, input[type="number"]:focus, input[type="password"]:focus, textarea:focus, select:focus { 
-            outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; box-shadow: 0 0 0 3px rgba(42, 117, 187, 0.12);
+            outline: none; border-color: var(--poke-blue); background-color: #FFFFFF; box-shadow: 0 0 0 4px rgba(42, 117, 187, 0.12);
         }
         .input-with-btn { display: flex; gap: 8px; align-items: center; }
         .input-with-btn input { flex: 1; }
         
         .btn-paste {
-            padding: 0 16px; border: 2px solid #D0E1FD; background-color: var(--poke-blue-light); color: var(--poke-blue);
-            border-radius: var(--radius-sm); font-weight: 800; font-size: 0.9rem; cursor: pointer;
+            padding: 0 16px; border: 2px solid #BFDBFE; background-color: var(--poke-blue-light); color: var(--poke-blue);
+            border-radius: var(--radius-sm); font-weight: 800; font-size: 0.88rem; cursor: pointer;
             transition: var(--transition); white-space: nowrap; display: flex; align-items: center; min-height: 48px; flex-shrink: 0;
         }
-        .btn-paste:active { transform: scale(0.95); background-color: #D6E6FF; }
+        .btn-paste:active { transform: scale(0.95); background-color: #DBEAFE; }
         
         .btn-team-size, .btn-select-trigger {
-            width: 100%; padding: 12px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
-            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.95rem;
+            width: 100%; padding: 10px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC;
+            border-radius: var(--radius-sm); color: #1E293B; font-weight: 800; font-size: 0.92rem;
             display: flex; justify-content: space-between; align-items: center; cursor: pointer;
             transition: var(--transition); min-height: 48px; text-align: left; flex: 1; overflow: hidden;
         }
@@ -139,61 +155,61 @@
 
         .tag-container { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 14px 0; }
         .name-tag { 
-            padding: 8px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
-            border-radius: 20px; cursor: pointer; font-size: 0.88rem; font-weight: 800;
+            padding: 6px 14px; border: 2px solid #E2E8F0; background-color: #F8FAFC; color: #475569; 
+            border-radius: 20px; cursor: pointer; font-size: 0.85rem; font-weight: 800;
             transition: var(--transition); user-select: none; display: inline-flex; align-items: center; 
-            justify-content: center; min-height: 40px;
+            justify-content: center; min-height: 40px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
         }
         .name-tag:active { transform: scale(0.92); }
         .name-tag.active { 
             background-color: var(--poke-yellow); color: #1E293B; border-color: #334155; 
-            box-shadow: 2px 2px 0px #334155; transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(255, 203, 5, 0.3); transform: translateY(-1px);
         }
         
         .btn-action { margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap; }
         button.action-btn { 
-            flex: 1; min-width: 100px; padding: 12px 10px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
+            flex: 1; min-width: 90px; padding: 12px 10px; border: none; border-radius: var(--radius-sm); cursor: pointer; 
             font-size: 0.95rem; font-weight: 900; min-height: 48px; font-family: inherit;
             display: inline-flex; align-items: center; justify-content: center; transition: var(--transition);
         }
         
-        .btn-primary { background-color: var(--poke-red); color: white; box-shadow: 0 4px 14px rgba(255, 71, 87, 0.35); border: 2px solid #E03343; flex: 1.5; }
+        .btn-primary { background-color: var(--poke-red); color: white; box-shadow: 0 6px 16px rgba(255, 71, 87, 0.32); border: 2px solid #E03343; flex: 1.4; }
         .btn-primary:active { transform: scale(0.96); background-color: var(--poke-red-hover); }
 
-        .btn-preset-save { background-color: #FFF7D6; color: #8A6D00; border: 2px solid #FFE885; }
-        .btn-preset-save:active { transform: scale(0.96); background-color: #FFE885; }
+        .btn-preset-save { background-color: #FFFBEB; color: #B45309; border: 2px solid #FDE68A; }
+        .btn-preset-save:active { transform: scale(0.96); background-color: #FDE68A; }
         
         .btn-secondary { background-color: #F1F5F9; color: #475569; border: 2px solid #CBD5E1; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
         .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter, .btn-purple {
             white-space: nowrap; flex-shrink: 0; font-size: 0.82rem; font-weight: 800; 
-            border-radius: 10px; padding: 6px 12px; cursor: pointer; display: inline-flex;
+            border-radius: 12px; padding: 6px 12px; cursor: pointer; display: inline-flex;
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
             min-height: 40px; box-sizing: border-box; transition: var(--transition);
         }
-        .btn-danger { background-color: #FFEAE8; color: #D83A37; border: 1.5px solid #FFC4C2; }
+        .btn-danger { background-color: #FEF2F2; color: #DC2626; border: 1.5px solid #FCA5A5; }
         .btn-danger:disabled { background-color: #E2E8F0; color: #94A3B8; border-color: #CBD5E1; cursor: not-allowed; opacity: 0.8; }
-        .btn-copy { background-color: var(--poke-blue-light); color: var(--poke-blue); border: 1.5px solid #B3D0FF; }
-        .btn-line { background-color: #E6F9ED; color: var(--line-green); border: 1.5px solid #A3E9BC; }
-        .btn-edit { background-color: #FFF7D6; color: #8A6D00; border: 1.5px solid #FFE885; }
+        .btn-copy { background-color: var(--poke-blue-light); color: var(--poke-blue); border: 1.5px solid #BFDBFE; }
+        .btn-line { background-color: #ECFDF5; color: var(--line-green); border: 1.5px solid #6EE7B7; }
+        .btn-edit { background-color: #FFFBEB; color: #B45309; border: 1.5px solid #FDE68A; }
         .btn-filter { background-color: var(--poke-blue); color: #FFFFFF; border: 1.5px solid #1D588F; }
-        .btn-purple { background-color: var(--poke-purple-light); color: var(--poke-purple); border: 1.5px solid #D8B4FE; }
+        .btn-purple { background-color: var(--poke-purple-light); color: var(--poke-purple); border: 1.5px solid #DDD6FE; }
         .btn-filter:active, .btn-purple:active { transform: scale(0.95); }
         
-        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 6px; flex-wrap: wrap; }
-        .section-header h3 { margin: 0; font-size: 1rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
+        .section-header h3 { margin: 0; font-size: 1rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
         .action-group { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
         
         .toast-container {
             position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
             z-index: 9999; display: flex; flex-direction: column; gap: 8px;
-            pointer-events: none; width: 90%; max-width: 400px;
+            pointer-events: none; width: 90%; max-width: 380px;
         }
         .toast-msg {
-            background: #1E293B; color: #FFFFFF; padding: 12px 18px; border-radius: 30px;
-            font-size: 0.9rem; font-weight: 800; text-align: center;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.25); border: 1.5px solid #334155;
+            background: rgba(15, 23, 42, 0.92); color: #FFFFFF; padding: 12px 18px; border-radius: 30px;
+            font-size: 0.88rem; font-weight: 800; text-align: center; backdrop-filter: blur(8px);
+            box-shadow: 0 10px 24px rgba(0,0,0,0.22); border: 1.5px solid rgba(255,255,255,0.15);
             animation: toastPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             pointer-events: auto;
         }
@@ -208,8 +224,8 @@
         }
         .filter-title { font-size: 0.85rem; font-weight: 800; color: #475569; margin-bottom: 8px; display: flex; align-items: center; gap: 4px; }
         .filter-date-grid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: center; margin-bottom: 10px; }
-        .filter-date-grid input[type="date"] { padding: 6px 6px; font-size: 0.85rem; text-align: center; min-height: 42px; border-radius: 10px; }
-        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.85rem; }
+        .filter-date-grid input[type="date"] { padding: 6px 6px; font-size: 0.82rem; text-align: center; min-height: 42px; border-radius: 12px; }
+        .filter-separator { font-weight: 800; color: #94A3B8; text-align: center; font-size: 0.82rem; }
         .filter-btn-grid { display: flex; gap: 6px; width: 100%; flex-wrap: wrap; }
         .filter-btn-grid button { flex: 1; min-height: 40px; font-size: 0.8rem; padding: 4px 4px; }
         
@@ -222,15 +238,16 @@
         .result-item { 
             padding: 12px 14px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
             margin-bottom: 8px; font-size: 0.92rem; font-weight: 700; border: 1.5px solid #E2E8F0;
-            word-break: break-all; line-height: 1.5;
+            word-break: break-all; line-height: 1.55;
         }
         .restaurant-item-box { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #B3D0FF; margin: 0 2px; display: inline-block; }
-        .bye-badge { background: #FFF7D6; color: #8A6D00; padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #FFE885; display: inline-block; }
+        .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #BFDBFE; margin: 0 2px; display: inline-block; }
+        .bye-badge { background: #FFFBEB; color: #B45309; padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #FDE68A; display: inline-block; }
+        .meal-badge { background: #FFFBEB; color: #B45309; padding: 3px 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 800; border: 1px solid #FDE68A; margin-left: 6px; display: inline-block; }
 
         .history-card {
             background: #FFFFFF; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;
-            border: 1.5px solid #E2E8F0; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03); transition: var(--transition);
+            border: 1.5px solid #E2E8F0; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03); transition: var(--transition);
         }
         .history-header { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
         .history-date-title { font-size: 0.95rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -239,9 +256,9 @@
             border-top: 1px dashed #E2E8F0; display: grid; grid-template-columns: 1fr; gap: 8px; font-weight: 700;
         }
         .history-teams .full-width { grid-column: span 1; }
-        .empty-text { color: var(--text-sub); font-size: 0.88rem; text-align: center; padding: 16px 0; font-weight: 700; }
+        .empty-text { color: var(--text-sub); font-size: 0.88rem; text-align: center; padding: 18px 0; font-weight: 700; }
         .restaurant-link { color: var(--poke-blue); font-weight: 800; text-decoration: none; word-break: break-all; }
-        .restaurant-link:active { text-decoration: underline; }
+        .restaurant-link:hover { text-decoration: underline; }
         
         .modal-rest-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; max-height: 220px; overflow-y: auto; }
         .modal-rest-item {
@@ -253,7 +270,7 @@
         .modal-rest-item:active { background: #E2E8F0; }
         .modal-rest-item .rest-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 8px; }
         .modal-rest-item .btn-del-rest {
-            background: #FFEAE8; border: 1px solid #FFC4C2; color: #D83A37;
+            background: #FEF2F2; border: 1px solid #FCA5A5; color: #DC2626;
             border-radius: 8px; padding: 4px 10px; font-size: 0.8rem; cursor: pointer;
             margin-left: auto; flex-shrink: 0;
         }
@@ -262,16 +279,16 @@
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(15, 23, 42, 0.65); z-index: 1000;
             display: flex; justify-content: center; align-items: flex-start;
-            padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
+            padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
         }
         #passwordModal { z-index: 2000; }
         #customConfirmModal, #customPromptModal { z-index: 3000; }
-        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal { z-index: 1100; }
+        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal { z-index: 1100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
-            width: 100%; max-width: 480px; max-height: 88vh; overflow-y: auto; padding: 18px 18px 26px 18px;
-            box-shadow: 0 12px 36px rgba(0,0,0,0.22); margin-top: 10px; animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 18px 18px 24px 18px;
+            box-shadow: 0 20px 48px rgba(0,0,0,0.22); margin-top: 10px; animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border-line); padding-bottom: 12px; margin-bottom: 14px; }
         .modal-header h3 { margin: 0; font-size: 1.05rem; font-weight: 900; }
@@ -279,8 +296,8 @@
         
         .size-option-list { display: flex; flex-direction: column; gap: 10px; margin: 14px 0; }
         .size-option-btn {
-            padding: 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
-            font-size: 0.98rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
+            padding: 12px 14px; border: 2px solid #E2E8F0; background: #F8FAFC; border-radius: var(--radius-sm);
+            font-size: 0.95rem; font-weight: 800; color: #1E293B; cursor: pointer; text-align: center;
             transition: var(--transition); min-height: 48px; display: flex; justify-content: space-between; align-items: center;
         }
         .size-option-btn:active, .size-option-btn.active { background: var(--poke-yellow); border-color: #334155; box-shadow: 2px 2px 0px #334155; }
@@ -294,12 +311,12 @@
             background: var(--poke-yellow); color: #1E293B; border: 1.5px solid #334155;
             padding: 6px 12px; border-radius: 20px; font-weight: 800; font-size: 0.85rem;
             cursor: grab; display: inline-flex; align-items: center; gap: 6px;
-            user-select: none; transition: transform 0.1s; line-height: 1.2;
+            user-select: none; transition: transform 0.1s; line-height: 1.2; box-shadow: 0 2px 6px rgba(0,0,0,0.05);
         }
         .draggable-player:active { cursor: grabbing; transform: scale(0.95); }
         .draggable-player .btn-del-p {
-            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 22px; height: 22px;
-            display: inline-flex; justify-content: center; align-items: center; font-size: 0.9rem;
+            background: rgba(0,0,0,0.12); border: none; border-radius: 50%; width: 20px; height: 20px;
+            display: inline-flex; justify-content: center; align-items: center; font-size: 0.85rem;
             cursor: pointer; color: #333; margin-left: 2px; font-weight: bold;
         }
         .draggable-player .btn-del-p:active { background: var(--poke-red); color: white; }
@@ -309,7 +326,7 @@
             padding: 14px; margin-bottom: 12px; position: relative; transition: var(--transition);
         }
         .preset-card:active { background: var(--poke-blue-light); border-color: var(--poke-blue); }
-        .preset-card.disabled-preset { background: #F1F5F9; border-color: #CBD5E1; opacity: 0.7; cursor: not-allowed; }
+        .preset-card.disabled-preset { background: #F1F5F9; border-color: #CBD5E1; opacity: 0.75; cursor: not-allowed; }
         .preset-date { font-weight: 900; color: var(--poke-blue); font-size: 0.95rem; margin-bottom: 6px; }
         .preset-card.disabled-preset .preset-date { color: #64748B; }
         .preset-details { font-size: 0.85rem; color: #475569; font-weight: 700; line-height: 1.5; }
@@ -322,9 +339,9 @@
             background: linear-gradient(135deg, #8B5CF6 0%, #6366F1 100%);
             color: #FFFFFF; border-radius: var(--radius-sm); padding: 16px 18px;
             display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 14px; box-shadow: 0 4px 14px rgba(139, 92, 246, 0.28);
+            margin-bottom: 14px; box-shadow: 0 6px 16px rgba(139, 92, 246, 0.25);
         }
-        .total-matches-title { font-size: 1.02rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
+        .total-matches-title { font-size: 1rem; font-weight: 900; display: flex; align-items: center; gap: 6px; }
         .total-matches-count { font-size: 1.7rem; font-weight: 900; color: #FFCB05; text-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 
         .pool-item-row { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
@@ -332,7 +349,7 @@
         .pool-item-row input[type="number"] { flex: 0.8; text-align: center; }
 
         .btn-category-trigger {
-            width: 100%; padding: 14px 16px; background: #FFFFFF; border-radius: var(--radius-lg);
+            width: 100%; padding: 12px 16px; background: #FFFFFF; border-radius: var(--radius-lg);
             font-weight: 900; font-size: 0.95rem; cursor: pointer; box-shadow: var(--shadow-poke);
             transition: var(--transition); display: flex; align-items: center; justify-content: space-between;
             min-height: 50px; margin-bottom: 8px;
@@ -364,7 +381,7 @@
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                <span id="upcomingVehicleBadge" class="btn-usage-badge" style="background:#EBF3FF; border-color:#B3D0FF; color:var(--poke-blue); cursor:default;">車輛: 0</span>
+                <span id="upcomingVehicleBadge" class="btn-usage-badge" style="background:#EEF6FF; border-color:#BFDBFE; color:var(--poke-blue); cursor:default;">車輛: 0</span>
                 <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">
                     本次場次
                 </button>
@@ -395,13 +412,17 @@
             </button>
         </div>
         <div class="input-group">
-            <label>🍽️ 用餐餐廳</label>
-            <div class="input-with-btn">
+            <label>🍽️ 用餐餐廳與時間</label>
+            <div class="input-with-btn" style="margin-bottom: 8px;">
                 <button type="button" class="btn-select-trigger" onclick="openRestaurantModal()">
                     <span id="selectedRestaurantText">尚未設定餐廳</span>
                     <span>🔍 選擇</span>
                 </button>
                 <button class="btn-paste" onclick="pasteClipboardMain()">📋 貼上</button>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 0.88rem; font-weight: 800; color: #475569; white-space: nowrap;">⏰ 用餐時間：</span>
+                <input type="time" id="mealTime" style="flex: 1;" value="">
             </div>
         </div>
 
@@ -415,8 +436,8 @@
         <textarea id="nameInput" placeholder="點擊上方按鈕選取，或直接輸入..."></textarea>
         
         <div class="btn-action">
-            <button id="btnGenerate" class="action-btn btn-primary" onclick="generateTeams()">⚡ 開始擲球配對</button>
-            <button class="action-btn btn-preset-save" onclick="saveToPresets()">📌 存為預組隊伍</button>
+            <button id="btnGenerate" class="action-btn btn-primary" onclick="generateTeams()">⚡ 擲球配對</button>
+            <button class="action-btn btn-preset-save" onclick="saveToPresets()">📌 預組隊伍</button>
             <button class="action-btn btn-secondary" onclick="clearAll()">重置</button>
         </div>
     </div>
@@ -450,7 +471,19 @@
         </div>
     </div>
 
-    <div class="box" style="margin-top: 18px; border-color: #D8B4FE; background: #FAF5FF;">
+    <!-- 車輛管理專區 -->
+    <div class="box" style="margin-top: 18px; border-color: #2A75BB; background: #EEF6FF;">
+        <div class="section-header" style="margin-bottom: 8px;">
+            <h3 style="color: var(--poke-blue);">🚗 車輛管理專區</h3>
+        </div>
+        <button class="btn-pool-trigger" style="border-color: var(--poke-blue); color: var(--poke-blue);" onclick="openVehicleManagementModal()">
+            <span>🔐 進入車輛管理專區</span>
+            <span>⚙️ 車輛規則設定 ➔</span>
+        </button>
+    </div>
+
+    <!-- 對戰場次管理專區 -->
+    <div class="box" style="margin-top: 14px; border-color: #DDD6FE; background: #FAF5FF;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
         </div>
@@ -458,6 +491,40 @@
             <span>🔐 進入場次管理專區</span>
             <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙</span>
         </button>
+    </div>
+
+    <!-- Vehicle Management Modal -->
+    <div id="vehicleModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🚗 車輛設定與車主分配</h3>
+                <button class="modal-close" onclick="closeVehicleManagementModal()">✖</button>
+            </div>
+            
+            <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 14px; background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0; line-height: 1.6;">
+                💡 <strong>說明：</strong>出席人員中，只要包含「獨立車輛」訓練家出席一人即 +1 車；「共用車輛組」內無論幾人出席，該組算 +1 車。
+            </div>
+
+            <!-- Single Drivers Zone -->
+            <label style="color: var(--poke-blue); font-size: 0.95rem;">🚙 獨立車輛訓練家（每位出席算 1 車）：</label>
+            <div id="vehicleSingleDropZone" class="drop-zone" style="margin-bottom: 16px;"></div>
+
+            <!-- Shared Groups Zone -->
+            <div class="section-header" style="margin-top: 12px; margin-bottom: 6px;">
+                <label style="margin: 0; color: var(--poke-purple); font-size: 0.95rem;">🚗 共用車輛組（同組多人出席僅算 1 車）：</label>
+                <button class="btn-purple" style="font-size: 0.78rem; padding: 3px 10px; min-height: 32px;" onclick="addSharedVehicleGroup()">➕ 新增組別</button>
+            </div>
+            <div id="vehicleSharedGroupsContainer" style="margin-bottom: 16px;"></div>
+
+            <!-- Trainer Tag Selection Pool -->
+            <label style="margin-top: 12px;">👥 選擇加入訓練家（點擊或拖曳訓練家）：</label>
+            <div class="tag-container" id="vehicleTrainerPoolContainer"></div>
+
+            <div class="btn-action" style="margin-top: 20px;">
+                <button class="action-btn btn-secondary" onclick="closeVehicleManagementModal()">取消</button>
+                <button class="action-btn btn-primary" onclick="saveVehicleConfigFromModal()">💾 儲存修改</button>
+            </div>
+        </div>
     </div>
 
     <!-- Custom Confirm Modal -->
@@ -721,8 +788,12 @@
             </div>
 
             <div class="input-group">
-                <label>🍽️ 用餐餐廳</label>
-                <input type="text" id="editPresetRestaurant" placeholder="輸入餐廳名稱或 Google Map 連結...">
+                <label>🍽️ 用餐餐廳與時間</label>
+                <input type="text" id="editPresetRestaurant" placeholder="輸入餐廳名稱或 Google Map 連結..." style="margin-bottom:8px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.88rem; font-weight: 800; color: #475569; white-space: nowrap;">⏰ 用餐時間：</span>
+                    <input type="time" id="editPresetMealTime" style="flex: 1;">
+                </div>
             </div>
 
             <div class="label-header">
@@ -774,6 +845,11 @@
                 </div>
             </div>
 
+            <div class="input-group">
+                <label for="restaurantModalMealTime">⏰ 用餐時間</label>
+                <input type="time" id="restaurantModalMealTime">
+            </div>
+
             <label style="margin-top: 14px;">歷史常用餐廳列表（點擊快速帶入）：</label>
             <div id="modalRestaurantList" class="modal-rest-list"></div>
 
@@ -798,6 +874,11 @@
                     <input type="date" id="editModalDate" style="flex: 1.2;" onchange="onModalDateInputChange()">
                     <input type="time" id="editModalTime" style="flex: 0.8;">
                 </div>
+            </div>
+
+            <div class="input-group">
+                <label>⏰ 用餐時間</label>
+                <input type="time" id="editModalMealTime">
             </div>
 
             <div class="input-group">
@@ -854,6 +935,7 @@
         const presetsRef = ref(db, 'presetTeams');
         const trainerPresetsRef = ref(db, 'trainerPresets');
         const matchPoolsRef = ref(db, 'matchPoolsData');
+        const vehicleConfigRef = ref(db, 'vehicleConfig');
 
         // Passwords
         const AUTH_PASSWORD = "765765765";
@@ -876,6 +958,15 @@
 
         let activeConfirmCallback = null;
 
+        // 車輛設定 State
+        let vehicleConfig = {
+            singleDrivers: ["團團", "破鳳", "老朱", "友仔", "台長", "peter", "楷雲"],
+            sharedGroups: [
+                { id: "group_wu", name: "車輛組 (大吳 / 小吳)", players: ["大吳", "小吳"] },
+                { id: "group_misha_chen", name: "車輛組 (Misha / 陳彤)", players: ["Misha", "陳彤"] }
+            ]
+        };
+
         let matchPoolsData = {
             lastUpdatedDate: "",
             dailyIncrement: 3,
@@ -896,37 +987,263 @@
         let selectedTeamSize = 2;
         let selectedRestaurantRaw = "";
         let editingIndex = null;
-        let editingModalData = { eventDate: '', teams: [], bye: '' };
+        let editingModalData = { eventDate: '', teams: [], bye: '', mealTime: '' };
 
-        // Helper to calculate vehicle count
+        // Dynamic vehicle count calculation using vehicleConfig
         function calculateVehicleCount(round) {
             if (!round) return 0;
-            const standardVehicles = new Set(["團團", "破鳳", "老朱", "友仔", "台長", "peter", "楷雲"]);
             let count = 0;
-            let hasWu = false;
-            let hasMishaChen = false;
+            let allPlayers = new Set();
 
             if (round.teams && Array.isArray(round.teams)) {
                 round.teams.forEach(group => {
                     if (Array.isArray(group)) {
                         group.forEach(player => {
-                            if (!player) return;
-                            const p = player.trim().toLowerCase();
-                            if (standardVehicles.has(p)) {
-                                count++;
-                            } else if (p === "大吳" || p === "小吳") {
-                                hasWu = true;
-                            } else if (p === "misha" || p === "陳彤") {
-                                hasMishaChen = true;
-                            }
+                            if (player) allPlayers.add(player.trim().toLowerCase());
                         });
                     }
                 });
             }
-            if (hasWu) count++;
-            if (hasMishaChen) count++;
+
+            if (round.bye) {
+                if (Array.isArray(round.bye)) {
+                    round.bye.forEach(player => {
+                        if (player) allPlayers.add(player.trim().toLowerCase());
+                    });
+                } else if (typeof round.bye === 'string') {
+                    round.bye.split(',').forEach(player => {
+                        if (player && player.trim()) allPlayers.add(player.trim().toLowerCase());
+                    });
+                }
+            }
+
+            const cfg = vehicleConfig || { singleDrivers: [], sharedGroups: [] };
+
+            if (cfg.singleDrivers && Array.isArray(cfg.singleDrivers)) {
+                cfg.singleDrivers.forEach(driver => {
+                    if (driver && allPlayers.has(driver.trim().toLowerCase())) {
+                        count++;
+                    }
+                });
+            }
+
+            if (cfg.sharedGroups && Array.isArray(cfg.sharedGroups)) {
+                cfg.sharedGroups.forEach(grp => {
+                    if (grp && grp.players && Array.isArray(grp.players)) {
+                        const hasMember = grp.players.some(p => p && allPlayers.has(p.trim().toLowerCase()));
+                        if (hasMember) count++;
+                    }
+                });
+            }
+
             return count;
         }
+
+        let editingVehicleData = { singleDrivers: [], sharedGroups: [] };
+
+        window.openVehicleManagementModal = function() {
+            openPasswordModal(
+                "🔐 請輸入密碼",
+                "進入車輛管理專區，請輸入驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingVehicleData = JSON.parse(JSON.stringify(vehicleConfig || { singleDrivers: [], sharedGroups: [] }));
+                        renderVehicleModalUI();
+                        document.getElementById('vehicleModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法進入車輛管理專區！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeVehicleManagementModal = function() {
+            document.getElementById('vehicleModal').style.display = 'none';
+        };
+
+        function renderVehicleModalUI() {
+            const singleZone = document.getElementById('vehicleSingleDropZone');
+            singleZone.innerHTML = '';
+            singleZone.dataset.vehicleGroup = 'single';
+
+            (editingVehicleData.singleDrivers || []).forEach((driver, idx) => {
+                singleZone.appendChild(createVehicleDraggableTag(driver, 'single', idx));
+            });
+            setupVehicleDropZone(singleZone);
+
+            const sharedContainer = document.getElementById('vehicleSharedGroupsContainer');
+            sharedContainer.innerHTML = '';
+
+            (editingVehicleData.sharedGroups || []).forEach((grp, gIdx) => {
+                const groupCard = document.createElement('div');
+                groupCard.style.cssText = 'background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:var(--radius-sm); padding:10px; margin-bottom:10px;';
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;';
+                groupHeader.innerHTML = `<input type="text" value="${grp.name || `車輛組 ${gIdx+1}`}" onchange="updateVehicleGroupName(${gIdx}, this.value)" style="font-size:0.85rem; font-weight:900; padding:4px 8px; min-height:36px; width:70%;">
+                <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteSharedVehicleGroup(${gIdx})">🗑️ 刪除組</button>`;
+                
+                const grpDropZone = document.createElement('div');
+                grpDropZone.className = 'drop-zone';
+                grpDropZone.dataset.vehicleGroup = `group_${gIdx}`;
+
+                (grp.players || []).forEach((player, pIdx) => {
+                    grpDropZone.appendChild(createVehicleDraggableTag(player, gIdx, pIdx));
+                });
+                setupVehicleDropZone(grpDropZone);
+
+                groupCard.appendChild(groupHeader);
+                groupCard.appendChild(grpDropZone);
+                sharedContainer.appendChild(groupCard);
+            });
+
+            renderVehicleTrainerPool();
+        }
+
+        function createVehicleDraggableTag(name, groupType, index) {
+            const tag = document.createElement('div');
+            tag.className = 'draggable-player';
+            tag.draggable = true;
+            tag.innerText = name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-del-p';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePlayerFromVehicleConfig(groupType, index);
+            };
+
+            tag.appendChild(delBtn);
+            tag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    groupType: groupType,
+                    index: index,
+                    name: name
+                }));
+            });
+            return tag;
+        }
+
+        function setupVehicleDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const rawData = e.dataTransfer.getData('text/plain');
+                if (!rawData) return;
+                const data = JSON.parse(rawData);
+                const targetGroup = dropZone.dataset.vehicleGroup;
+
+                removePlayerFromVehicleConfigData(data.groupType, data.index, data.name);
+
+                if (targetGroup === 'single') {
+                    if (!editingVehicleData.singleDrivers.includes(data.name)) {
+                        editingVehicleData.singleDrivers.push(data.name);
+                    }
+                } else if (targetGroup.startsWith('group_')) {
+                    const gIdx = parseInt(targetGroup.replace('group_', ''), 10);
+                    if (editingVehicleData.sharedGroups[gIdx]) {
+                        if (!editingVehicleData.sharedGroups[gIdx].players.includes(data.name)) {
+                            editingVehicleData.sharedGroups[gIdx].players.push(data.name);
+                        }
+                    }
+                }
+
+                renderVehicleModalUI();
+            });
+        }
+
+        function removePlayerFromVehicleConfigData(groupType, index, name) {
+            if (groupType === 'single') {
+                editingVehicleData.singleDrivers = editingVehicleData.singleDrivers.filter(p => p !== name);
+            } else if (typeof groupType === 'number' || !isNaN(parseInt(groupType))) {
+                const gIdx = parseInt(groupType);
+                if (editingVehicleData.sharedGroups[gIdx]) {
+                    editingVehicleData.sharedGroups[gIdx].players = editingVehicleData.sharedGroups[gIdx].players.filter(p => p !== name);
+                }
+            }
+        }
+
+        window.removePlayerFromVehicleConfig = function(groupType, index) {
+            if (groupType === 'single') {
+                editingVehicleData.singleDrivers.splice(index, 1);
+            } else {
+                if (editingVehicleData.sharedGroups[groupType]) {
+                    editingVehicleData.sharedGroups[groupType].players.splice(index, 1);
+                }
+            }
+            renderVehicleModalUI();
+        };
+
+        window.updateVehicleGroupName = function(gIdx, name) {
+            if (editingVehicleData.sharedGroups[gIdx]) {
+                editingVehicleData.sharedGroups[gIdx].name = name.trim() || `車輛組 ${gIdx + 1}`;
+            }
+        };
+
+        window.addSharedVehicleGroup = function() {
+            const nextIdx = (editingVehicleData.sharedGroups || []).length + 1;
+            if (!editingVehicleData.sharedGroups) editingVehicleData.sharedGroups = [];
+            editingVehicleData.sharedGroups.push({
+                id: `group_${Date.now()}`,
+                name: `車輛組 ${nextIdx}`,
+                players: []
+            });
+            renderVehicleModalUI();
+        };
+
+        window.deleteSharedVehicleGroup = function(gIdx) {
+            editingVehicleData.sharedGroups.splice(gIdx, 1);
+            renderVehicleModalUI();
+        };
+
+        function renderVehicleTrainerPool() {
+            const container = document.getElementById('vehicleTrainerPoolContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const assignedPlayers = new Set();
+            (editingVehicleData.singleDrivers || []).forEach(p => assignedPlayers.add(p));
+            (editingVehicleData.sharedGroups || []).forEach(grp => {
+                (grp.players || []).forEach(p => assignedPlayers.add(p));
+            });
+
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                const isAssigned = assignedPlayers.has(name);
+                tag.className = isAssigned ? 'name-tag active' : 'name-tag';
+                tag.innerText = (isAssigned ? '★ ' : '⚡ ') + name;
+                tag.style.cursor = 'pointer';
+
+                tag.onclick = () => {
+                    if (isAssigned) {
+                        removePlayerFromVehicleConfigData('single', null, name);
+                        (editingVehicleData.sharedGroups || []).forEach((grp, gIdx) => {
+                            grp.players = grp.players.filter(p => p !== name);
+                        });
+                    } else {
+                        editingVehicleData.singleDrivers.push(name);
+                    }
+                    renderVehicleModalUI();
+                };
+
+                container.appendChild(tag);
+            });
+        }
+
+        window.saveVehicleConfigFromModal = function() {
+            vehicleConfig = JSON.parse(JSON.stringify(editingVehicleData));
+            set(vehicleConfigRef, vehicleConfig);
+            closeVehicleManagementModal();
+            renderUpcomingHistory();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
+            showToast("🚗 車輛規則設定已成功儲存並同步至雲端！");
+        };
 
         window.showToast = function(msg) {
             const container = document.getElementById('toastContainer');
@@ -1035,6 +1352,7 @@
             
             const title = encodeURIComponent("白熊保齡球");
             let detailsText = "【白熊保齡球戰報】\n";
+            if (round.mealTime) detailsText += `⏰ 用餐時間：${round.mealTime}\n`;
             if (round.teams && round.teams.length > 0) {
                 round.teams.forEach((t, i) => { detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`; });
             }
@@ -1620,6 +1938,7 @@
 
         window.openRestaurantModal = function() {
             document.getElementById('restaurantModalInput').value = selectedRestaurantRaw;
+            document.getElementById('restaurantModalMealTime').value = document.getElementById('mealTime').value || '';
             renderModalRestaurantList();
             document.getElementById('restaurantModal').style.display = 'flex';
         };
@@ -1631,6 +1950,8 @@
 
         window.confirmRestaurantModal = function() {
             const val = document.getElementById('restaurantModalInput').value.trim();
+            const modalMealTime = document.getElementById('restaurantModalMealTime').value;
+
             if (editingRestaurantIndex !== null) {
                 const restaurantData = parseRestaurantInput(val);
                 let updatedRounds = [...historyRounds];
@@ -1638,18 +1959,20 @@
                     updatedRounds[editingRestaurantIndex] = {
                         ...updatedRounds[editingRestaurantIndex],
                         restaurantName: restaurantData.name,
-                        mapUrl: restaurantData.url
+                        mapUrl: restaurantData.url,
+                        mealTime: modalMealTime
                     };
                     if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
                         customRestaurants.push(restaurantData.name);
                         set(customRestaurantsRef, customRestaurants);
                     }
                     saveHistoryWithLimit(updatedRounds);
-                    showToast("餐廳資訊已成功修改！");
+                    showToast("餐廳與用餐時間資訊已成功修改！");
                 }
                 editingRestaurantIndex = null;
             } else {
                 updateMainRestaurantUI(val);
+                document.getElementById('mealTime').value = modalMealTime;
             }
             closeRestaurantModal();
         };
@@ -1786,7 +2109,7 @@
             }
             let html = '';
             defaultPresetNames.forEach(name => {
-                const escapedName = name.replace(/'/g, "\\ me");
+                const escapedName = name.replace(/'/g, "\\'");
                 html += `<div class="trainer-list-item">
                     <span>⚡ ${name}</span>
                     <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapedName}')">🗑️ 刪除</button>
@@ -1797,6 +2120,7 @@
 
         window.clearAll = function() {
             document.getElementById('nameInput').value = '';
+            document.getElementById('mealTime').value = '';
             updateMainRestaurantUI("");
             activePresetId = null;
             updatePoolsUI();
@@ -1823,6 +2147,7 @@
             let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
             const dateInputVal = document.getElementById('eventDate').value;
             const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            const mealTimeVal = document.getElementById('mealTime').value || '';
             
             if (!dateInputVal) return showToast("請選擇活動日期！");
             const eventDateVal = `${dateInputVal}T${timeInputVal}`;
@@ -1998,6 +2323,7 @@
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
                 mapUrl: restaurantData.url,
+                mealTime: mealTimeVal,
                 teams: bestTeams,
                 bye: byeString,
                 usedMatchesCount: 0,
@@ -2036,12 +2362,14 @@
             let name = round.restaurantName || round.restaurant || '';
             if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
 
+            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
+
             let content = '';
             if (url) {
                 const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>`;
-            } else if (name) content = `🍽️ 📍 ${name}`;
-            else content = `🍽️ 尚未設定餐廳`;
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${mealBadge}`;
+            } else if (name) content = `🍽️ 📍 ${name}${mealBadge}`;
+            else content = `🍽️ 尚未設定餐廳${mealBadge}`;
 
             let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
 
@@ -2065,6 +2393,10 @@
             } else if (name) {
                 const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
                 lines.push(`🍽️ 用餐餐廳：${name}`); lines.push(`📍 地圖連結：${mapSearchUrl}`);
+            }
+
+            if (round.mealTime) {
+                lines.push(`⏰ 用餐時間：${round.mealTime}`);
             }
 
             round.teams.forEach((team, index) => { lines.push(`第 ${index + 1} 組：${team.join(' & ')}`); });
@@ -2132,6 +2464,7 @@
         window.saveToPresets = function() {
             const dateInputVal = document.getElementById('eventDate').value;
             const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            const mealTimeVal = document.getElementById('mealTime').value || '';
             const rawText = document.getElementById('nameInput').value;
             const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
 
@@ -2141,7 +2474,7 @@
             const id = 'preset_' + Date.now();
             const newPreset = {
                 id: id, eventDate: `${dateInputVal}T${timeInputVal}`,
-                teamSize: selectedTeamSize, restaurantRaw: selectedRestaurantRaw, players: players
+                teamSize: selectedTeamSize, restaurantRaw: selectedRestaurantRaw, mealTime: mealTimeVal, players: players
             };
 
             let updatedPresets = [...presetTeams, newPreset];
@@ -2162,6 +2495,7 @@
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
+            document.getElementById('mealTime').value = target.mealTime || '';
 
             const textarea = document.getElementById('nameInput');
             textarea.value = (target.players || []).join('\n');
@@ -2193,6 +2527,7 @@
 
                         document.getElementById('editPresetTeamSize').value = target.teamSize || 2;
                         document.getElementById('editPresetRestaurant').value = target.restaurantRaw || '';
+                        document.getElementById('editPresetMealTime').value = target.mealTime || '';
                         document.getElementById('editPresetPlayers').value = (target.players || []).join('\n');
 
                         window.initPresetNameTags();
@@ -2270,6 +2605,7 @@
 
             const teamSize = parseInt(document.getElementById('editPresetTeamSize').value, 10) || 2;
             const restaurantRaw = document.getElementById('editPresetRestaurant').value.trim();
+            const mealTimeVal = document.getElementById('editPresetMealTime').value || '';
             const rawPlayers = document.getElementById('editPresetPlayers').value;
             const players = rawPlayers.split('\n').map(p => p.trim()).filter(p => p.length > 0);
 
@@ -2277,7 +2613,7 @@
 
             let updatedPresets = presetTeams.map(p => {
                 if (p.id === editingPresetId) {
-                    return { ...p, eventDate: `${dateVal}T${timeVal}`, teamSize: teamSize, restaurantRaw: restaurantRaw, players: players };
+                    return { ...p, eventDate: `${dateVal}T${timeVal}`, teamSize: teamSize, restaurantRaw: restaurantRaw, mealTime: mealTimeVal, players: players };
                 }
                 return p;
             });
@@ -2302,6 +2638,7 @@
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
+            document.getElementById('mealTime').value = target.mealTime || '';
 
             const textarea = document.getElementById('nameInput');
             textarea.value = (target.players || []).join('\n');
@@ -2331,6 +2668,7 @@
 
                     selectTeamSize(target.teamSize || 2);
                     updateMainRestaurantUI(target.restaurantRaw || '');
+                    document.getElementById('mealTime').value = target.mealTime || '';
 
                     const textarea = document.getElementById('nameInput');
                     textarea.value = (target.players || []).join('\n');
@@ -2408,6 +2746,7 @@
                 const pDateText = formatDateWithDay(p.eventDate);
                 const restData = parseRestaurantInput(p.restaurantRaw);
                 const restName = restData.name ? `📍 ${restData.name}` : '未指定餐廳';
+                const mealInfo = p.mealTime ? ` (⏰ ${p.mealTime})` : '';
                 const pListStr = (p.players || []).join('、');
 
                 const isDisabled = idx > 0;
@@ -2423,7 +2762,7 @@
                         <button class="btn-edit" style="padding:3px 8px; font-size:0.78rem; min-height:30px; font-weight:800;" onclick="openEditPresetModal('${p.id}', event)">✏️ 編輯</button>
                     </div>
                     <div class="preset-details" style="margin-top:4px;">
-                        <div>🍽️ ${restName}</div>
+                        <div>🍽️ ${restName}${mealInfo}</div>
                         <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
                     </div>
                     <div class="preset-actions">
@@ -2452,7 +2791,7 @@
             if (badgeEl) badgeEl.innerText = `車輛: ${vehicleCount}`;
 
             const calUrl = generateGoogleCalendarUrl(target);
-            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
 
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
@@ -2606,6 +2945,7 @@
             sortedPast.forEach(round => {
                 const originalIndex = round.originalIndex;
                 let restaurantHtml = formatRestaurantHTML(round, originalIndex);
+                let vCount = calculateVehicleCount(round);
                 let teamsHtml = round.teams.map((t, idx) => {
                     const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
                     return `<div>第 ${idx + 1} 組：${badges}</div>`;
@@ -2637,6 +2977,7 @@
                     </div>
                     <div class="history-teams">
                         ${restaurantHtml}
+                        <div class="full-width">🚗 車輛: ${vCount}</div>
                         ${teamsHtml}
                         ${byeHtml}
                     </div>
@@ -2779,7 +3120,8 @@
                         editingModalData = {
                             eventDate: round.eventDate || '',
                             teams: (round.teams || []).map(t => [...t]),
-                            bye: round.bye || ''
+                            bye: round.bye || '',
+                            mealTime: round.mealTime || ''
                         };
 
                         if (editingModalData.eventDate.includes('T')) {
@@ -2790,6 +3132,8 @@
                             document.getElementById('editModalDate').value = editingModalData.eventDate;
                             document.getElementById('editModalTime').value = '14:00';
                         }
+
+                        document.getElementById('editModalMealTime').value = editingModalData.mealTime || '';
 
                         renderModalTeams();
                         window.initEditModalNameTags();
@@ -2927,6 +3271,7 @@
             if (editingIndex === null) return;
             const newDateVal = document.getElementById('editModalDate').value;
             const newTimeVal = document.getElementById('editModalTime').value || '14:00';
+            const newMealTimeVal = document.getElementById('editModalMealTime').value || '';
             if (!newDateVal) return showToast("活動日期不能為空！");
 
             const newDate = `${newDateVal}T${newTimeVal}`;
@@ -2936,6 +3281,7 @@
             updatedRounds[editingIndex] = {
                 ...updatedRounds[editingIndex],
                 eventDate: newDate,
+                mealTime: newMealTimeVal,
                 teams: cleanedTeams,
                 bye: editingModalData.bye
             };
@@ -3006,6 +3352,7 @@
                         editingRestaurantIndex = index;
                         const currentName = currentRound.restaurantName || currentRound.restaurant || '';
                         document.getElementById('restaurantModalInput').value = currentName === "Google 地圖連結" ? "" : currentName;
+                        document.getElementById('restaurantModalMealTime').value = currentRound.mealTime || '';
                         renderModalRestaurantList();
                         document.getElementById('restaurantModal').style.display = 'flex';
                         return true;
@@ -3130,6 +3477,18 @@
                 set(matchPoolsRef, matchPoolsData);
             }
             updatePoolsUI();
+        });
+
+        onValue(vehicleConfigRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                vehicleConfig = data;
+                renderUpcomingHistory();
+                renderUpcomingBattlesModal();
+                renderHistoryBattlesModal();
+            } else {
+                set(vehicleConfigRef, vehicleConfig);
+            }
         });
 
         function getNextTargetDay() {
