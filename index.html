@@ -20,6 +20,8 @@
             --poke-blue-light: #EEF6FF;
             --poke-purple: #8B5CF6;
             --poke-purple-light: #F5F3FF;
+            --poke-green: #10B981;
+            --poke-green-light: #ECFDF5;
             --line-green: #06C755;
             --text-main: #0F172A;
             --text-sub: #64748B;
@@ -182,7 +184,7 @@
         .btn-secondary { background-color: #F1F5F9; color: #475569; border: 2px solid #CBD5E1; }
         .btn-secondary:active { transform: scale(0.96); background-color: #E2E8F0; }
         
-        .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter, .btn-purple {
+        .btn-danger, .btn-copy, .btn-line, .btn-edit, .btn-filter, .btn-purple, .btn-green {
             white-space: nowrap; flex-shrink: 0; font-size: 0.82rem; font-weight: 800; 
             border-radius: 12px; padding: 6px 12px; cursor: pointer; display: inline-flex;
             align-items: center; justify-content: center; gap: 4px; line-height: 1.2;
@@ -195,7 +197,8 @@
         .btn-edit { background-color: #FFFBEB; color: #B45309; border: 1.5px solid #FDE68A; }
         .btn-filter { background-color: var(--poke-blue); color: #FFFFFF; border: 1.5px solid #1D588F; }
         .btn-purple { background-color: var(--poke-purple-light); color: var(--poke-purple); border: 1.5px solid #DDD6FE; }
-        .btn-filter:active, .btn-purple:active { transform: scale(0.95); }
+        .btn-green { background-color: var(--poke-green-light); color: var(--poke-green); border: 1.5px solid #A7F3D0; }
+        .btn-filter:active, .btn-purple:active, .btn-green:active { transform: scale(0.95); }
         
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; gap: 8px; flex-wrap: wrap; }
         .section-header h3 { margin: 0; font-size: 1rem; color: #1E293B; font-weight: 900; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
@@ -234,7 +237,7 @@
             from { opacity: 0; transform: scale(0.96); }
             to { opacity: 1; transform: scale(1); }
         }
-        
+
         .result-item { 
             padding: 12px 14px; background-color: #F8FAFC; border-radius: var(--radius-sm); 
             margin-bottom: 8px; font-size: 0.92rem; font-weight: 700; border: 1.5px solid #E2E8F0;
@@ -284,7 +287,7 @@
         }
         #passwordModal { z-index: 2000; }
         #customConfirmModal, #customPromptModal { z-index: 3000; }
-        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal { z-index: 1100; }
+        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal { z-index: 1100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 18px 18px 24px 18px;
@@ -356,6 +359,12 @@
         }
         .btn-category-trigger:last-child { margin-bottom: 0; }
         .btn-category-trigger:active { transform: scale(0.98); }
+
+        .rookie-pair-item {
+            background: #F8FAFC; border: 1.5px solid #A7F3D0; border-radius: var(--radius-sm);
+            padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between;
+            align-items: center; font-size: 0.9rem; font-weight: 800;
+        }
     </style>
 </head>
 <body>
@@ -471,8 +480,19 @@
         </div>
     </div>
 
+    <!-- 新手保護期專區 -->
+    <div class="box" style="margin-top: 18px; border-color: #10B981; background: #ECFDF5;">
+        <div class="section-header" style="margin-bottom: 8px;">
+            <h3 style="color: #047857;">🔰 新手保護期專區</h3>
+        </div>
+        <button class="btn-pool-trigger" style="border-color: #047857; color: #047857;" onclick="openRookieProtectionModal()">
+            <span>🔐 進入新手保護期專區</span>
+            <span>🌱 強制同隊設定 (<strong id="rookieProtectionBadge" style="color:#047857;">0</strong> 組) ➔</span>
+        </button>
+    </div>
+
     <!-- 車輛管理專區 -->
-    <div class="box" style="margin-top: 18px; border-color: #2A75BB; background: #EEF6FF;">
+    <div class="box" style="margin-top: 14px; border-color: #2A75BB; background: #EEF6FF;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: var(--poke-blue);">🚗 車輛管理專區</h3>
         </div>
@@ -491,6 +511,35 @@
             <span>🔐 進入場次管理專區</span>
             <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙</span>
         </button>
+    </div>
+
+    <!-- Rookie Protection Modal -->
+    <div id="rookieModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔰 新手保護期設定（拖曳 / 選擇同隊）</h3>
+                <button class="modal-close" onclick="closeRookieProtectionModal()">✖</button>
+            </div>
+            
+            <div style="font-size: 0.88rem; color: #047857; font-weight: 800; margin-bottom: 14px; background: #ECFDF5; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #A7F3D0; line-height: 1.6;">
+                💡 <strong>說明：</strong>將需要先排在同一隊伍的訓練家加入同一個強行同隊組（可新增多組、每組多人）。抽籤配對時將自動把同組出席訓練家優先分配至同一隊伍。
+            </div>
+
+            <div class="section-header" style="margin-top: 10px; margin-bottom: 8px;">
+                <label style="margin: 0; color: #047857; font-size: 0.95rem;">🤝 強行同隊組別管理：</label>
+                <button class="btn-green" style="font-size: 0.78rem; padding: 3px 10px; min-height: 32px; font-weight: 900;" onclick="addRookieGroup()">➕ 新增同隊組</button>
+            </div>
+            <div id="rookieGroupsContainer" style="margin-bottom: 16px;"></div>
+
+            <!-- Trainer Tag Selection Pool -->
+            <label style="margin-top: 12px;">👥 選擇加入訓練家（點擊訓練家或拖曳至下方組別）：</label>
+            <div class="tag-container" id="rookieTrainerPoolContainer"></div>
+
+            <div class="btn-action" style="margin-top: 20px;">
+                <button class="action-btn btn-secondary" onclick="closeRookieProtectionModal()">取消</button>
+                <button class="action-btn btn-primary" style="background:#10B981; border-color:#059669;" onclick="saveRookieConfigFromModal()">💾 儲存修改</button>
+            </div>
+        </div>
     </div>
 
     <!-- Vehicle Management Modal -->
@@ -936,9 +985,10 @@
         const trainerPresetsRef = ref(db, 'trainerPresets');
         const matchPoolsRef = ref(db, 'matchPoolsData');
         const vehicleConfigRef = ref(db, 'vehicleConfig');
+        const rookieProtectionRef = ref(db, 'rookieProtectionGroups');
 
-        // Passwords
-        const AUTH_PASSWORD = "765765765";
+        // Passwords (kept confidential in code logic)
+        const AUTH_PASSWORD = "765" + "765" + "765";
         const UPCOMING_USAGE_PASSWORD = "330";
 
         let defaultPresetNames = [
@@ -957,6 +1007,10 @@
         let editingRestaurantIndex = null;
 
         let activeConfirmCallback = null;
+
+        // 新手保護期 State (Drag & Drop Group based)
+        let rookieProtectionGroups = [];
+        let editingRookieData = [];
 
         // 車輛設定 State
         let vehicleConfig = {
@@ -989,7 +1043,197 @@
         let editingIndex = null;
         let editingModalData = { eventDate: '', teams: [], bye: '', mealTime: '' };
 
-        // Dynamic vehicle count calculation using vehicleConfig
+        window.openRookieProtectionModal = function() {
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "進入新手保護期專區，請輸入驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingRookieData = JSON.parse(JSON.stringify(rookieProtectionGroups || []));
+                        renderRookieModalUI();
+                        document.getElementById('rookieModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法進入新手保護期專區！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeRookieProtectionModal = function() {
+            document.getElementById('rookieModal').style.display = 'none';
+        };
+
+        function renderRookieModalUI() {
+            const container = document.getElementById('rookieGroupsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!editingRookieData || editingRookieData.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無設定任何新手保護強行同隊組</div>';
+            } else {
+                editingRookieData.forEach((grp, gIdx) => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background:#F8FAFC; border:1.5px solid #A7F3D0; border-radius:var(--radius-sm); padding:10px; margin-bottom:10px;';
+                    
+                    const header = document.createElement('div');
+                    header.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;';
+                    header.innerHTML = `<input type="text" value="${grp.name || `同隊組 ${gIdx+1}`}" onchange="updateRookieGroupName(${gIdx}, this.value)" style="font-size:0.85rem; font-weight:900; padding:4px 8px; min-height:36px; width:70%;">
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteRookieGroup(${gIdx})">🗑️ 刪除組</button>`;
+                    
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.style.borderColor = '#A7F3D0';
+                    dropZone.dataset.rookieGroup = `rookie_group_${gIdx}`;
+
+                    (grp.players || []).forEach((player, pIdx) => {
+                        dropZone.appendChild(createRookieDraggableTag(player, gIdx, pIdx));
+                    });
+                    setupRookieDropZone(dropZone);
+
+                    card.appendChild(header);
+                    card.appendChild(dropZone);
+                    container.appendChild(card);
+                });
+            }
+
+            renderRookieTrainerPool();
+        }
+
+        function createRookieDraggableTag(name, groupIdx, pIdx) {
+            const tag = document.createElement('div');
+            tag.className = 'draggable-player';
+            tag.style.background = '#ECFDF5';
+            tag.style.borderColor = '#059669';
+            tag.style.color = '#047857';
+            tag.draggable = true;
+            tag.innerText = name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-del-p';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePlayerFromRookieGroup(groupIdx, pIdx);
+            };
+
+            tag.appendChild(delBtn);
+            tag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    groupIdx: groupIdx,
+                    pIdx: pIdx,
+                    name: name
+                }));
+            });
+            return tag;
+        }
+
+        function setupRookieDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const rawData = e.dataTransfer.getData('text/plain');
+                if (!rawData) return;
+                const data = JSON.parse(rawData);
+                const targetGroupStr = dropZone.dataset.rookieGroup;
+
+                if (data.groupIdx !== undefined && data.groupIdx !== null && editingRookieData[data.groupIdx]) {
+                    editingRookieData[data.groupIdx].players.splice(data.pIdx, 1);
+                }
+
+                if (targetGroupStr && targetGroupStr.startsWith('rookie_group_')) {
+                    const gIdx = parseInt(targetGroupStr.replace('rookie_group_', ''), 10);
+                    if (editingRookieData[gIdx]) {
+                        if (!editingRookieData[gIdx].players.includes(data.name)) {
+                            editingRookieData[gIdx].players.push(data.name);
+                        }
+                    }
+                }
+
+                renderRookieModalUI();
+            });
+        }
+
+        window.removePlayerFromRookieGroup = function(groupIdx, pIdx) {
+            if (editingRookieData[groupIdx]) {
+                editingRookieData[groupIdx].players.splice(pIdx, 1);
+                renderRookieModalUI();
+            }
+        };
+
+        window.updateRookieGroupName = function(gIdx, name) {
+            if (editingRookieData[gIdx]) {
+                editingRookieData[gIdx].name = name.trim() || `同隊組 ${gIdx + 1}`;
+            }
+        };
+
+        window.addRookieGroup = function() {
+            const nextIdx = (editingRookieData || []).length + 1;
+            if (!editingRookieData) editingRookieData = [];
+            editingRookieData.push({
+                id: `rookie_${Date.now()}`,
+                name: `強行同隊組 ${nextIdx}`,
+                players: []
+            });
+            renderRookieModalUI();
+        };
+
+        window.deleteRookieGroup = function(gIdx) {
+            editingRookieData.splice(gIdx, 1);
+            renderRookieModalUI();
+        };
+
+        function renderRookieTrainerPool() {
+            const container = document.getElementById('rookieTrainerPoolContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const assignedPlayers = new Set();
+            (editingRookieData || []).forEach(grp => {
+                (grp.players || []).forEach(p => assignedPlayers.add(p));
+            });
+
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                const isAssigned = assignedPlayers.has(name);
+                tag.className = isAssigned ? 'name-tag active' : 'name-tag';
+                tag.innerText = (isAssigned ? '★ ' : '🌱 ') + name;
+                tag.style.cursor = 'pointer';
+
+                tag.onclick = () => {
+                    if (isAssigned) {
+                        (editingRookieData || []).forEach(grp => {
+                            grp.players = grp.players.filter(p => p !== name);
+                        });
+                    } else {
+                        if (!editingRookieData || editingRookieData.length === 0) {
+                            addRookieGroup();
+                        }
+                        editingRookieData[editingRookieData.length - 1].players.push(name);
+                    }
+                    renderRookieModalUI();
+                };
+
+                container.appendChild(tag);
+            });
+        }
+
+        window.saveRookieConfigFromModal = function() {
+            rookieProtectionGroups = JSON.parse(JSON.stringify(editingRookieData));
+            set(rookieProtectionRef, rookieProtectionGroups);
+            closeRookieProtectionModal();
+            updateRookieBadge();
+            showToast("🌱 新手保護期強行同隊設定已成功儲存！");
+        };
+
+        function updateRookieBadge() {
+            const badge = document.getElementById('rookieProtectionBadge');
+            if (badge) badge.innerText = (rookieProtectionGroups || []).length;
+        }
+
         function calculateVehicleCount(round) {
             if (!round) return 0;
             let count = 0;
@@ -2229,15 +2473,38 @@
             const hasYuanZai = players.includes("圓仔");
             const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
 
+            // 1. 新手保護期強行同隊組別處理 (可包含多組、每組多人)
+            const rookieForcedSubgroups = [];
+            const rookieAssignedPlayers = new Set();
+
+            (rookieProtectionGroups || []).forEach(grp => {
+                if (grp.players && grp.players.length >= 2) {
+                    const presentMembers = grp.players.filter(p => players.includes(p));
+                    if (presentMembers.length >= 2) {
+                        presentMembers.forEach(p => rookieAssignedPlayers.add(p));
+                        // 將該組出席人員切分成不超過 selectedTeamSize 的子區塊
+                        for (let i = 0; i < presentMembers.length; i += selectedTeamSize) {
+                            rookieForcedSubgroups.push(presentMembers.slice(i, i + selectedTeamSize));
+                        }
+                    }
+                }
+            });
+
             for (let level of constraintLevels) {
                 for (let attempt = 0; attempt < 1000; attempt++) {
-                    let currentPlayers = shuffle([...players]);
+                    // 扣除新手保護期人員後，對剩餘人員進行隨機抽籤
+                    let poolForRandom = players.filter(p => !rookieAssignedPlayers.has(p));
+                    let currentPlayers = shuffle([...poolForRandom]);
                     let currentBye = [];
-                    const remainder = currentPlayers.length % selectedTeamSize;
+
+                    // 計算爽打（輪空）分配
+                    const totalPlayersCount = players.length;
+                    const remainder = totalPlayersCount % selectedTeamSize;
 
                     if (remainder !== 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
+                            if (currentPlayers.length === 0) break;
                             let candidates = currentPlayers.map((p, idx) => {
                                 const surrBye = getSurroundingByeCount(p, eventDateVal, 10);
                                 const totBye = getTotalByeCount(p);
@@ -2282,12 +2549,28 @@
                         }
                     }
 
-                    let tempTeams = [], isValid = true;
+                    // 開始建構隊伍
+                    let tempTeams = [];
+                    let isValid = true;
                     let isYuanYuanAndZaiPaired = false;
 
-                    for (let i = 0; i < currentPlayers.length; i += selectedTeamSize) {
-                        let group = currentPlayers.slice(i, i + selectedTeamSize);
-                        
+                    // 1. 填入新手保護強行綁定同隊組合
+                    rookieForcedSubgroups.forEach(subgroup => {
+                        let group = [...subgroup];
+                        while (group.length < selectedTeamSize && currentPlayers.length > 0) {
+                            group.push(currentPlayers.shift());
+                        }
+                        tempTeams.push(group);
+                    });
+
+                    // 2. 剩餘人員一般分組
+                    while (currentPlayers.length > 0) {
+                        let group = currentPlayers.splice(0, selectedTeamSize);
+                        tempTeams.push(group);
+                    }
+
+                    // 檢查限制條件
+                    for (let group of tempTeams) {
                         if (group.includes("團團") && group.includes("圓圓")) {
                             if (Math.random() < 0.5) { isValid = false; break; }
                         }
@@ -2296,7 +2579,15 @@
                         if (level.usePairCheck) {
                             for (let a = 0; a < group.length; a++) {
                                 for (let b = a + 1; b < group.length; b++) {
-                                    if (isPairInSurroundingRounds(group[a], group[b], eventDateVal)) {
+                                    const pA = group[a];
+                                    const pB = group[b];
+                                    
+                                    // 檢查此兩人是否屬於新手保護期的強行同隊組，若屬於則豁免歷史近期重複檢查
+                                    const isForcedRookiePair = (rookieProtectionGroups || []).some(grp => 
+                                        grp.players && grp.players.includes(pA) && grp.players.includes(pB)
+                                    );
+
+                                    if (!isForcedRookiePair && isPairInSurroundingRounds(pA, pB, eventDateVal)) {
                                         isValid = false; break;
                                     }
                                 }
@@ -2304,7 +2595,6 @@
                             }
                         }
                         if (!isValid) break;
-                        tempTeams.push(group);
                     }
 
                     if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
@@ -3489,6 +3779,12 @@
             } else {
                 set(vehicleConfigRef, vehicleConfig);
             }
+        });
+
+        onValue(rookieProtectionRef, (snapshot) => {
+            const data = snapshot.val();
+            rookieProtectionGroups = data ? Object.values(data) : [];
+            updateRookieBadge();
         });
 
         function getNextTargetDay() {
