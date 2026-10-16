@@ -285,9 +285,9 @@
             padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
-        #passwordModal { z-index: 2000; }
+        #passwordModal { z-index: 2500; }
         #customConfirmModal, #customPromptModal { z-index: 3000; }
-        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal { z-index: 1100; }
+        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal, #editReviewContentModal { z-index: 2100; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 18px 18px 24px 18px;
@@ -360,10 +360,25 @@
         .btn-category-trigger:last-child { margin-bottom: 0; }
         .btn-category-trigger:active { transform: scale(0.98); }
 
-        .rookie-pair-item {
-            background: #F8FAFC; border: 1.5px solid #A7F3D0; border-radius: var(--radius-sm);
-            padding: 10px 12px; margin-bottom: 8px; display: flex; justify-content: space-between;
-            align-items: center; font-size: 0.9rem; font-weight: 800;
+        .star-rating { display: flex; gap: 4px; font-size: 1.5rem; cursor: pointer; color: #CBD5E1; user-select: none; }
+        .star-rating .star { transition: transform 0.1s, color 0.15s; }
+        .star-rating .star.active { color: #FFCB05; text-shadow: 0 0 6px rgba(255, 203, 5, 0.4); }
+        .star-rating .star:active { transform: scale(1.2); }
+        .review-card {
+            background: #FFFFFF; border: 1.5px solid #E2E8F0; border-radius: var(--radius-sm);
+            padding: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            transition: var(--transition);
+        }
+        .review-card.moderated {
+            background: #FEF2F2; border-color: #FECACA; opacity: 0.85;
+        }
+        .review-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+        .review-author { font-weight: 900; font-size: 0.88rem; color: #1E293B; }
+        .review-stars { color: #FFCB05; font-size: 0.9rem; font-weight: 800; }
+        .review-content { font-size: 0.88rem; color: #475569; font-weight: 700; line-height: 1.45; word-break: break-all; margin-top: 4px; }
+        .review-date { font-size: 0.75rem; color: #94A3B8; margin-top: 4px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-review-bar {
+            display: flex; gap: 4px; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #E2E8F0; justify-content: flex-end;
         }
     </style>
 </head>
@@ -385,7 +400,6 @@
         <div class="top-summary-pools" id="topPoolsSummaryList"></div>
     </div>
 
-    <!-- 1. 預定對戰圖鑑（接下來日期最接近的對戰場次） -->
     <div class="box" id="upcomingHistoryBox">
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
@@ -431,7 +445,7 @@
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
                 <span style="font-size: 0.88rem; font-weight: 800; color: #475569; white-space: nowrap;">⏰ 用餐時間：</span>
-                <input type="time" id="mealTime" style="flex: 1;" value="">
+                <input type="time" id="mealTime" style="flex: 1;" value="18:00">
             </div>
         </div>
 
@@ -480,7 +494,6 @@
         </div>
     </div>
 
-    <!-- 新手保護期專區 -->
     <div class="box" style="margin-top: 18px; border-color: #10B981; background: #ECFDF5;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: #047857;">🔰 新手保護期專區</h3>
@@ -491,7 +504,6 @@
         </button>
     </div>
 
-    <!-- 車輛管理專區 -->
     <div class="box" style="margin-top: 14px; border-color: #2A75BB; background: #EEF6FF;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: var(--poke-blue);">🚗 車輛管理專區</h3>
@@ -502,7 +514,6 @@
         </button>
     </div>
 
-    <!-- 對戰場次管理專區 -->
     <div class="box" style="margin-top: 14px; border-color: #DDD6FE; background: #FAF5FF;">
         <div class="section-header" style="margin-bottom: 8px;">
             <h3 style="color: var(--poke-purple);">🎯 對戰場次管理專區</h3>
@@ -513,28 +524,127 @@
         </button>
     </div>
 
-    <!-- Rookie Protection Modal -->
+    <div class="box" style="margin-top: 14px; border-color: #F59E0B; background: #FFFBEB;">
+        <div class="section-header" style="margin-bottom: 8px;">
+            <h3 style="color: #B45309;">⭐ 餐廳評價</h3>
+        </div>
+        <button class="btn-pool-trigger" style="border-color: #F59E0B; color: #B45309;" onclick="openRestaurantReviewModal()">
+            <span>🍽️ 進入餐廳評價專區</span>
+            <span>查看星級與留言 ➔</span>
+        </button>
+    </div>
+
+    <div id="restaurantReviewModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>⭐ 餐廳評價</h3>
+                <div style="display: flex; gap: 6px; align-items: center;">
+                    <button id="btnAdminReviewToggle" class="btn-edit" style="padding: 4px 10px; font-size: 0.78rem; min-height: 32px;" onclick="toggleReviewAdminMode()">⚙️ 管理模式</button>
+                    <button class="modal-close" onclick="closeRestaurantReviewModal()">✖</button>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label for="reviewRestaurantSelect">📍 選擇餐廳：</label>
+                <select id="reviewRestaurantSelect" onchange="onReviewRestaurantSelectChange()" style="font-size:0.95rem;">
+                    <option value="">-- 請選擇餐廳 --</option>
+                </select>
+            </div>
+
+            <div id="restaurantRatingSummary" style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; display: none; align-items: center; justify-content: space-between;">
+                <div>
+                    <span id="summaryRestName" style="font-size: 1rem; font-weight: 900; color: #1E293B; display: block;"></span>
+                    <span id="summaryRestCount" style="font-size: 0.8rem; color: #64748B; font-weight: 800;">尚無評價</span>
+                </div>
+                <div style="text-align: right;">
+                    <span id="summaryRestRatingText" style="font-size: 1.5rem; font-weight: 900; color: #D97706;">0.0</span>
+                    <div id="summaryRestStars" style="color: #FFCB05; font-size: 0.9rem;">★★★★★</div>
+                </div>
+            </div>
+
+            <div id="addReviewForm" style="display: none; background: #FFFFFF; border: 2px solid #FDE68A; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px;">
+                <label style="color: #B45309; font-size: 0.9rem;">✍️ 撰寫評論與評分：</label>
+                
+                <div style="display: flex; align-items: center; gap: 8px; margin: 8px 0;">
+                    <span style="font-size: 0.85rem; font-weight: 800; color: #475569;">給予評分：</span>
+                    <div class="star-rating" id="starRatingInput">
+                        <span class="star active" data-value="1" onclick="setReviewRating(1)">★</span>
+                        <span class="star active" data-value="2" onclick="setReviewRating(2)">★</span>
+                        <span class="star active" data-value="3" onclick="setReviewRating(3)">★</span>
+                        <span class="star active" data-value="4" onclick="setReviewRating(4)">★</span>
+                        <span class="star active" data-value="5" onclick="setReviewRating(5)">★</span>
+                    </div>
+                </div>
+
+                <div class="input-group" style="margin-bottom: 8px;">
+                    <input type="text" id="reviewAuthorInput" placeholder="訓練家姓名 (預設：匿名)" style="font-size: 0.88rem; min-height: 40px; padding: 6px 10px;">
+                </div>
+
+                <div class="input-group" style="margin-bottom: 8px;">
+                    <textarea id="reviewCommentInput" placeholder="分享這家餐廳的口味、氣氛或推薦菜色..." style="font-size: 0.88rem; min-height: 70px; padding: 8px 10px;"></textarea>
+                </div>
+
+                <button class="action-btn btn-primary" style="width: 100%; min-height: 42px; font-size: 0.9rem; background: #F59E0B; border-color: #D97706;" onclick="submitRestaurantReview()">💬 發送評論</button>
+            </div>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px; margin-bottom: 6px;">
+                <label style="margin: 0;">💬 歷史留言評論列表：</label>
+                <span id="reviewAdminBadge" style="display: none; font-size: 0.75rem; color: #DC2626; background: #FEF2F2; border: 1px solid #FCA5A5; padding: 2px 8px; border-radius: 10px; font-weight: 900;">🛡️ 評論管理模式已啟用</span>
+            </div>
+            <div id="reviewListContainer" style="margin-top: 4px; max-height: 280px; overflow-y: auto;">
+                <div class="empty-text">請先選擇餐廳以查看評價與評論</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Review Content Modal (無阻擋獨立彈窗) -->
+    <div id="editReviewContentModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>✏️ 管理員修改評論內容</h3>
+                <button class="modal-close" onclick="closeEditReviewModal()">✖</button>
+            </div>
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>👤 訓練家名稱 / 暱稱：</label>
+                <input type="text" id="editReviewAuthorInput" placeholder="輸入暱稱...">
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; margin: 10px 0;">
+                <span style="font-size: 0.88rem; font-weight: 800; color: #334155;">⭐ 修改評分：</span>
+                <div class="star-rating" id="editStarRatingInput">
+                    <span class="star active" data-value="1" onclick="setEditReviewRating(1)">★</span>
+                    <span class="star active" data-value="2" onclick="setEditReviewRating(2)">★</span>
+                    <span class="star active" data-value="3" onclick="setEditReviewRating(3)">★</span>
+                    <span class="star active" data-value="4" onclick="setEditReviewRating(4)">★</span>
+                    <span class="star active" data-value="5" onclick="setEditReviewRating(5)">★</span>
+                </div>
+            </div>
+            <div class="input-group" style="margin-bottom: 14px;">
+                <label>💬 評論內文：</label>
+                <textarea id="editReviewCommentTextarea" style="min-height: 90px;" placeholder="輸入評論內容..."></textarea>
+            </div>
+            <div class="btn-action">
+                <button class="action-btn btn-secondary" onclick="closeEditReviewModal()">取消</button>
+                <button class="action-btn btn-primary" onclick="saveEditedReviewModal()">💾 儲存修改</button>
+            </div>
+        </div>
+    </div>
+
     <div id="rookieModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>🔰 新手保護期設定（拖曳 / 選擇同隊）</h3>
                 <button class="modal-close" onclick="closeRookieProtectionModal()">✖</button>
             </div>
-            
             <div style="font-size: 0.88rem; color: #047857; font-weight: 800; margin-bottom: 14px; background: #ECFDF5; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #A7F3D0; line-height: 1.6;">
                 💡 <strong>說明：</strong>將需要先排在同一隊伍的訓練家加入同一個強行同隊組（可新增多組、每組多人）。抽籤配對時將自動把同組出席訓練家優先分配至同一隊伍。
             </div>
-
             <div class="section-header" style="margin-top: 10px; margin-bottom: 8px;">
                 <label style="margin: 0; color: #047857; font-size: 0.95rem;">🤝 強行同隊組別管理：</label>
                 <button class="btn-green" style="font-size: 0.78rem; padding: 3px 10px; min-height: 32px; font-weight: 900;" onclick="addRookieGroup()">➕ 新增同隊組</button>
             </div>
             <div id="rookieGroupsContainer" style="margin-bottom: 16px;"></div>
-
-            <!-- Trainer Tag Selection Pool -->
             <label style="margin-top: 12px;">👥 選擇加入訓練家（點擊訓練家或拖曳至下方組別）：</label>
             <div class="tag-container" id="rookieTrainerPoolContainer"></div>
-
             <div class="btn-action" style="margin-top: 20px;">
                 <button class="action-btn btn-secondary" onclick="closeRookieProtectionModal()">取消</button>
                 <button class="action-btn btn-primary" style="background:#10B981; border-color:#059669;" onclick="saveRookieConfigFromModal()">💾 儲存修改</button>
@@ -542,33 +652,24 @@
         </div>
     </div>
 
-    <!-- Vehicle Management Modal -->
     <div id="vehicleModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
                 <h3>🚗 車輛設定與車主分配</h3>
                 <button class="modal-close" onclick="closeVehicleManagementModal()">✖</button>
             </div>
-            
             <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 14px; background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0; line-height: 1.6;">
                 💡 <strong>說明：</strong>出席人員中，只要包含「獨立車輛」訓練家出席一人即 +1 車；「共用車輛組」內無論幾人出席，該組算 +1 車。
             </div>
-
-            <!-- Single Drivers Zone -->
             <label style="color: var(--poke-blue); font-size: 0.95rem;">🚙 獨立車輛訓練家（每位出席算 1 車）：</label>
             <div id="vehicleSingleDropZone" class="drop-zone" style="margin-bottom: 16px;"></div>
-
-            <!-- Shared Groups Zone -->
             <div class="section-header" style="margin-top: 12px; margin-bottom: 6px;">
                 <label style="margin: 0; color: var(--poke-purple); font-size: 0.95rem;">🚗 共用車輛組（同組多人出席僅算 1 車）：</label>
                 <button class="btn-purple" style="font-size: 0.78rem; padding: 3px 10px; min-height: 32px;" onclick="addSharedVehicleGroup()">➕ 新增組別</button>
             </div>
             <div id="vehicleSharedGroupsContainer" style="margin-bottom: 16px;"></div>
-
-            <!-- Trainer Tag Selection Pool -->
             <label style="margin-top: 12px;">👥 選擇加入訓練家（點擊或拖曳訓練家）：</label>
             <div class="tag-container" id="vehicleTrainerPoolContainer"></div>
-
             <div class="btn-action" style="margin-top: 20px;">
                 <button class="action-btn btn-secondary" onclick="closeVehicleManagementModal()">取消</button>
                 <button class="action-btn btn-primary" onclick="saveVehicleConfigFromModal()">💾 儲存修改</button>
@@ -576,7 +677,6 @@
         </div>
     </div>
 
-    <!-- Custom Confirm Modal -->
     <div id="customConfirmModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
@@ -610,7 +710,6 @@
         </div>
     </div>
 
-    <!-- Upcoming Battles Modal -->
     <div id="upcomingBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -623,7 +722,6 @@
         </div>
     </div>
 
-    <!-- History Battles Modal -->
     <div id="historyBattlesModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -652,7 +750,6 @@
         </div>
     </div>
 
-    <!-- Match Usage Modal -->
     <div id="upcomingModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -679,7 +776,6 @@
         </div>
     </div>
 
-    <!-- Match Input Modal -->
     <div id="matchInputModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -699,7 +795,6 @@
         </div>
     </div>
 
-    <!-- Match Pools Management Modal -->
     <div id="poolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -736,7 +831,6 @@
         </div>
     </div>
 
-    <!-- Select Pool Modal -->
     <div id="selectPoolModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -751,7 +845,6 @@
         </div>
     </div>
 
-    <!-- Edit History Match Modal -->
     <div id="editHistoryMatchModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -771,7 +864,6 @@
         </div>
     </div>
 
-    <!-- Trainer Manager Modal -->
     <div id="trainerModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -793,7 +885,6 @@
         </div>
     </div>
 
-    <!-- Presets Modal -->
     <div id="presetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -810,7 +901,6 @@
         </div>
     </div>
 
-    <!-- Edit Preset Modal -->
     <div id="editPresetModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -862,7 +952,6 @@
         </div>
     </div>
 
-    <!-- Team Size Modal -->
     <div id="teamSizeModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -878,7 +967,6 @@
         </div>
     </div>
 
-    <!-- Restaurant Selection Modal -->
     <div id="restaurantModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -909,7 +997,6 @@
         </div>
     </div>
 
-    <!-- Edit History Record Modal -->
     <div id="editModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -963,7 +1050,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-        import { getDatabase, ref, set, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+        import { getDatabase, ref, set, onValue, remove, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyCKmizSfVR7fJU4DnCkK51hxkxnCNsHg54",
@@ -986,11 +1073,13 @@
         const matchPoolsRef = ref(db, 'matchPoolsData');
         const vehicleConfigRef = ref(db, 'vehicleConfig');
         const rookieProtectionRef = ref(db, 'rookieProtectionGroups');
+        const restaurantReviewsRef = ref(db, 'restaurantReviews');
 
-        // Passwords (kept confidential in code logic)
+        // Passwords
         const AUTH_PASSWORD = "765" + "765" + "765";
         const UPCOMING_USAGE_PASSWORD = "330";
 
+        // Global State Variables
         let defaultPresetNames = [
             "團團", "圓圓", "圓仔", "花", "破鳳", 
             "老朱", "大吳", "小吳", "友仔", "Misha", "Peter", "台長", "阿卡",
@@ -999,28 +1088,10 @@
         let historyRounds = [];
         let customRestaurants = [];
         let presetTeams = [];
-        let activePresetId = null;
-        let editingPresetId = null;
-        let currentInputMode = 'base';
-        let activePasswordCallback = null;
-        let editingHistoryMatchIndex = null;
-        let editingRestaurantIndex = null;
-
-        let activeConfirmCallback = null;
-
-        // 新手保護期 State (Drag & Drop Group based)
+        let restaurantReviewsData = {};
+        let isReviewAdminMode = false;
         let rookieProtectionGroups = [];
         let editingRookieData = [];
-
-        // 車輛設定 State
-        let vehicleConfig = {
-            singleDrivers: ["團團", "破鳳", "老朱", "友仔", "台長", "peter", "楷雲"],
-            sharedGroups: [
-                { id: "group_wu", name: "車輛組 (大吳 / 小吳)", players: ["大吳", "小吳"] },
-                { id: "group_misha_chen", name: "車輛組 (Misha / 陳彤)", players: ["Misha", "陳彤"] }
-            ]
-        };
-
         let matchPoolsData = {
             lastUpdatedDate: "",
             dailyIncrement: 3,
@@ -1032,7 +1103,23 @@
                 { id: "pool_5", name: "場次池 E", count: 10 }
             ]
         };
+        let vehicleConfig = {
+            singleDrivers: ["團團", "破鳳", "老朱", "友仔", "台長", "peter", "楷雲"],
+            sharedGroups: [
+                { id: "group_wu", name: "車輛組 (大吳 / 小吳)", players: ["大吳", "小吳"] },
+                { id: "group_misha_chen", name: "車輛組 (Misha / 陳彤)", players: ["Misha", "陳彤"] }
+            ]
+        };
 
+        let selectedReviewRating = 5;
+        let selectedReviewRestaurant = "";
+        let activePresetId = null;
+        let editingPresetId = null;
+        let currentInputMode = 'base';
+        let activePasswordCallback = null;
+        let editingHistoryMatchIndex = null;
+        let editingRestaurantIndex = null;
+        let activeConfirmCallback = null;
         let presetClearStep = 0;
         let presetClearTimer = null;
         let clearConfirmTimer = null;
@@ -1042,6 +1129,330 @@
         let selectedRestaurantRaw = "";
         let editingIndex = null;
         let editingModalData = { eventDate: '', teams: [], bye: '', mealTime: '' };
+
+        // Editing Review State
+        let editingReviewTarget = { restName: '', reviewId: '' };
+        let editingReviewRating = 5;
+
+        window.openRestaurantReviewModal = function(targetRestName = "") {
+            populateReviewRestaurantSelect();
+            const selectEl = document.getElementById('reviewRestaurantSelect');
+            if (targetRestName) {
+                selectEl.value = targetRestName;
+            } else if (selectedRestaurantRaw) {
+                const parsed = parseRestaurantInput(selectedRestaurantRaw);
+                if (parsed.name && parsed.name !== "Google 地圖連結") {
+                    selectEl.value = parsed.name;
+                }
+            }
+            onReviewRestaurantSelectChange();
+            document.getElementById('restaurantReviewModal').style.display = 'flex';
+        };
+
+        window.closeRestaurantReviewModal = function() {
+            document.getElementById('restaurantReviewModal').style.display = 'none';
+        };
+
+        window.toggleReviewAdminMode = function() {
+            if (isReviewAdminMode) {
+                isReviewAdminMode = false;
+                document.getElementById('btnAdminReviewToggle').innerText = "⚙️ 管理模式";
+                document.getElementById('reviewAdminBadge').style.display = 'none';
+                renderRestaurantReviewsList(selectedReviewRestaurant);
+                showToast("已退出評論管理模式");
+            } else {
+                openPasswordModal(
+                    "🔐 請輸入管理員密碼",
+                    "開啟評論管理模式（包含留言審核、遮蔽與直接編輯）：",
+                    (pwd) => {
+                        if (pwd.trim() === AUTH_PASSWORD) {
+                            isReviewAdminMode = true;
+                            document.getElementById('btnAdminReviewToggle').innerText = "✅ 退出管理";
+                            document.getElementById('reviewAdminBadge').style.display = 'inline-block';
+                            renderRestaurantReviewsList(selectedReviewRestaurant);
+                            showToast("已成功開啟評論管理模式！");
+                            return true;
+                        } else {
+                            showToast("密碼錯誤，無法進入評論管理模式！");
+                            return false;
+                        }
+                    }
+                );
+            }
+        };
+
+        function populateReviewRestaurantSelect() {
+            const selectEl = document.getElementById('reviewRestaurantSelect');
+            if (!selectEl) return;
+            const currentVal = selectEl.value;
+            const restaurants = getAllRestaurants();
+            
+            let html = '<option value="">-- 請選擇餐廳 --</option>';
+            restaurants.forEach(name => {
+                html += `<option value="${name}">${name}</option>`;
+            });
+            selectEl.innerHTML = html;
+            selectEl.value = currentVal;
+        }
+
+        window.onReviewRestaurantSelectChange = function() {
+            const restName = document.getElementById('reviewRestaurantSelect').value;
+            selectedReviewRestaurant = restName;
+            const summaryBox = document.getElementById('restaurantRatingSummary');
+            const addForm = document.getElementById('addReviewForm');
+
+            if (!restName) {
+                summaryBox.style.display = 'none';
+                addForm.style.display = 'none';
+                document.getElementById('reviewListContainer').innerHTML = '<div class="empty-text">請先選擇餐廳以查看評價與評論</div>';
+                return;
+            }
+
+            summaryBox.style.display = 'flex';
+            addForm.style.display = 'block';
+            document.getElementById('summaryRestName').innerText = restName;
+
+            renderRestaurantReviewsList(restName);
+        };
+
+        window.setReviewRating = function(rating) {
+            selectedReviewRating = rating;
+            const stars = document.querySelectorAll('#starRatingInput .star');
+            stars.forEach(star => {
+                const val = parseInt(star.dataset.value, 10);
+                if (val <= rating) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+        };
+
+        function getStarsHTML(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.round(rating)) html += '★';
+                else html += '☆';
+            }
+            return html;
+        }
+
+        function renderRestaurantReviewsList(restName) {
+            const container = document.getElementById('reviewListContainer');
+            if (!container) return;
+            const reviewsObj = restaurantReviewsData[restName] || {};
+            const reviewsArr = Object.keys(reviewsObj).map(id => ({ id, ...reviewsObj[id] }));
+
+            if (reviewsArr.length === 0) {
+                document.getElementById('summaryRestRatingText').innerText = "0.0";
+                document.getElementById('summaryRestStars').innerText = "☆☆☆☆☆";
+                document.getElementById('summaryRestCount').innerText = "尚無評價";
+                container.innerHTML = '<div class="empty-text">這家餐廳目前還沒有任何評論，快來成為第一個留言的人吧！</div>';
+                return;
+            }
+
+            reviewsArr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            let validRatingSum = 0;
+            let validCount = 0;
+            reviewsArr.forEach(r => {
+                if (!r.isModerated) {
+                    validRatingSum += (Number(r.rating) || 0);
+                    validCount++;
+                }
+            });
+
+            const avgRating = validCount > 0 ? (validRatingSum / validCount).toFixed(1) : "0.0";
+
+            document.getElementById('summaryRestRatingText').innerText = avgRating;
+            document.getElementById('summaryRestStars').innerText = getStarsHTML(avgRating);
+            document.getElementById('summaryRestCount').innerText = `共 ${reviewsArr.length} 則評價${validCount < reviewsArr.length ? ` (已遮蔽 ${reviewsArr.length - validCount} 則)` : ''}`;
+
+            let html = '';
+            reviewsArr.forEach(rev => {
+                const author = rev.author || '匿名訓練家';
+                const dateStr = rev.timestamp ? new Date(rev.timestamp).toLocaleString('zh-TW', { hour12: false }) : '';
+                const starsStr = getStarsHTML(rev.rating || 5);
+                const isModerated = !!rev.isModerated;
+
+                let cardCss = isModerated ? "review-card moderated pop-in" : "review-card pop-in";
+                let displayComment = isModerated ? "🚫 （此留言已被管理員隱蔽遮蔽，含有不當或惡意言論）" : (rev.comment || '（未提供詳細評語）');
+
+                let adminActionsHtml = '';
+                if (isReviewAdminMode) {
+                    const toggleModText = isModerated ? "🔓 解除遮蔽" : "🚫 遮蔽評論";
+                    adminActionsHtml = `<div class="admin-review-bar">
+                        <button class="btn-edit" style="padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="openEditReviewModal('${restName}', '${rev.id}')">✏️ 編輯</button>
+                        <button class="btn-edit" style="background:#FFF0F0; border-color:#FCA5A5; color:#DC2626; padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="toggleModerateReview('${restName}', '${rev.id}', ${!isModerated})">${toggleModText}</button>
+                    </div>`;
+                }
+
+                html += `<div class="${cardCss}">
+                    <div class="review-header">
+                        <span class="review-author">👤 ${author}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="review-stars">${starsStr}</span>
+                            <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; min-height:26px;" onclick="deleteRestaurantReview('${restName}', '${rev.id}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="review-content" style="${isModerated ? 'color:#DC2626; font-style:italic;' : ''}">${displayComment}</div>
+                    <div class="review-date">
+                        <span>${dateStr}</span>
+                        ${isModerated ? '<span style="color:#DC2626; font-weight:900;">[已封鎖遮蔽]</span>' : ''}
+                    </div>
+                    ${adminActionsHtml}
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.submitRestaurantReview = function() {
+            if (!selectedReviewRestaurant) return showToast("請先選擇餐廳！");
+            const authorInput = document.getElementById('reviewAuthorInput').value.trim();
+            const commentInput = document.getElementById('reviewCommentInput').value.trim();
+
+            if (!commentInput && selectedReviewRating === 5) {
+                showToast("請輸入簡短評論心得或給予星級評價！");
+            }
+
+            const reviewId = 'rev_' + Date.now();
+            const newReview = {
+                author: authorInput || '匿名訓練家',
+                rating: selectedReviewRating,
+                comment: commentInput,
+                timestamp: Date.now(),
+                isModerated: false
+            };
+
+            const reviewItemRef = ref(db, `restaurantReviews/${selectedReviewRestaurant}/${reviewId}`);
+            set(reviewItemRef, newReview);
+
+            document.getElementById('reviewCommentInput').value = '';
+            showToast("💬 評論發送成功！感謝您的分享！");
+        };
+
+        window.toggleModerateReview = function(restName, reviewId, shouldModerate) {
+            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+            update(targetRef, { isModerated: shouldModerate });
+            showToast(shouldModerate ? "🚫 已遮蔽該筆惡意評論！" : "🔓 已取消該筆評論的遮蔽狀態！");
+        };
+
+        // 頁面內建 Modal 編輯評論
+        window.openEditReviewModal = function(restName, reviewId) {
+            const rev = (restaurantReviewsData[restName] || {})[reviewId];
+            if (!rev) return;
+
+            editingReviewTarget = { restName, reviewId };
+            document.getElementById('editReviewAuthorInput').value = rev.author || '';
+            document.getElementById('editReviewCommentTextarea').value = rev.comment || '';
+            
+            setEditReviewRating(rev.rating || 5);
+            document.getElementById('editReviewContentModal').style.display = 'flex';
+        };
+
+        window.setEditReviewRating = function(rating) {
+            editingReviewRating = rating;
+            const stars = document.querySelectorAll('#editStarRatingInput .star');
+            stars.forEach(star => {
+                const val = parseInt(star.dataset.value, 10);
+                if (val <= rating) star.classList.add('active');
+                else star.classList.remove('active');
+            });
+        };
+
+        window.closeEditReviewModal = function() {
+            document.getElementById('editReviewContentModal').style.display = 'none';
+            editingReviewTarget = { restName: '', reviewId: '' };
+        };
+
+        window.saveEditedReviewModal = function() {
+            const { restName, reviewId } = editingReviewTarget;
+            if (!restName || !reviewId) return;
+
+            const newAuthor = document.getElementById('editReviewAuthorInput').value.trim();
+            const newComment = document.getElementById('editReviewCommentTextarea').value.trim();
+
+            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+            update(targetRef, {
+                author: newAuthor || "匿名訓練家",
+                rating: editingReviewRating,
+                comment: newComment
+            });
+
+            closeEditReviewModal();
+            showToast("✏️ 評論內容與星級評分修改成功！");
+        };
+
+        window.deleteRestaurantReview = function(restName, reviewId) {
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "刪除餐廳評論需要驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+                        remove(targetRef);
+                        showToast("已刪除該筆評論！");
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法刪除評論！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        function formatRestaurantHTML(round, originalIndex = null) {
+            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
+            let name = round.restaurantName || round.restaurant || '';
+            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
+
+            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
+
+            let ratingBtn = '';
+            if (name && name !== "Google 地圖連結") {
+                const reviews = restaurantReviewsData[name] || {};
+                const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
+                const count = reviewsArr.length;
+                let scoreText = '★ 評價';
+                if (count > 0) {
+                    let total = 0;
+                    reviewsArr.forEach(r => total += (Number(r.rating) || 0));
+                    scoreText = `★ ${(total / count).toFixed(1)} (${count})`;
+                }
+                const escapedName = name.replace(/'/g, "\\'");
+                ratingBtn = `<button class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}')">${scoreText}</button>`;
+            }
+
+            let content = '';
+            if (url) {
+                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${mealBadge}`;
+            } else if (name) content = `🍽️ 📍 ${name}${mealBadge}`;
+            else content = `🍽️ 尚未設定餐廳${mealBadge}`;
+
+            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
+
+            return `<div class="result-item full-width restaurant-item-box">
+                <div>${content}</div>
+                <div style="display:flex; gap:6px; align-items:center;">
+                    ${ratingBtn}
+                    ${editBtnHtml}
+                </div>
+            </div>`;
+        }
+
+        // Firebase Event Listeners
+        onValue(restaurantReviewsRef, (snapshot) => {
+            const data = snapshot.val();
+            restaurantReviewsData = data || {};
+            populateReviewRestaurantSelect();
+            if (selectedReviewRestaurant) {
+                renderRestaurantReviewsList(selectedReviewRestaurant);
+            }
+            renderModalRestaurantList();
+            renderUpcomingHistory();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
+            if (currentSessionResult) renderCurrentResult(currentSessionResult);
+        });
 
         window.openRookieProtectionModal = function() {
             openPasswordModal(
@@ -1902,7 +2313,7 @@
                         if (currentInputMode === 'base') {
                             updateTargetRoundMatchUsage(num, usage.bonus, chosenPoolId, usage.bonusPoolId, res.accumulated, usage.bonusDeductions);
                         } else {
-                            updateTargetRoundMatchUsage(usage.base, num, usage.basePoolId, chosenPoolId, usage.baseDeductions, res.accumulated);
+                            updateTargetRoundMatchUsage(usage.base, num, usage.basePoolId, chosenPoolId, res.accumulated, res.accumulated);
                         }
                         set(matchPoolsRef, matchPoolsData);
                         showToast("對戰場次已成功設定並自場次池扣除！");
@@ -2240,6 +2651,7 @@
 
         function renderModalRestaurantList(filterVal = '') {
             const container = document.getElementById('modalRestaurantList');
+            if (!container) return;
             const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
             if (list.length === 0) {
                 container.innerHTML = '<div class="empty-text">無歷史餐廳紀錄</div>';
@@ -2248,9 +2660,23 @@
             let html = '';
             list.forEach(name => {
                 const escapedName = name.replace(/'/g, "\\'");
+                const reviews = restaurantReviewsData[name] || {};
+                const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
+                const reviewCount = reviewsArr.length;
+                let ratingBadge = '';
+                if (reviewCount > 0) {
+                    let total = 0;
+                    reviewsArr.forEach(r => total += (Number(r.rating) || 0));
+                    const avg = (total / reviewCount).toFixed(1);
+                    ratingBadge = `<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★${avg} (${reviewCount})</span>`;
+                }
+
                 html += `<div class="modal-rest-item" onclick="selectModalRestaurant('${escapedName}')">
-                    <span class="rest-name">📍 ${name}</span>
-                    <button class="btn-del-rest" onclick="deleteRestaurant(event, '${escapedName}')" title="刪除此紀錄">🗑️</button>
+                    <span class="rest-name">📍 ${name} ${ratingBadge}</span>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('${escapedName}')" title="查看與發表評價">⭐ 評價</button>
+                        <button class="btn-del-rest" onclick="deleteRestaurant(event, '${escapedName}')" title="刪除此紀錄">🗑️</button>
+                    </div>
                 </div>`;
             });
             container.innerHTML = html;
@@ -2364,7 +2790,7 @@
 
         window.clearAll = function() {
             document.getElementById('nameInput').value = '';
-            document.getElementById('mealTime').value = '';
+            document.getElementById('mealTime').value = '18:00';
             updateMainRestaurantUI("");
             activePresetId = null;
             updatePoolsUI();
@@ -2473,7 +2899,6 @@
             const hasYuanZai = players.includes("圓仔");
             const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
 
-            // 1. 新手保護期強行同隊組別處理 (可包含多組、每組多人)
             const rookieForcedSubgroups = [];
             const rookieAssignedPlayers = new Set();
 
@@ -2482,7 +2907,6 @@
                     const presentMembers = grp.players.filter(p => players.includes(p));
                     if (presentMembers.length >= 2) {
                         presentMembers.forEach(p => rookieAssignedPlayers.add(p));
-                        // 將該組出席人員切分成不超過 selectedTeamSize 的子區塊
                         for (let i = 0; i < presentMembers.length; i += selectedTeamSize) {
                             rookieForcedSubgroups.push(presentMembers.slice(i, i + selectedTeamSize));
                         }
@@ -2492,12 +2916,10 @@
 
             for (let level of constraintLevels) {
                 for (let attempt = 0; attempt < 1000; attempt++) {
-                    // 扣除新手保護期人員後，對剩餘人員進行隨機抽籤
                     let poolForRandom = players.filter(p => !rookieAssignedPlayers.has(p));
                     let currentPlayers = shuffle([...poolForRandom]);
                     let currentBye = [];
 
-                    // 計算爽打（輪空）分配
                     const totalPlayersCount = players.length;
                     const remainder = totalPlayersCount % selectedTeamSize;
 
@@ -2549,12 +2971,10 @@
                         }
                     }
 
-                    // 開始建構隊伍
                     let tempTeams = [];
                     let isValid = true;
                     let isYuanYuanAndZaiPaired = false;
 
-                    // 1. 填入新手保護強行綁定同隊組合
                     rookieForcedSubgroups.forEach(subgroup => {
                         let group = [...subgroup];
                         while (group.length < selectedTeamSize && currentPlayers.length > 0) {
@@ -2563,13 +2983,11 @@
                         tempTeams.push(group);
                     });
 
-                    // 2. 剩餘人員一般分組
                     while (currentPlayers.length > 0) {
                         let group = currentPlayers.splice(0, selectedTeamSize);
                         tempTeams.push(group);
                     }
 
-                    // 檢查限制條件
                     for (let group of tempTeams) {
                         if (group.includes("團團") && group.includes("圓圓")) {
                             if (Math.random() < 0.5) { isValid = false; break; }
@@ -2582,7 +3000,6 @@
                                     const pA = group[a];
                                     const pB = group[b];
                                     
-                                    // 檢查此兩人是否屬於新手保護期的強行同隊組，若屬於則豁免歷史近期重複檢查
                                     const isForcedRookiePair = (rookieProtectionGroups || []).some(grp => 
                                         grp.players && grp.players.includes(pA) && grp.players.includes(pB)
                                     );
@@ -2647,28 +3064,6 @@
         window.addEventListener('beforeunload', clearCurrentResultUI);
         window.addEventListener('pagehide', clearCurrentResultUI);
 
-        function formatRestaurantHTML(round, originalIndex = null) {
-            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
-
-            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
-
-            let content = '';
-            if (url) {
-                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${mealBadge}`;
-            } else if (name) content = `🍽️ 📍 ${name}${mealBadge}`;
-            else content = `🍽️ 尚未設定餐廳${mealBadge}`;
-
-            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
-
-            return `<div class="result-item full-width restaurant-item-box">
-                <div>${content}</div>
-                ${editBtnHtml}
-            </div>`;
-        }
-
         async function formatRoundText(round) {
             let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate, round.eventTime)}`];
 
@@ -2723,7 +3118,7 @@
 
         function renderCurrentResult(round) {
             const calUrl = generateGoogleCalendarUrl(round);
-            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
             let html = `<div class="pop-in">`;
             html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
 
@@ -2785,7 +3180,7 @@
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
-            document.getElementById('mealTime').value = target.mealTime || '';
+            document.getElementById('mealTime').value = target.mealTime || '18:00';
 
             const textarea = document.getElementById('nameInput');
             textarea.value = (target.players || []).join('\n');
@@ -2928,7 +3323,7 @@
 
             selectTeamSize(target.teamSize || 2);
             updateMainRestaurantUI(target.restaurantRaw || '');
-            document.getElementById('mealTime').value = target.mealTime || '';
+            document.getElementById('mealTime').value = target.mealTime || '18:00';
 
             const textarea = document.getElementById('nameInput');
             textarea.value = (target.players || []).join('\n');
@@ -2958,7 +3353,7 @@
 
                     selectTeamSize(target.teamSize || 2);
                     updateMainRestaurantUI(target.restaurantRaw || '');
-                    document.getElementById('mealTime').value = target.mealTime || '';
+                    document.getElementById('mealTime').value = target.mealTime || '18:00';
 
                     const textarea = document.getElementById('nameInput');
                     textarea.value = (target.players || []).join('\n');
