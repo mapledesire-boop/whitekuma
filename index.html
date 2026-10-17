@@ -589,6 +589,11 @@
                     </div>
                 </div>
 
+                <div class="label-header" style="margin-top: 10px; margin-bottom: 4px;">
+                    <label style="margin:0; font-size:0.85rem; color:#475569;">👤 訓練家姓名（點擊快速選取）：</label>
+                </div>
+                <div class="tag-container" id="reviewAuthorTagContainer" style="margin-top: 4px; margin-bottom: 8px;"></div>
+
                 <div class="input-group" style="margin-bottom: 8px;">
                     <input type="text" id="reviewAuthorInput" placeholder="訓練家姓名 (預設：匿名)" style="font-size: 0.88rem; min-height: 40px; padding: 6px 10px;">
                 </div>
@@ -1147,8 +1152,51 @@
         let editingReviewTarget = { restName: '', reviewId: '' };
         let editingReviewRating = 5;
 
+        function initReviewAuthorTags() {
+            const container = document.getElementById('reviewAuthorTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => selectReviewAuthorTag(name);
+                container.appendChild(tag);
+            });
+            syncReviewAuthorTags();
+        }
+
+        function selectReviewAuthorTag(name) {
+            const input = document.getElementById('reviewAuthorInput');
+            if (!input) return;
+            if (input.value.trim() === name) {
+                input.value = '';
+            } else {
+                input.value = name;
+            }
+            syncReviewAuthorTags();
+        }
+
+        function syncReviewAuthorTags() {
+            const input = document.getElementById('reviewAuthorInput');
+            if (!input) return;
+            const currentVal = input.value.trim();
+            const tags = document.querySelectorAll('#reviewAuthorTagContainer .name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentVal === name) {
+                    tag.classList.add('active');
+                    tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active');
+                    tag.innerText = '⚡ ' + name;
+                }
+            });
+        }
+
         window.openRestaurantReviewModal = function(targetRestName = "") {
             populateReviewRestaurantSelect();
+            initReviewAuthorTags();
             const selectEl = document.getElementById('reviewRestaurantSelect');
             if (targetRestName) {
                 selectEl.value = targetRestName;
@@ -1348,7 +1396,6 @@
             showToast(shouldModerate ? "🚫 已遮蔽該筆惡意評論！" : "🔓 已取消該筆評論的遮蔽狀態！");
         };
 
-        // 頁面內建 Modal 編輯評論
         window.openEditReviewModal = function(restName, reviewId) {
             const rev = (restaurantReviewsData[restName] || {})[reviewId];
             if (!rev) return;
@@ -1452,7 +1499,6 @@
             </div>`;
         }
 
-        // Firebase Event Listeners
         onValue(restaurantReviewsRef, (snapshot) => {
             const data = snapshot.val();
             restaurantReviewsData = data || {};
@@ -2772,6 +2818,7 @@
             set(trainerPresetsRef, defaultPresetNames);
             input.value = '';
             initNameTags();
+            initReviewAuthorTags();
             renderTrainerManagerList();
         };
 
@@ -2780,6 +2827,7 @@
                 defaultPresetNames = defaultPresetNames.filter(n => n !== name);
                 set(trainerPresetsRef, defaultPresetNames);
                 initNameTags();
+                initReviewAuthorTags();
                 renderTrainerManagerList();
             });
         };
@@ -4160,6 +4208,7 @@
             const data = snapshot.val();
             if (data && Array.isArray(data)) defaultPresetNames = data;
             initNameTags();
+            initReviewAuthorTags();
             if (window.initPresetNameTags) window.initPresetNameTags();
             if (window.initEditModalNameTags) window.initEditModalNameTags();
         });
@@ -4214,6 +4263,7 @@
         window.onDateInputChange();
 
         initNameTags();
+        initReviewAuthorTags();
     </script>
 </body>
 </html>
