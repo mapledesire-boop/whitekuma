@@ -243,10 +243,11 @@
             margin-bottom: 8px; font-size: 0.92rem; font-weight: 700; border: 1.5px solid #E2E8F0;
             word-break: break-all; line-height: 1.55;
         }
-        .restaurant-item-box { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .restaurant-item-box { display: flex; flex-direction: column; gap: 8px; }
+        .restaurant-sub-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; width: 100%; }
         .team-badge { background: var(--poke-blue-light); color: var(--poke-blue); padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #BFDBFE; margin: 0 2px; display: inline-block; }
         .bye-badge { background: #FFFBEB; color: #B45309; padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid #FDE68A; display: inline-block; }
-        .meal-badge { background: #FFFBEB; color: #B45309; padding: 3px 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 800; border: 1px solid #FDE68A; margin-left: 6px; display: inline-block; }
+        .meal-badge { background: #FFFBEB; color: #B45309; padding: 3px 10px; border-radius: 8px; font-size: 0.82rem; font-weight: 800; border: 1px solid #FDE68A; display: inline-block; }
 
         .history-card {
             background: #FFFFFF; border-radius: var(--radius-sm); padding: 14px; margin-bottom: 12px;
@@ -268,7 +269,6 @@
             .box { padding: 14px 12px 16px 12px; margin-bottom: 12px; }
             .header-title { font-size: 1.15rem; }
             .header-img { width: 28px; height: 28px; }
-            .restaurant-item-box { flex-direction: column; align-items: flex-start; gap: 6px; }
             .action-group { width: 100%; justify-content: flex-end; }
             .btn-action button.action-btn { font-size: 0.9rem; padding: 10px 6px; }
             .history-header { flex-direction: column; align-items: flex-start; gap: 8px; }
@@ -1471,7 +1471,7 @@
             let name = round.restaurantName || round.restaurant || '';
             if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
 
-            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
+            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ 用餐時間：${round.mealTime}</span>` : '';
 
             let ratingBtn = '';
             if (name && name !== "Google 地圖連結") {
@@ -1488,20 +1488,22 @@
                 ratingBtn = `<button class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}')">${scoreText}</button>`;
             }
 
+            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" style="margin-left:6px; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
+
             let content = '';
             if (url) {
                 const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${mealBadge}`;
-            } else if (name) content = `🍽️ 📍 ${name}${mealBadge}`;
-            else content = `🍽️ 尚未設定餐廳${mealBadge}`;
-
-            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${editBtnHtml}`;
+            } else if (name) content = `🍽️ 📍 ${name}${editBtnHtml}`;
+            else content = `🍽️ 尚未設定餐廳${editBtnHtml}`;
 
             return `<div class="result-item full-width restaurant-item-box">
                 <div>${content}</div>
-                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                    ${ratingBtn}
-                    ${editBtnHtml}
+                <div class="restaurant-sub-row">
+                    <div>${mealBadge}</div>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                        ${ratingBtn}
+                    </div>
                 </div>
             </div>`;
         }
