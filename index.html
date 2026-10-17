@@ -547,7 +547,6 @@
         </button>
     </div>
 
-    <!-- Modals -->
     <div id="restaurantReviewModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content">
             <div class="modal-header">
@@ -594,11 +593,6 @@
                     <input type="text" id="reviewAuthorInput" placeholder="訓練家姓名 (預設：匿名)" style="font-size: 0.88rem; min-height: 40px; padding: 6px 10px;">
                 </div>
 
-                <div style="margin-bottom: 10px;">
-                    <span style="font-size: 0.78rem; font-weight: 800; color: #64748B;">⚡ 點擊快速帶入訓練家：</span>
-                    <div class="tag-container" id="reviewTrainerTagContainer" style="margin: 4px 0 0 0;"></div>
-                </div>
-
                 <div class="input-group" style="margin-bottom: 8px;">
                     <textarea id="reviewCommentInput" placeholder="分享這家餐廳的口味、氣氛或推薦菜色..." style="font-size: 0.88rem; min-height: 70px; padding: 8px 10px;"></textarea>
                 </div>
@@ -616,6 +610,7 @@
         </div>
     </div>
 
+    <!-- Edit Review Content Modal (無阻擋獨立彈窗) -->
     <div id="editReviewContentModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 420px;">
             <div class="modal-header">
@@ -1152,576 +1147,6 @@
         let editingReviewTarget = { restName: '', reviewId: '' };
         let editingReviewRating = 5;
 
-        // --- Core UI & State Helper Functions Defined First ---
-        window.clearCurrentResultUI = function() {
-            currentSessionResult = null;
-            const currentResEl = document.getElementById('currentResult');
-            if (currentResEl) currentResEl.innerHTML = '<div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div>';
-            const copyBtn = document.getElementById('copyCurrentBtn');
-            const lineBtn = document.getElementById('lineCurrentBtn');
-            if (copyBtn) copyBtn.style.display = 'none';
-            if (lineBtn) lineBtn.style.display = 'none';
-        };
-
-        window.renderCurrentResult = function(round) {
-            const calUrl = generateGoogleCalendarUrl(round);
-            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.78rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
-            let html = `<div class="pop-in">`;
-            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
-
-            html += formatRestaurantHTML(round);
-            round.teams.forEach((team, index) => {
-                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
-                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
-            });
-            if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
-            html += `</div>`;
-
-            const currentResEl = document.getElementById('currentResult');
-            if (currentResEl) currentResEl.innerHTML = html;
-            const copyBtn = document.getElementById('copyCurrentBtn');
-            const lineBtn = document.getElementById('lineCurrentBtn');
-            if (copyBtn) copyBtn.style.display = 'inline-flex';
-            if (lineBtn) lineBtn.style.display = 'inline-flex';
-        };
-
-        function getTodayDateString() {
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            return `${yyyy}-${mm}-${dd}`;
-        }
-
-        function getChronologicalHistory(rounds = historyRounds) {
-            return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
-                         .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-        }
-
-        function getUpcomingTargetRound() {
-            if (!historyRounds || historyRounds.length === 0) return null;
-            const todayStr = getTodayDateString();
-            const sorted = getChronologicalHistory(historyRounds);
-            const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
-            return upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
-        }
-
-        function calculateVehicleCount(round) {
-            if (!round) return 0;
-            let count = 0;
-            let allPlayers = new Set();
-
-            if (round.teams && Array.isArray(round.teams)) {
-                round.teams.forEach(group => {
-                    if (Array.isArray(group)) {
-                        group.forEach(player => {
-                            if (player) allPlayers.add(player.trim().toLowerCase());
-                        });
-                    }
-                });
-            }
-
-            if (round.bye) {
-                if (Array.isArray(round.bye)) {
-                    round.bye.forEach(player => {
-                        if (player) allPlayers.add(player.trim().toLowerCase());
-                    });
-                } else if (typeof round.bye === 'string') {
-                    round.bye.split(',').forEach(player => {
-                        if (player && player.trim()) allPlayers.add(player.trim().toLowerCase());
-                    });
-                }
-            }
-
-            const cfg = vehicleConfig || { singleDrivers: [], sharedGroups: [] };
-
-            if (cfg.singleDrivers && Array.isArray(cfg.singleDrivers)) {
-                cfg.singleDrivers.forEach(driver => {
-                    if (driver && allPlayers.has(driver.trim().toLowerCase())) {
-                        count++;
-                    }
-                });
-            }
-
-            if (cfg.sharedGroups && Array.isArray(cfg.sharedGroups)) {
-                cfg.sharedGroups.forEach(grp => {
-                    if (grp && grp.players && Array.isArray(grp.players)) {
-                        const hasMember = grp.players.some(p => p && allPlayers.has(p.trim().toLowerCase()));
-                        if (hasMember) count++;
-                    }
-                });
-            }
-
-            return count;
-        }
-
-        function getUpcomingUsageValue() {
-            const targetRound = getUpcomingTargetRound();
-            if (!targetRound) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseDeductions: [], bonusDeductions: [] };
-            return {
-                base: targetRound.baseCount || 0,
-                bonus: targetRound.bonusCount || 0,
-                basePoolId: targetRound.basePoolId || "",
-                bonusPoolId: targetRound.bonusPoolId || "",
-                baseDeductions: targetRound.baseDeductions || [],
-                bonusDeductions: targetRound.bonusDeductions || []
-            };
-        }
-
-        function updateUpcomingUsageUI() {
-            const btn = document.getElementById('btnUpcomingMatchUsage');
-            if (!btn) return;
-
-            const usage = getUpcomingUsageValue();
-            let total = (usage.base || 0) + (usage.bonus || 0);
-
-            if (total > 0) {
-                btn.classList.add('has-value');
-                let text = `本次場次: ${total}`;
-                if (usage.bonus > 0) text += ` (含加碼${usage.bonus})`;
-                btn.innerHTML = text;
-            } else {
-                btn.classList.remove('has-value');
-                btn.innerHTML = `本次場次`;
-            }
-        }
-
-        function generateGoogleCalendarUrl(round) {
-            if (!round || !round.eventDate) return '';
-            let datePart = round.eventDate;
-            let timePart = round.eventTime || '14:00';
-            if (round.eventDate.includes('T')) {
-                const p = round.eventDate.split('T');
-                datePart = p[0];
-                timePart = p[1].slice(0, 5);
-            }
-            const cleanDate = datePart.replace(/-/g, '');
-            const cleanTime = timePart.replace(/:/g, '') + '00';
-            
-            const startDt = new Date(`${datePart}T${timePart}:00`);
-            const endDt = new Date(startDt.getTime() + 2 * 60 * 60 * 1000);
-            const pad = (n) => String(n).padStart(2, '0');
-            const endCleanDate = `${endDt.getFullYear()}${pad(endDt.getMonth()+1)}${pad(endDt.getDate())}`;
-            const endCleanTime = `${pad(endDt.getHours())}${pad(endDt.getMinutes())}00`;
-            const dates = `${cleanDate}T${cleanTime}/${endCleanDate}T${endCleanTime}`;
-            
-            const title = encodeURIComponent("白熊保齡球");
-            let detailsText = "【白熊保齡球戰報】\n";
-            if (round.mealTime) detailsText += `⏰ 用餐時間：${round.mealTime}\n`;
-            if (round.teams && round.teams.length > 0) {
-                round.teams.forEach((t, i) => { detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`; });
-            }
-            if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
-            const details = encodeURIComponent(detailsText);
-            const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
-            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
-        }
-
-        function formatDateWithDay(dateStr, timeStr = '') {
-            if (!dateStr) return '';
-            const days = ['日', '一', '二', '三', '四', '五', '六'];
-            let cleanDate = dateStr;
-            let cleanTime = timeStr;
-            if (dateStr.includes('T')) {
-                const parts = dateStr.split('T');
-                cleanDate = parts[0];
-                if (!cleanTime) cleanTime = parts[1].slice(0, 5);
-            }
-            const dateObj = new Date(cleanDate + 'T00:00:00');
-            if (isNaN(dateObj.getTime())) return dateStr;
-            const pad = (n) => String(n).padStart(2, '0');
-            const yyyy = dateObj.getFullYear();
-            const mm = pad(dateObj.getMonth() + 1);
-            const dd = pad(dateObj.getDate());
-            const dayOfWeek = days[dateObj.getDay()];
-            
-            return cleanTime ? `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${cleanTime}` : `${yyyy}-${mm}-${dd} (${dayOfWeek})`;
-        }
-
-        function extractPlaceNameFromUrl(url) {
-            try {
-                const decodedUrl = decodeURIComponent(url);
-                const placeMatch = decodedUrl.match(/\/place\/([^\/@\?]+)/);
-                if (placeMatch && placeMatch[1]) return placeMatch[1].replace(/\+/g, ' ');
-                const queryMatch = decodedUrl.match(/[?&]query=([^&]+)/);
-                if (queryMatch && queryMatch[1]) return queryMatch[1].replace(/\+/g, ' ').replace(/ 台灣$/, '');
-            } catch (e) { console.error("解析網址失敗:", e); }
-            return "Google 地圖連結";
-        }
-
-        function parseRestaurantInput(inputVal) {
-            if (!inputVal) return { name: '', url: '' };
-            const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
-            if (isUrl) {
-                const extractedName = extractPlaceNameFromUrl(inputVal);
-                return { name: extractedName, url: inputVal };
-            }
-            return {
-                name: inputVal,
-                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
-            };
-        }
-
-        function getAllRestaurants() {
-            let set = new Set();
-            historyRounds.forEach(r => {
-                const name = r.restaurantName || r.restaurant;
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            customRestaurants.forEach(name => {
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            return Array.from(set);
-        }
-
-        function formatRestaurantHTML(round, originalIndex = null) {
-            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
-
-            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
-
-            // Calculate star rating badge
-            let ratingBadge = '';
-            if (name && name !== "Google 地圖連結") {
-                const reviews = restaurantReviewsData[name] || {};
-                const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
-                const reviewCount = reviewsArr.length;
-                if (reviewCount > 0) {
-                    let total = 0;
-                    reviewsArr.forEach(r => total += (Number(r.rating) || 0));
-                    const avg = (total / reviewCount).toFixed(1);
-                    ratingBadge = `<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★ ${avg} (${reviewCount})</span>`;
-                }
-            }
-
-            let content = '';
-            if (url) {
-                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
-                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a> ${ratingBadge} ${mealBadge}`;
-            } else if (name) {
-                content = `🍽️ 📍 ${name} ${ratingBadge} ${mealBadge}`;
-            } else {
-                content = `🍽️ 尚未設定餐廳 ${mealBadge}`;
-            }
-
-            let reviewBtnHtml = (name && name !== "Google 地圖連結") 
-                ? `<button class="btn-edit" style="background:#FFFBEB; color:#B45309; border-color:#FDE68A; padding:2px 8px; font-size:0.75rem; min-height:30px;" onclick="openRestaurantReviewModal('${name.replace(/'/g, "\\'")}')">⭐ 評價</button>` 
-                : '';
-
-            let editBtnHtml = originalIndex !== null 
-                ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` 
-                : '';
-
-            return `<div class="result-item full-width restaurant-item-box">
-                <div>${content}</div>
-                <div style="display:flex; gap:6px; align-items:center;">
-                    ${reviewBtnHtml}
-                    ${editBtnHtml}
-                </div>
-            </div>`;
-        }
-
-        window.updateBattleLogBadges = function() {
-            const todayStr = getTodayDateString();
-            const upcomingCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] >= todayStr).length;
-            const historyCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] < todayStr).length;
-
-            const upBadge = document.getElementById('upcomingBattlesBadgeCount');
-            if (upBadge) upBadge.innerText = `${upcomingCount} 筆`;
-
-            const histBadge = document.getElementById('historyBattlesBadgeCount');
-            if (histBadge) histBadge.innerText = `${historyCount} 筆`;
-        };
-
-        function renderUpcomingHistory() {
-            const container = document.getElementById('upcomingHistoryContent');
-            if (!container) return;
-            const target = getUpcomingTargetRound();
-            const badgeEl = document.getElementById('upcomingVehicleBadge');
-
-            if (!target) {
-                container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
-                if (badgeEl) badgeEl.innerText = '車輛: 0';
-                updateUpcomingUsageUI();
-                return;
-            }
-
-            const vehicleCount = calculateVehicleCount(target);
-            if (badgeEl) badgeEl.innerText = `車輛: ${vehicleCount}`;
-
-            const calUrl = generateGoogleCalendarUrl(target);
-            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
-
-            let html = `<div class="pop-in">`;
-            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
-
-            html += formatRestaurantHTML(target);
-            target.teams.forEach((team, index) => {
-                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
-                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
-            });
-            if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
-            html += `</div>`;
-
-            container.innerHTML = html;
-            updateUpcomingUsageUI();
-        }
-
-        window.renderUpcomingBattlesModal = function() {
-            const container = document.getElementById('upcomingBattlesListContainer');
-            if (!container) return;
-            const todayStr = getTodayDateString();
-            const sorted = getChronologicalHistory(historyRounds);
-            const upcomingList = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
-
-            if (upcomingList.length === 0) {
-                container.innerHTML = '<div class="empty-text">尚無預訂的未來對戰紀錄</div>';
-                return;
-            }
-
-            let html = '';
-            upcomingList.forEach(round => {
-                const originalIndex = round.originalIndex;
-                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
-                let vCount = calculateVehicleCount(round);
-                let teamsHtml = round.teams.map((t, idx) => {
-                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
-                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
-                }).join('');
-                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
-                
-                const totalMatches = round.baseCount !== undefined ? (round.baseCount + (round.bonusCount || 0)) : (round.usedMatchesCount || 0);
-                const bonusMatches = round.bonusCount || 0;
-                let matchBadgeText = `🎯 場次: ${totalMatches}`;
-                if (bonusMatches > 0) matchBadgeText += ` (含加碼${bonusMatches})`;
-
-                let matchBadgeHtml = totalMatches > 0 
-                    ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>`
-                    : '';
-
-                html += `<div class="history-card pop-in">
-                    <div class="history-header">
-                        <div class="history-date-title">
-                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
-                            ${matchBadgeHtml}
-                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
-                        </div>
-                        <div class="action-group">
-                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
-                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
-                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
-                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
-                        </div>
-                    </div>
-                    <div class="history-teams">
-                        ${restaurantHtml}
-                        <div class="full-width">🚗 車輛: ${vCount}</div>
-                        ${teamsHtml}
-                        ${byeHtml}
-                    </div>
-                </div>`;
-            });
-
-            container.innerHTML = html;
-        };
-
-        function getFilteredPastHistory() {
-            const startVal = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
-            const endVal = document.getElementById('endDate') ? document.getElementById('endDate').value : '';
-            const todayStr = getTodayDateString();
-
-            return historyRounds.filter(round => {
-                if (!round.eventDate) return false;
-                const datePart = round.eventDate.split('T')[0];
-                if (datePart >= todayStr) return false;
-                if (startVal && datePart < startVal) return false;
-                if (endVal && datePart > endVal) return false;
-                return true;
-            });
-        }
-
-        window.applyDateFilter = function() { renderHistoryBattlesModal(); };
-        window.resetDateFilter = function() {
-            const startInp = document.getElementById('startDate');
-            const endInp = document.getElementById('endDate');
-            if (startInp) startInp.value = '';
-            if (endInp) endInp.value = '';
-            renderHistoryBattlesModal();
-        };
-
-        async function formatRoundText(round) {
-            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate, round.eventTime)}`];
-
-            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
-            let name = round.restaurantName || round.restaurant || '';
-            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
-
-            if (url) {
-                if (name && name !== "Google 地圖連結") {
-                    lines.push(`🍽️ 用餐餐廳：${name}`); lines.push(`📍 地圖連結：${url}`);
-                } else lines.push(`📍 地圖連結：${url}`);
-            } else if (name) {
-                const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
-                lines.push(`🍽️ 用餐餐廳：${name}`); lines.push(`📍 地圖連結：${mapSearchUrl}`);
-            }
-
-            if (round.mealTime) {
-                lines.push(`⏰ 用餐時間：${round.mealTime}`);
-            }
-
-            if (round.teams) {
-                round.teams.forEach((team, index) => { lines.push(`第 ${index + 1} 組：${team.join(' & ')}`); });
-            }
-            if (round.bye) lines.push(`此次爽打：${round.bye}`);
-
-            return lines.join('\n');
-        }
-
-        function copyToClipboard(text) {
-            const textarea = document.createElement("textarea");
-            textarea.value = text;
-            textarea.style.position = "fixed";
-            textarea.style.left = "-9999px";
-            document.body.appendChild(textarea);
-            textarea.focus();
-            textarea.select();
-            try {
-                if (document.execCommand("copy")) showToast("已複製對戰戰報！");
-                else showToast("複製失敗，請手動複製！");
-            } catch (err) {
-                showToast("複製失敗，請手動複製！");
-            }
-            document.body.removeChild(textarea);
-        }
-
-        function shareToLine(text) {
-            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
-            window.open(lineUrl, '_blank');
-        }
-
-        window.copyRangeHistory = async function() {
-            const filtered = getFilteredPastHistory();
-            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
-            let textList = [];
-            for (let r of filtered) textList.push(await formatRoundText(r));
-            copyToClipboard(textList.join('\n\n-------------------\n\n'));
-        };
-
-        window.shareRangeHistoryToLine = async function() {
-            const filtered = getFilteredPastHistory();
-            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
-            let textList = [];
-            for (let r of filtered) textList.push(await formatRoundText(r));
-            shareToLine(textList.join('\n\n-------------------\n\n'));
-        };
-
-        window.renderHistoryBattlesModal = function() {
-            const container = document.getElementById('historyBattlesListContainer');
-            if (!container) return;
-            const filteredPast = getFilteredPastHistory();
-
-            if (filteredPast.length === 0) {
-                container.innerHTML = '<div class="empty-text">尚無符合條件的歷史對戰紀錄</div>';
-                return;
-            }
-
-            const sortedPast = getChronologicalHistory(filteredPast);
-            let html = '';
-            sortedPast.forEach(round => {
-                const originalIndex = round.originalIndex;
-                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
-                let vCount = calculateVehicleCount(round);
-                let teamsHtml = round.teams.map((t, idx) => {
-                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
-                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
-                }).join('');
-                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
-                
-                const totalMatches = round.baseCount !== undefined ? (round.baseCount + (round.bonusCount || 0)) : (round.usedMatchesCount || 0);
-                const bonusMatches = round.bonusCount || 0;
-                let matchBadgeText = `🎯 場次: ${totalMatches}`;
-                if (bonusMatches > 0) matchBadgeText += ` (含加碼${bonusMatches})`;
-
-                let matchBadgeHtml = totalMatches > 0 
-                    ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>` 
-                    : '';
-
-                html += `<div class="history-card pop-in">
-                    <div class="history-header">
-                        <div class="history-date-title">
-                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
-                            ${matchBadgeHtml}
-                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
-                        </div>
-                        <div class="action-group">
-                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
-                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
-                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
-                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
-                        </div>
-                    </div>
-                    <div class="history-teams">
-                        ${restaurantHtml}
-                        <div class="full-width">🚗 車輛: ${vCount}</div>
-                        ${teamsHtml}
-                        ${byeHtml}
-                    </div>
-                </div>`;
-            });
-
-            container.innerHTML = html;
-        };
-
-        window.renderPresetModalList = function() {
-            const container = document.getElementById('presetListContainer');
-            if (!container) return;
-            const loopBtn = document.getElementById('btnPairAllPresets');
-
-            if (presetTeams.length === 0) {
-                container.innerHTML = '<div class="empty-text">無預選隊伍紀錄</div>';
-                if (loopBtn) loopBtn.style.display = 'none';
-                return;
-            }
-
-            if (loopBtn) loopBtn.style.display = 'inline-flex';
-            let sortedPresets = [...presetTeams].sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-
-            let html = '';
-            sortedPresets.forEach((p, idx) => {
-                const pDateText = formatDateWithDay(p.eventDate);
-                const restData = parseRestaurantInput(p.restaurantRaw);
-                const restName = restData.name ? `📍 ${restData.name}` : '未指定餐廳';
-                const mealInfo = p.mealTime ? ` (⏰ ${p.mealTime})` : '';
-                const pListStr = (p.players || []).join('、');
-
-                const isDisabled = idx > 0;
-                const cardClass = isDisabled ? 'preset-card disabled-preset pop-in' : 'preset-card pop-in';
-                const btnStyle = isDisabled 
-                    ? 'padding: 6px 12px; font-size: 0.8rem; min-height:38px; background:#CBD5E1; color:#64748B; border-color:#94A3B8; cursor:not-allowed;' 
-                    : 'padding: 6px 12px; font-size: 0.8rem; min-height:38px;';
-                const btnText = isDisabled ? '⚔️ 狂刀三浪還在浪' : '⚡ 直接擲球配對';
-
-                html += `<div class="${cardClass}">
-                    <div class="preset-date" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
-                        <span>📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒' : ''}</span>
-                        <button class="btn-edit" style="padding:3px 8px; font-size:0.78rem; min-height:30px; font-weight:800;" onclick="openEditPresetModal('${p.id}', event)">✏️ 編輯</button>
-                    </div>
-                    <div class="preset-details" style="margin-top:4px;">
-                        <div>🍽️ ${restName}${mealInfo}</div>
-                        <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
-                    </div>
-                    <div class="preset-actions">
-                        <button class="action-btn btn-primary" style="${btnStyle}" onclick="generateFromPreset('${p.id}', ${isDisabled}, event)">${btnText}</button>
-                        <button class="btn-copy" style="min-height:38px;" onclick="loadPresetToMain('${p.id}')">帶入資料</button>
-                        <button class="btn-danger" style="min-height:38px;" onclick="deletePreset('${p.id}', event)">刪除</button>
-                    </div>
-                </div>`;
-            });
-            container.innerHTML = html;
-        };
-
-        // --- Restaurant Reviews Section Functions ---
         window.openRestaurantReviewModal = function(targetRestName = "") {
             populateReviewRestaurantSelect();
             const selectEl = document.getElementById('reviewRestaurantSelect');
@@ -1783,22 +1208,6 @@
             selectEl.value = currentVal;
         }
 
-        window.renderReviewTrainerTags = function() {
-            const container = document.getElementById('reviewTrainerTagContainer');
-            if (!container) return;
-            container.innerHTML = '';
-            defaultPresetNames.forEach(name => {
-                const tag = document.createElement('div');
-                tag.className = 'name-tag';
-                tag.innerText = '⚡ ' + name;
-                tag.onclick = () => {
-                    const authorInput = document.getElementById('reviewAuthorInput');
-                    if (authorInput) authorInput.value = name;
-                };
-                container.appendChild(tag);
-            });
-        };
-
         window.onReviewRestaurantSelectChange = function() {
             const restName = document.getElementById('reviewRestaurantSelect').value;
             selectedReviewRestaurant = restName;
@@ -1816,76 +1225,8 @@
             addForm.style.display = 'block';
             document.getElementById('summaryRestName').innerText = restName;
 
-            renderReviewTrainerTags();
             renderRestaurantReviewsList(restName);
         };
-
-        function renderRestaurantReviewsList(restName) {
-            const container = document.getElementById('reviewListContainer');
-            if (!container) return;
-
-            const reviewsObj = restaurantReviewsData[restName] || {};
-            const reviewsArr = Object.entries(reviewsObj).map(([id, val]) => ({ id, ...val }));
-
-            const visibleReviews = reviewsArr.filter(r => isReviewAdminMode || !r.isModerated);
-            const validRatings = reviewsArr.filter(r => !r.isModerated);
-
-            const countEl = document.getElementById('summaryRestCount');
-            const scoreEl = document.getElementById('summaryRestRatingText');
-            const starsEl = document.getElementById('summaryRestStars');
-
-            if (validRatings.length > 0) {
-                const total = validRatings.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
-                const avg = (total / validRatings.length).toFixed(1);
-                const rounded = Math.round(avg);
-                if (scoreEl) scoreEl.innerText = avg;
-                if (countEl) countEl.innerText = `${validRatings.length} 則評價`;
-                if (starsEl) starsEl.innerText = '★'.repeat(rounded) + '☆'.repeat(5 - rounded);
-            } else {
-                if (scoreEl) scoreEl.innerText = '0.0';
-                if (countEl) countEl.innerText = '尚無有效評價';
-                if (starsEl) starsEl.innerText = '☆☆☆☆☆';
-            }
-
-            if (visibleReviews.length === 0) {
-                container.innerHTML = '<div class="empty-text">這家餐廳目前還沒有任何評論，快來當第一個留下評論的人吧！</div>';
-                return;
-            }
-
-            visibleReviews.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
-
-            let html = '';
-            visibleReviews.forEach(r => {
-                const starsText = '★'.repeat(r.rating || 5) + '☆'.repeat(5 - (r.rating || 5));
-                const modClass = r.isModerated ? 'review-card moderated' : 'review-card';
-                const modBadge = r.isModerated ? '<span style="color:#DC2626; font-size:0.75rem; font-weight:900;"> [已遮蔽]</span>' : '';
-                const dateText = r.timestamp ? new Date(r.timestamp).toLocaleDateString() : '';
-
-                let adminBar = '';
-                if (isReviewAdminMode) {
-                    const toggleModText = r.isModerated ? '解封' : '遮蔽';
-                    adminBar = `<div class="admin-review-bar">
-                        <button class="btn-edit" style="padding:2px 8px; font-size:0.75rem; min-height:28px;" onclick="openEditReviewModal('${restName.replace(/'/g, "\\'")}', '${r.id}')">✏️ 編輯</button>
-                        <button class="btn-danger" style="padding:2px 8px; font-size:0.75rem; min-height:28px;" onclick="toggleReviewModeration('${restName.replace(/'/g, "\\'")}', '${r.id}', ${!r.isModerated})">🚫 ${toggleModText}</button>
-                        <button class="btn-danger" style="padding:2px 8px; font-size:0.75rem; min-height:28px; background:#FEF2F2;" onclick="deleteReviewDirectly('${restName.replace(/'/g, "\\'")}', '${r.id}')">🗑️ 刪除</button>
-                    </div>`;
-                }
-
-                html += `<div class="${modClass}">
-                    <div class="review-header">
-                        <span class="review-author">👤 ${r.author || '匿名訓練家'}${modBadge}</span>
-                        <span class="review-stars">${starsText}</span>
-                    </div>
-                    <div class="review-content">${r.comment ? r.comment : '(未填寫留言)'}</div>
-                    <div class="review-date">
-                        <span>📅 ${dateText}</span>
-                    </div>
-                    ${adminBar}
-                </div>`;
-            });
-
-            container.innerHTML = html;
-        }
 
         window.setReviewRating = function(rating) {
             selectedReviewRating = rating;
@@ -1897,56 +1238,126 @@
             });
         };
 
+        function getStarsHTML(rating) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= Math.round(rating)) html += '★';
+                else html += '☆';
+            }
+            return html;
+        }
+
+        function renderRestaurantReviewsList(restName) {
+            const container = document.getElementById('reviewListContainer');
+            if (!container) return;
+            const reviewsObj = restaurantReviewsData[restName] || {};
+            const reviewsArr = Object.keys(reviewsObj).map(id => ({ id, ...reviewsObj[id] }));
+
+            if (reviewsArr.length === 0) {
+                document.getElementById('summaryRestRatingText').innerText = "0.0";
+                document.getElementById('summaryRestStars').innerText = "☆☆☆☆☆";
+                document.getElementById('summaryRestCount').innerText = "尚無評價";
+                container.innerHTML = '<div class="empty-text">這家餐廳目前還沒有任何評論，快來成為第一個留言的人吧！</div>';
+                return;
+            }
+
+            reviewsArr.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+
+            let validRatingSum = 0;
+            let validCount = 0;
+            reviewsArr.forEach(r => {
+                if (!r.isModerated) {
+                    validRatingSum += (Number(r.rating) || 0);
+                    validCount++;
+                }
+            });
+
+            const avgRating = validCount > 0 ? (validRatingSum / validCount).toFixed(1) : "0.0";
+
+            document.getElementById('summaryRestRatingText').innerText = avgRating;
+            document.getElementById('summaryRestStars').innerText = getStarsHTML(avgRating);
+            document.getElementById('summaryRestCount').innerText = `共 ${reviewsArr.length} 則評價${validCount < reviewsArr.length ? ` (已遮蔽 ${reviewsArr.length - validCount} 則)` : ''}`;
+
+            let html = '';
+            reviewsArr.forEach(rev => {
+                const author = rev.author || '匿名訓練家';
+                const dateStr = rev.timestamp ? new Date(rev.timestamp).toLocaleString('zh-TW', { hour12: false }) : '';
+                const starsStr = getStarsHTML(rev.rating || 5);
+                const isModerated = !!rev.isModerated;
+
+                let cardCss = isModerated ? "review-card moderated pop-in" : "review-card pop-in";
+                let displayComment = isModerated ? "🚫 （此留言已被管理員隱蔽遮蔽，含有不當或惡意言論）" : (rev.comment || '（未提供詳細評語）');
+
+                let adminActionsHtml = '';
+                if (isReviewAdminMode) {
+                    const toggleModText = isModerated ? "🔓 解除遮蔽" : "🚫 遮蔽評論";
+                    adminActionsHtml = `<div class="admin-review-bar">
+                        <button class="btn-edit" style="padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="openEditReviewModal('${restName}', '${rev.id}')">✏️ 編輯</button>
+                        <button class="btn-edit" style="background:#FFF0F0; border-color:#FCA5A5; color:#DC2626; padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="toggleModerateReview('${restName}', '${rev.id}', ${!isModerated})">${toggleModText}</button>
+                    </div>`;
+                }
+
+                html += `<div class="${cardCss}">
+                    <div class="review-header">
+                        <span class="review-author">👤 ${author}</span>
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span class="review-stars">${starsStr}</span>
+                            <button class="btn-danger" style="padding:2px 6px; font-size:0.75rem; min-height:26px;" onclick="deleteRestaurantReview('${restName}', '${rev.id}')">🗑️</button>
+                        </div>
+                    </div>
+                    <div class="review-content" style="${isModerated ? 'color:#DC2626; font-style:italic;' : ''}">${displayComment}</div>
+                    <div class="review-date">
+                        <span>${dateStr}</span>
+                        ${isModerated ? '<span style="color:#DC2626; font-weight:900;">[已封鎖遮蔽]</span>' : ''}
+                    </div>
+                    ${adminActionsHtml}
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
         window.submitRestaurantReview = function() {
-            if (!selectedReviewRestaurant) return showToast("請先選擇要評價的餐廳！");
-            const author = document.getElementById('reviewAuthorInput').value.trim() || '匿名訓練家';
-            const comment = document.getElementById('reviewCommentInput').value.trim();
+            if (!selectedReviewRestaurant) return showToast("請先選擇餐廳！");
+            const authorInput = document.getElementById('reviewAuthorInput').value.trim();
+            const commentInput = document.getElementById('reviewCommentInput').value.trim();
 
-            if (!comment) return showToast("請輸入評論內容！");
+            if (!commentInput && selectedReviewRating === 5) {
+                showToast("請輸入簡短評論心得或給予星級評價！");
+            }
 
-            const reviewId = 'review_' + Date.now();
+            const reviewId = 'rev_' + Date.now();
             const newReview = {
-                author: author,
+                author: authorInput || '匿名訓練家',
                 rating: selectedReviewRating,
-                comment: comment,
+                comment: commentInput,
                 timestamp: Date.now(),
                 isModerated: false
             };
 
             const reviewItemRef = ref(db, `restaurantReviews/${selectedReviewRestaurant}/${reviewId}`);
-            set(reviewItemRef, newReview).then(() => {
-                document.getElementById('reviewCommentInput').value = '';
-                showToast("💬 評論發送成功！感謝您的分享！");
-            }).catch(err => {
-                showToast("發送評論失敗，請稍後再試！");
-            });
+            set(reviewItemRef, newReview);
+
+            document.getElementById('reviewCommentInput').value = '';
+            showToast("💬 評論發送成功！感謝您的分享！");
         };
 
-        window.toggleReviewModeration = function(restName, reviewId, shouldModerate) {
-            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}/isModerated`);
-            set(targetRef, shouldModerate).then(() => {
-                showToast(shouldModerate ? "已成功遮蔽該筆評論！" : "已解除遮蔽！");
-            });
+        window.toggleModerateReview = function(restName, reviewId, shouldModerate) {
+            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+            update(targetRef, { isModerated: shouldModerate });
+            showToast(shouldModerate ? "🚫 已遮蔽該筆惡意評論！" : "🔓 已取消該筆評論的遮蔽狀態！");
         };
 
-        window.deleteReviewDirectly = function(restName, reviewId) {
-            showConfirm("確定要刪除這筆評論嗎？刪除後無法復原！", () => {
-                const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
-                remove(targetRef).then(() => {
-                    showToast("評論已成功刪除！");
-                });
-            });
-        };
-
+        // 頁面內建 Modal 編輯評論
         window.openEditReviewModal = function(restName, reviewId) {
-            const review = (restaurantReviewsData[restName] || {})[reviewId];
-            if (!review) return showToast("找不到該筆評論資料！");
+            const rev = (restaurantReviewsData[restName] || {})[reviewId];
+            if (!rev) return;
 
             editingReviewTarget = { restName, reviewId };
-            document.getElementById('editReviewAuthorInput').value = review.author || '';
-            document.getElementById('editReviewCommentTextarea').value = review.comment || '';
-            setEditReviewRating(review.rating || 5);
-
+            document.getElementById('editReviewAuthorInput').value = rev.author || '';
+            document.getElementById('editReviewCommentTextarea').value = rev.comment || '';
+            
+            setEditReviewRating(rev.rating || 5);
             document.getElementById('editReviewContentModal').style.display = 'flex';
         };
 
@@ -1962,26 +1373,544 @@
 
         window.closeEditReviewModal = function() {
             document.getElementById('editReviewContentModal').style.display = 'none';
+            editingReviewTarget = { restName: '', reviewId: '' };
         };
 
         window.saveEditedReviewModal = function() {
             const { restName, reviewId } = editingReviewTarget;
             if (!restName || !reviewId) return;
 
-            const author = document.getElementById('editReviewAuthorInput').value.trim() || '匿名訓練家';
-            const comment = document.getElementById('editReviewCommentTextarea').value.trim();
+            const newAuthor = document.getElementById('editReviewAuthorInput').value.trim();
+            const newComment = document.getElementById('editReviewCommentTextarea').value.trim();
 
             const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
             update(targetRef, {
-                author: author,
-                comment: comment,
-                rating: editingReviewRating
-            }).then(() => {
-                closeEditReviewModal();
-                showToast("評論數據已成功更新！");
-            }).catch(err => {
-                showToast("更新失敗，請檢查權限！");
+                author: newAuthor || "匿名訓練家",
+                rating: editingReviewRating,
+                comment: newComment
             });
+
+            closeEditReviewModal();
+            showToast("✏️ 評論內容與星級評分修改成功！");
+        };
+
+        window.deleteRestaurantReview = function(restName, reviewId) {
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "刪除餐廳評論需要驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+                        remove(targetRef);
+                        showToast("已刪除該筆評論！");
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法刪除評論！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        function formatRestaurantHTML(round, originalIndex = null) {
+            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
+            let name = round.restaurantName || round.restaurant || '';
+            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
+
+            let mealBadge = round.mealTime ? `<span class="meal-badge">⏰ ${round.mealTime} 用餐</span>` : '';
+
+            let ratingBtn = '';
+            if (name && name !== "Google 地圖連結") {
+                const reviews = restaurantReviewsData[name] || {};
+                const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
+                const count = reviewsArr.length;
+                let scoreText = '★ 評價';
+                if (count > 0) {
+                    let total = 0;
+                    reviewsArr.forEach(r => total += (Number(r.rating) || 0));
+                    scoreText = `★ ${(total / count).toFixed(1)} (${count})`;
+                }
+                const escapedName = name.replace(/'/g, "\\'");
+                ratingBtn = `<button class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}')">${scoreText}</button>`;
+            }
+
+            let content = '';
+            if (url) {
+                const displayName = (name && name !== "Google 地圖連結") ? name : "查看 Google 地圖";
+                content = `🍽️ <a href="${url}" target="_blank" class="restaurant-link">📍 ${displayName}</a>${mealBadge}`;
+            } else if (name) content = `🍽️ 📍 ${name}${mealBadge}`;
+            else content = `🍽️ 尚未設定餐廳${mealBadge}`;
+
+            let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
+
+            return `<div class="result-item full-width restaurant-item-box">
+                <div>${content}</div>
+                <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                    ${ratingBtn}
+                    ${editBtnHtml}
+                </div>
+            </div>`;
+        }
+
+        // Firebase Event Listeners
+        onValue(restaurantReviewsRef, (snapshot) => {
+            const data = snapshot.val();
+            restaurantReviewsData = data || {};
+            populateReviewRestaurantSelect();
+            if (selectedReviewRestaurant) {
+                renderRestaurantReviewsList(selectedReviewRestaurant);
+            }
+            renderModalRestaurantList();
+            renderUpcomingHistory();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
+            if (currentSessionResult) renderCurrentResult(currentSessionResult);
+        });
+
+        window.openRookieProtectionModal = function() {
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "進入新手保護期專區，請輸入驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingRookieData = JSON.parse(JSON.stringify(rookieProtectionGroups || []));
+                        renderRookieModalUI();
+                        document.getElementById('rookieModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法進入新手保護期專區！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeRookieProtectionModal = function() {
+            document.getElementById('rookieModal').style.display = 'none';
+        };
+
+        function renderRookieModalUI() {
+            const container = document.getElementById('rookieGroupsContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            if (!editingRookieData || editingRookieData.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無設定任何新手保護強行同隊組</div>';
+            } else {
+                editingRookieData.forEach((grp, gIdx) => {
+                    const card = document.createElement('div');
+                    card.style.cssText = 'background:#F8FAFC; border:1.5px solid #A7F3D0; border-radius:var(--radius-sm); padding:10px; margin-bottom:10px;';
+                    
+                    const header = document.createElement('div');
+                    header.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;';
+                    header.innerHTML = `<input type="text" value="${grp.name || `同隊組 ${gIdx+1}`}" onchange="updateRookieGroupName(${gIdx}, this.value)" style="font-size:0.85rem; font-weight:900; padding:4px 8px; min-height:36px; width:70%;">
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteRookieGroup(${gIdx})">🗑️ 刪除組</button>`;
+                    
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.style.borderColor = '#A7F3D0';
+                    dropZone.dataset.rookieGroup = `rookie_group_${gIdx}`;
+
+                    (grp.players || []).forEach((player, pIdx) => {
+                        dropZone.appendChild(createRookieDraggableTag(player, gIdx, pIdx));
+                    });
+                    setupRookieDropZone(dropZone);
+
+                    card.appendChild(header);
+                    card.appendChild(dropZone);
+                    container.appendChild(card);
+                });
+            }
+
+            renderRookieTrainerPool();
+        }
+
+        function createRookieDraggableTag(name, groupIdx, pIdx) {
+            const tag = document.createElement('div');
+            tag.className = 'draggable-player';
+            tag.style.background = '#ECFDF5';
+            tag.style.borderColor = '#059669';
+            tag.style.color = '#047857';
+            tag.draggable = true;
+            tag.innerText = name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-del-p';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePlayerFromRookieGroup(groupIdx, pIdx);
+            };
+
+            tag.appendChild(delBtn);
+            tag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    groupIdx: groupIdx,
+                    pIdx: pIdx,
+                    name: name
+                }));
+            });
+            return tag;
+        }
+
+        function setupRookieDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const rawData = e.dataTransfer.getData('text/plain');
+                if (!rawData) return;
+                const data = JSON.parse(rawData);
+                const targetGroupStr = dropZone.dataset.rookieGroup;
+
+                if (data.groupIdx !== undefined && data.groupIdx !== null && editingRookieData[data.groupIdx]) {
+                    editingRookieData[data.groupIdx].players.splice(data.pIdx, 1);
+                }
+
+                if (targetGroupStr && targetGroupStr.startsWith('rookie_group_')) {
+                    const gIdx = parseInt(targetGroupStr.replace('rookie_group_', ''), 10);
+                    if (editingRookieData[gIdx]) {
+                        if (!editingRookieData[gIdx].players.includes(data.name)) {
+                            editingRookieData[gIdx].players.push(data.name);
+                        }
+                    }
+                }
+
+                renderRookieModalUI();
+            });
+        }
+
+        window.removePlayerFromRookieGroup = function(groupIdx, pIdx) {
+            if (editingRookieData[groupIdx]) {
+                editingRookieData[groupIdx].players.splice(pIdx, 1);
+                renderRookieModalUI();
+            }
+        };
+
+        window.updateRookieGroupName = function(gIdx, name) {
+            if (editingRookieData[gIdx]) {
+                editingRookieData[gIdx].name = name.trim() || `同隊組 ${gIdx + 1}`;
+            }
+        };
+
+        window.addRookieGroup = function() {
+            const nextIdx = (editingRookieData || []).length + 1;
+            if (!editingRookieData) editingRookieData = [];
+            editingRookieData.push({
+                id: `rookie_${Date.now()}`,
+                name: `強行同隊組 ${nextIdx}`,
+                players: []
+            });
+            renderRookieModalUI();
+        };
+
+        window.deleteRookieGroup = function(gIdx) {
+            editingRookieData.splice(gIdx, 1);
+            renderRookieModalUI();
+        };
+
+        function renderRookieTrainerPool() {
+            const container = document.getElementById('rookieTrainerPoolContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const assignedPlayers = new Set();
+            (editingRookieData || []).forEach(grp => {
+                (grp.players || []).forEach(p => assignedPlayers.add(p));
+            });
+
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                const isAssigned = assignedPlayers.has(name);
+                tag.className = isAssigned ? 'name-tag active' : 'name-tag';
+                tag.innerText = (isAssigned ? '★ ' : '🌱 ') + name;
+                tag.style.cursor = 'pointer';
+
+                tag.onclick = () => {
+                    if (isAssigned) {
+                        (editingRookieData || []).forEach(grp => {
+                            grp.players = grp.players.filter(p => p !== name);
+                        });
+                    } else {
+                        if (!editingRookieData || editingRookieData.length === 0) {
+                            addRookieGroup();
+                        }
+                        editingRookieData[editingRookieData.length - 1].players.push(name);
+                    }
+                    renderRookieModalUI();
+                };
+
+                container.appendChild(tag);
+            });
+        }
+
+        window.saveRookieConfigFromModal = function() {
+            rookieProtectionGroups = JSON.parse(JSON.stringify(editingRookieData));
+            set(rookieProtectionRef, rookieProtectionGroups);
+            closeRookieProtectionModal();
+            updateRookieBadge();
+            showToast("🌱 新手保護期強行同隊設定已成功儲存！");
+        };
+
+        function updateRookieBadge() {
+            const badge = document.getElementById('rookieProtectionBadge');
+            if (badge) badge.innerText = (rookieProtectionGroups || []).length;
+        }
+
+        function calculateVehicleCount(round) {
+            if (!round) return 0;
+            let count = 0;
+            let allPlayers = new Set();
+
+            if (round.teams && Array.isArray(round.teams)) {
+                round.teams.forEach(group => {
+                    if (Array.isArray(group)) {
+                        group.forEach(player => {
+                            if (player) allPlayers.add(player.trim().toLowerCase());
+                        });
+                    }
+                });
+            }
+
+            if (round.bye) {
+                if (Array.isArray(round.bye)) {
+                    round.bye.forEach(player => {
+                        if (player) allPlayers.add(player.trim().toLowerCase());
+                    });
+                } else if (typeof round.bye === 'string') {
+                    round.bye.split(',').forEach(player => {
+                        if (player && player.trim()) allPlayers.add(player.trim().toLowerCase());
+                    });
+                }
+            }
+
+            const cfg = vehicleConfig || { singleDrivers: [], sharedGroups: [] };
+
+            if (cfg.singleDrivers && Array.isArray(cfg.singleDrivers)) {
+                cfg.singleDrivers.forEach(driver => {
+                    if (driver && allPlayers.has(driver.trim().toLowerCase())) {
+                        count++;
+                    }
+                });
+            }
+
+            if (cfg.sharedGroups && Array.isArray(cfg.sharedGroups)) {
+                cfg.sharedGroups.forEach(grp => {
+                    if (grp && grp.players && Array.isArray(grp.players)) {
+                        const hasMember = grp.players.some(p => p && allPlayers.has(p.trim().toLowerCase()));
+                        if (hasMember) count++;
+                    }
+                });
+            }
+
+            return count;
+        }
+
+        let editingVehicleData = { singleDrivers: [], sharedGroups: [] };
+
+        window.openVehicleManagementModal = function() {
+            openPasswordModal(
+                "🔐 請輸入密碼",
+                "進入車輛管理專區，請輸入驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingVehicleData = JSON.parse(JSON.stringify(vehicleConfig || { singleDrivers: [], sharedGroups: [] }));
+                        renderVehicleModalUI();
+                        document.getElementById('vehicleModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法進入車輛管理專區！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeVehicleManagementModal = function() {
+            document.getElementById('vehicleModal').style.display = 'none';
+        };
+
+        function renderVehicleModalUI() {
+            const singleZone = document.getElementById('vehicleSingleDropZone');
+            singleZone.innerHTML = '';
+            singleZone.dataset.vehicleGroup = 'single';
+
+            (editingVehicleData.singleDrivers || []).forEach((driver, idx) => {
+                singleZone.appendChild(createVehicleDraggableTag(driver, 'single', idx));
+            });
+            setupVehicleDropZone(singleZone);
+
+            const sharedContainer = document.getElementById('vehicleSharedGroupsContainer');
+            sharedContainer.innerHTML = '';
+
+            (editingVehicleData.sharedGroups || []).forEach((grp, gIdx) => {
+                const groupCard = document.createElement('div');
+                groupCard.style.cssText = 'background:#F8FAFC; border:1.5px solid #E2E8F0; border-radius:var(--radius-sm); padding:10px; margin-bottom:10px;';
+                
+                const groupHeader = document.createElement('div');
+                groupHeader.style.cssText = 'display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;';
+                groupHeader.innerHTML = `<input type="text" value="${grp.name || `車輛組 ${gIdx+1}`}" onchange="updateVehicleGroupName(${gIdx}, this.value)" style="font-size:0.85rem; font-weight:900; padding:4px 8px; min-height:36px; width:70%;">
+                <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteSharedVehicleGroup(${gIdx})">🗑️ 刪除組</button>`;
+                
+                const grpDropZone = document.createElement('div');
+                grpDropZone.className = 'drop-zone';
+                grpDropZone.dataset.vehicleGroup = `group_${gIdx}`;
+
+                (grp.players || []).forEach((player, pIdx) => {
+                    grpDropZone.appendChild(createVehicleDraggableTag(player, gIdx, pIdx));
+                });
+                setupVehicleDropZone(grpDropZone);
+
+                groupCard.appendChild(groupHeader);
+                groupCard.appendChild(grpDropZone);
+                sharedContainer.appendChild(groupCard);
+            });
+
+            renderVehicleTrainerPool();
+        }
+
+        function createVehicleDraggableTag(name, groupType, index) {
+            const tag = document.createElement('div');
+            tag.className = 'draggable-player';
+            tag.draggable = true;
+            tag.innerText = name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-del-p';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePlayerFromVehicleConfig(groupType, index);
+            };
+
+            tag.appendChild(delBtn);
+            tag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    groupType: groupType,
+                    index: index,
+                    name: name
+                }));
+            });
+            return tag;
+        }
+
+        function setupVehicleDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const rawData = e.dataTransfer.getData('text/plain');
+                if (!rawData) return;
+                const data = JSON.parse(rawData);
+                const targetGroup = dropZone.dataset.vehicleGroup;
+
+                removePlayerFromVehicleConfigData(data.groupType, data.index, data.name);
+
+                if (targetGroup === 'single') {
+                    if (!editingVehicleData.singleDrivers.includes(data.name)) {
+                        editingVehicleData.singleDrivers.push(data.name);
+                    }
+                } else if (targetGroup.startsWith('group_')) {
+                    const gIdx = parseInt(targetGroup.replace('group_', ''), 10);
+                    if (editingVehicleData.sharedGroups[gIdx]) {
+                        if (!editingVehicleData.sharedGroups[gIdx].players.includes(data.name)) {
+                            editingVehicleData.sharedGroups[gIdx].players.push(data.name);
+                        }
+                    }
+                }
+
+                renderVehicleModalUI();
+            });
+        }
+
+        function removePlayerFromVehicleConfigData(groupType, index, name) {
+            if (groupType === 'single') {
+                editingVehicleData.singleDrivers = editingVehicleData.singleDrivers.filter(p => p !== name);
+            } else if (typeof groupType === 'number' || !isNaN(parseInt(groupType))) {
+                const gIdx = parseInt(groupType);
+                if (editingVehicleData.sharedGroups[gIdx]) {
+                    editingVehicleData.sharedGroups[gIdx].players = editingVehicleData.sharedGroups[gIdx].players.filter(p => p !== name);
+                }
+            }
+        }
+
+        window.removePlayerFromVehicleConfig = function(groupType, index) {
+            if (groupType === 'single') {
+                editingVehicleData.singleDrivers.splice(index, 1);
+            } else {
+                if (editingVehicleData.sharedGroups[groupType]) {
+                    editingVehicleData.sharedGroups[groupType].players.splice(index, 1);
+                }
+            }
+            renderVehicleModalUI();
+        };
+
+        window.updateVehicleGroupName = function(gIdx, name) {
+            if (editingVehicleData.sharedGroups[gIdx]) {
+                editingVehicleData.sharedGroups[gIdx].name = name.trim() || `車輛組 ${gIdx + 1}`;
+            }
+        };
+
+        window.addSharedVehicleGroup = function() {
+            const nextIdx = (editingVehicleData.sharedGroups || []).length + 1;
+            if (!editingVehicleData.sharedGroups) editingVehicleData.sharedGroups = [];
+            editingVehicleData.sharedGroups.push({
+                id: `group_${Date.now()}`,
+                name: `車輛組 ${nextIdx}`,
+                players: []
+            });
+            renderVehicleModalUI();
+        };
+
+        window.deleteSharedVehicleGroup = function(gIdx) {
+            editingVehicleData.sharedGroups.splice(gIdx, 1);
+            renderVehicleModalUI();
+        };
+
+        function renderVehicleTrainerPool() {
+            const container = document.getElementById('vehicleTrainerPoolContainer');
+            if (!container) return;
+            container.innerHTML = '';
+
+            const assignedPlayers = new Set();
+            (editingVehicleData.singleDrivers || []).forEach(p => assignedPlayers.add(p));
+            (editingVehicleData.sharedGroups || []).forEach(grp => {
+                (grp.players || []).forEach(p => assignedPlayers.add(p));
+            });
+
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                const isAssigned = assignedPlayers.has(name);
+                tag.className = isAssigned ? 'name-tag active' : 'name-tag';
+                tag.innerText = (isAssigned ? '★ ' : '⚡ ') + name;
+                tag.style.cursor = 'pointer';
+
+                tag.onclick = () => {
+                    if (isAssigned) {
+                        removePlayerFromVehicleConfigData('single', null, name);
+                        (editingVehicleData.sharedGroups || []).forEach((grp, gIdx) => {
+                            grp.players = grp.players.filter(p => p !== name);
+                        });
+                    } else {
+                        editingVehicleData.singleDrivers.push(name);
+                    }
+                    renderVehicleModalUI();
+                };
+
+                container.appendChild(tag);
+            });
+        }
+
+        window.saveVehicleConfigFromModal = function() {
+            vehicleConfig = JSON.parse(JSON.stringify(editingVehicleData));
+            set(vehicleConfigRef, vehicleConfig);
+            closeVehicleManagementModal();
+            renderUpcomingHistory();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
+            showToast("🚗 車輛規則設定已成功儲存並同步至雲端！");
         };
 
         window.showToast = function(msg) {
@@ -2041,87 +1970,736 @@
             }
         };
 
-        // --- Firebase Database Listeners ---
-        onValue(historyRef, (snapshot) => {
-            const data = snapshot.val();
-            historyRounds = data ? Object.values(data) : [];
-            renderUpcomingHistory();
-            if (window.updateBattleLogBadges) window.updateBattleLogBadges();
-            if (window.renderUpcomingBattlesModal) window.renderUpcomingBattlesModal();
-            if (window.renderHistoryBattlesModal) window.renderHistoryBattlesModal();
-            if (window.renderPresetModalList) window.renderPresetModalList();
+        function getTodayDateString() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            return `${yyyy}-${mm}-${dd}`;
+        }
+
+        function formatDateWithDay(dateStr, timeStr = '') {
+            if (!dateStr) return '';
+            const days = ['日', '一', '二', '三', '四', '五', '六'];
+            let cleanDate = dateStr;
+            let cleanTime = timeStr;
+            if (dateStr.includes('T')) {
+                const parts = dateStr.split('T');
+                cleanDate = parts[0];
+                if (!cleanTime) cleanTime = parts[1].slice(0, 5);
+            }
+            const dateObj = new Date(cleanDate + 'T00:00:00');
+            if (isNaN(dateObj.getTime())) return dateStr;
+            const pad = (n) => String(n).padStart(2, '0');
+            const yyyy = dateObj.getFullYear();
+            const mm = pad(dateObj.getMonth() + 1);
+            const dd = pad(dateObj.getDate());
+            const dayOfWeek = days[dateObj.getDay()];
             
-            if (currentSessionResult) renderCurrentResult(currentSessionResult);
-            else clearCurrentResultUI();
-        });
+            return cleanTime ? `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${cleanTime}` : `${yyyy}-${mm}-${dd} (${dayOfWeek})`;
+        }
 
-        onValue(customRestaurantsRef, (snapshot) => {
-            const data = snapshot.val();
-            customRestaurants = data ? Object.values(data) : [];
-        });
-
-        onValue(presetsRef, (snapshot) => {
-            const data = snapshot.val();
-            presetTeams = data ? Object.values(data) : [];
-            presetTeams.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
-            const badge = document.getElementById('presetBadgeCount');
-            if (badge) badge.innerText = `(${presetTeams.length})`;
-            if (window.renderPresetModalList) window.renderPresetModalList();
-        });
-
-        onValue(trainerPresetsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && Array.isArray(data)) defaultPresetNames = data;
-            if (window.initNameTags) window.initNameTags();
-            if (window.renderReviewTrainerTags) window.renderReviewTrainerTags();
-            if (window.initPresetNameTags) window.initPresetNameTags();
-            if (window.initEditModalNameTags) window.initEditModalNameTags();
-        });
-
-        onValue(matchPoolsRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data && data.pools && Array.isArray(data.pools)) {
-                if (data.dailyIncrement === undefined) data.dailyIncrement = 3;
-                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
-            } else if (!data) {
-                matchPoolsData.dailyIncrement = 3;
-                matchPoolsData.lastUpdatedDate = getTodayDateString();
-                set(matchPoolsRef, matchPoolsData);
+        function generateGoogleCalendarUrl(round) {
+            if (!round || !round.eventDate) return '';
+            let datePart = round.eventDate;
+            let timePart = round.eventTime || '14:00';
+            if (round.eventDate.includes('T')) {
+                const p = round.eventDate.split('T');
+                datePart = p[0];
+                timePart = p[1].slice(0, 5);
             }
-            if (window.updatePoolsUI) window.updatePoolsUI();
-        });
-
-        onValue(vehicleConfigRef, (snapshot) => {
-            const data = snapshot.val();
-            if (data) {
-                vehicleConfig = data;
-                renderUpcomingHistory();
-                if (window.renderUpcomingBattlesModal) window.renderUpcomingBattlesModal();
-                if (window.renderHistoryBattlesModal) window.renderHistoryBattlesModal();
-            } else {
-                set(vehicleConfigRef, vehicleConfig);
+            const cleanDate = datePart.replace(/-/g, '');
+            const cleanTime = timePart.replace(/:/g, '') + '00';
+            
+            const startDt = new Date(`${datePart}T${timePart}:00`);
+            const endDt = new Date(startDt.getTime() + 2 * 60 * 60 * 1000);
+            const pad = (n) => String(n).padStart(2, '0');
+            const endCleanDate = `${endDt.getFullYear()}${pad(endDt.getMonth()+1)}${pad(endDt.getDate())}`;
+            const endCleanTime = `${pad(endDt.getHours())}${pad(endDt.getMinutes())}00`;
+            const dates = `${cleanDate}T${cleanTime}/${endCleanDate}T${endCleanTime}`;
+            
+            const title = encodeURIComponent("白熊保齡球");
+            let detailsText = "【白熊保齡球戰報】\n";
+            if (round.mealTime) detailsText += `⏰ 用餐時間：${round.mealTime}\n`;
+            if (round.teams && round.teams.length > 0) {
+                round.teams.forEach((t, i) => { detailsText += `第 ${i+1} 組：${t.join(' & ')}\n`; });
             }
-        });
+            if (round.bye) detailsText += `此次爽打：${round.bye}\n`;
+            const details = encodeURIComponent(detailsText);
+            const location = encodeURIComponent(round.restaurantName || round.restaurant || '');
+            return `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${dates}&details=${details}&location=${location}`;
+        }
 
-        onValue(rookieProtectionRef, (snapshot) => {
-            const data = snapshot.val();
-            rookieProtectionGroups = data ? Object.values(data) : [];
-            if (window.updateRookieBadge) window.updateRookieBadge();
-        });
-
-        onValue(restaurantReviewsRef, (snapshot) => {
-            const data = snapshot.val();
-            restaurantReviewsData = data || {};
-            if (selectedReviewRestaurant) {
-                renderRestaurantReviewsList(selectedReviewRestaurant);
+        function copyToClipboard(text) {
+            const textarea = document.createElement("textarea");
+            textarea.value = text;
+            textarea.style.position = "fixed";
+            textarea.style.left = "-9999px";
+            document.body.appendChild(textarea);
+            textarea.focus();
+            textarea.select();
+            try {
+                if (document.execCommand("copy")) showToast("已複製對戰戰報！");
+                else showToast("複製失敗，請手動複製！");
+            } catch (err) {
+                showToast("複製失敗，請手動複製！");
             }
+            document.body.removeChild(textarea);
+        }
+
+        function shareToLine(text) {
+            const lineUrl = `https://line.me/R/msg/text/?${encodeURIComponent(text)}`;
+            window.open(lineUrl, '_blank');
+        }
+
+        function checkAndApplyDailyAutoIncrement(data) {
+            if (!data || !data.pools) return data;
+            if (data.dailyIncrement === undefined) {
+                data.dailyIncrement = 3;
+            }
+            const todayStr = getTodayDateString();
+            if (!data.lastUpdatedDate) {
+                data.lastUpdatedDate = todayStr;
+                return data;
+            }
+
+            if (data.lastUpdatedDate < todayStr) {
+                const d1 = new Date(data.lastUpdatedDate);
+                const d2 = new Date(todayStr);
+                const diffTime = Math.abs(d2 - d1);
+                const diffDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
+                
+                const incVal = Number(data.dailyIncrement) !== undefined ? Number(data.dailyIncrement) : 3;
+                data.pools.forEach(pool => {
+                    pool.count = (Number(pool.count) || 0) + (diffDays * incVal);
+                });
+                data.lastUpdatedDate = todayStr;
+                set(matchPoolsRef, data);
+            }
+            return data;
+        }
+
+        function calculateTotalMatches() {
+            if (!matchPoolsData || !matchPoolsData.pools) return 0;
+            return matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
+        }
+
+        function updateTopMatchesSummary() {
+            const total = calculateTotalMatches();
+            const totalEl = document.getElementById('topTotalSummary');
+            if (totalEl) totalEl.innerText = `總場次: ${total} 場`;
+
+            const listEl = document.getElementById('topPoolsSummaryList');
+            if (listEl && matchPoolsData && matchPoolsData.pools) {
+                let html = '';
+                matchPoolsData.pools.forEach(pool => {
+                    html += `<span class="top-summary-item">${pool.name}: ${pool.count || 0}</span>`;
+                });
+                listEl.innerHTML = html;
+            }
+        }
+
+        function getChronologicalHistory(rounds = historyRounds) {
+            return rounds.map((round, originalIndex) => ({ ...round, originalIndex }))
+                         .sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+        }
+
+        function getUpcomingTargetRound() {
+            if (!historyRounds || historyRounds.length === 0) return null;
+            const todayStr = getTodayDateString();
+            const sorted = getChronologicalHistory(historyRounds);
+            const upcomingRounds = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+            return upcomingRounds.length > 0 ? upcomingRounds[0] : sorted[sorted.length - 1];
+        }
+
+        function getUpcomingUsageValue() {
+            const targetRound = getUpcomingTargetRound();
+            if (!targetRound) return { base: 0, bonus: 0, basePoolId: "", bonusPoolId: "", baseDeductions: [], bonusDeductions: [] };
+            return {
+                base: targetRound.baseCount || 0,
+                bonus: targetRound.bonusCount || 0,
+                basePoolId: targetRound.basePoolId || "",
+                bonusPoolId: targetRound.bonusPoolId || "",
+                baseDeductions: targetRound.baseDeductions || [],
+                bonusDeductions: targetRound.bonusDeductions || []
+            };
+        }
+
+        function releaseMatchPools(amount, poolPathOrId) {
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+
+            if (Array.isArray(poolPathOrId) && poolPathOrId.length > 0) {
+                poolPathOrId.forEach(item => {
+                    const pId = item.poolId;
+                    const cnt = Number(item.count) || 0;
+                    if (cnt > 0) {
+                        let targetPool = matchPoolsData.pools.find(p => p.id === pId);
+                        if (targetPool) {
+                            targetPool.count = (Number(targetPool.count) || 0) + cnt;
+                        } else if (matchPoolsData.pools.length > 0) {
+                            matchPoolsData.pools[0].count = (Number(matchPoolsData.pools[0].count) || 0) + cnt;
+                        }
+                    }
+                });
+            } else if (typeof poolPathOrId === 'string' && poolPathOrId) {
+                if (!amount || amount <= 0) return;
+                let targetPool = matchPoolsData.pools.find(p => p.id === poolPathOrId);
+                if (targetPool) {
+                    targetPool.count = (Number(targetPool.count) || 0) + amount;
+                } else if (matchPoolsData.pools.length > 0) {
+                    matchPoolsData.pools[0].count = (Number(matchPoolsData.pools[0].count) || 0) + amount;
+                }
+            } else if (amount > 0) {
+                if (matchPoolsData.pools.length > 0) {
+                    matchPoolsData.pools[0].count = (Number(matchPoolsData.pools[0].count) || 0) + amount;
+                }
+            }
+        }
+
+        function updateTargetRoundMatchUsage(baseCnt, bonusCnt, basePoolId = "", bonusPoolId = "", baseDeductions = [], bonusDeductions = []) {
+            const targetRound = getUpcomingTargetRound();
+            if (!targetRound || targetRound.originalIndex === undefined) return;
+
+            let updatedRounds = [...historyRounds];
+            const base = Number(baseCnt) || 0;
+            const bonus = Number(bonusCnt) || 0;
+            const total = base + bonus;
+
+            let matchText = total > 0 ? `${total} 場` : '0 場';
+            if (bonus > 0) matchText = `${total} 場 (基本 ${base} + 加碼 ${bonus})`;
+
+            updatedRounds[targetRound.originalIndex] = {
+                ...updatedRounds[targetRound.originalIndex],
+                baseCount: base,
+                bonusCount: bonus,
+                basePoolId: basePoolId || targetRound.basePoolId || "",
+                bonusPoolId: bonusPoolId || targetRound.bonusPoolId || "",
+                baseDeductions: baseDeductions,
+                bonusDeductions: bonusDeductions,
+                usedMatchesCount: total,
+                matchUsageText: matchText
+            };
+            saveHistoryWithLimit(updatedRounds);
+            updatePoolsUI();
             renderUpcomingHistory();
-            if (window.renderUpcomingBattlesModal) window.renderUpcomingBattlesModal();
-            if (window.renderHistoryBattlesModal) window.renderHistoryBattlesModal();
-        });
+        }
 
-        // Initialize Name Tags
-        window.initNameTags = function() {
+        function updateUpcomingUsageUI() {
+            const btn = document.getElementById('btnUpcomingMatchUsage');
+            if (!btn) return;
+
+            const usage = getUpcomingUsageValue();
+            let total = (usage.base || 0) + (usage.bonus || 0);
+
+            if (total > 0) {
+                btn.classList.add('has-value');
+                let text = `本次場次: ${total}`;
+                if (usage.bonus > 0) text += ` (含加碼${usage.bonus})`;
+                btn.innerHTML = text;
+            } else {
+                btn.classList.remove('has-value');
+                btn.innerHTML = `本次場次`;
+            }
+        }
+
+        function updatePoolsUI() {
+            const total = calculateTotalMatches();
+            const badge = document.getElementById('mainTotalMatchesBadge');
+            if (badge) badge.innerText = total;
+
+            const modalTotal = document.getElementById('modalTotalMatches');
+            if (modalTotal) modalTotal.innerText = total;
+
+            const lastIncText = document.getElementById('lastAutoIncText');
+            if (lastIncText) {
+                lastIncText.innerText = matchPoolsData.lastUpdatedDate ? `上次結算: ${matchPoolsData.lastUpdatedDate}` : '今日已跨日更新';
+            }
+
+            updateTopMatchesSummary();
+            updateUpcomingUsageUI();
+        }
+
+        window.handleUpcomingUsageClick = function() {
+            const target = getUpcomingTargetRound();
+            if (!target) return showToast("目前沒有預訂的對戰場次可供設定！");
+
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "請輸入驗證密碼以繼續：",
+                (pwd) => {
+                    if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
+                        const usage = getUpcomingUsageValue();
+                        const baseTxt = document.getElementById('modalBaseMatchText');
+                        const bonusTxt = document.getElementById('modalBonusMatchText');
+
+                        if (baseTxt) baseTxt.innerText = usage.base > 0 ? `${usage.base} 場` : '未設定';
+                        if (bonusTxt) bonusTxt.innerText = usage.bonus > 0 ? `${usage.bonus} 場` : '未設定';
+
+                        document.getElementById('upcomingModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法設定本次場次！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeUpcomingModal = function() { document.getElementById('upcomingModal').style.display = 'none'; };
+
+        window.triggerSetBaseMatches = function() {
+            closeUpcomingModal();
+            currentInputMode = 'base';
+            const usage = getUpcomingUsageValue();
+            document.getElementById('matchInputModalTitle').innerText = '🎯 設定本次場次';
+            document.getElementById('matchInputModalSubtext').innerText = usage.base > 0 
+                ? `目前場次：${usage.base} 場\n請修改數量，或輸入 0 清除：`
+                : '請輸入本次場次數量：';
+            document.getElementById('matchInputVal').value = usage.base || '';
+            document.getElementById('matchInputModal').style.display = 'flex';
+            setTimeout(() => {
+                const input = document.getElementById('matchInputVal');
+                input.focus(); input.select();
+            }, 100);
+        };
+
+        window.triggerSetBonusMatches = function() {
+            closeUpcomingModal();
+            currentInputMode = 'bonus';
+            const usage = getUpcomingUsageValue();
+            document.getElementById('matchInputModalTitle').innerText = '🎁 設定主委加碼';
+            document.getElementById('matchInputModalSubtext').innerText = usage.bonus > 0 
+                ? `目前加碼：${usage.bonus} 場\n請修改數量，或輸入 0 清除：`
+                : '請輸入主委加碼場次數量：';
+            document.getElementById('matchInputVal').value = usage.bonus || '';
+            document.getElementById('matchInputModal').style.display = 'flex';
+            setTimeout(() => {
+                const input = document.getElementById('matchInputVal');
+                input.focus(); input.select();
+            }, 100);
+        };
+
+        window.closeMatchInputModal = function() { document.getElementById('matchInputModal').style.display = 'none'; };
+
+        window.submitMatchInput = function(valOverride) {
+            let valStr = valOverride !== undefined ? String(valOverride) : document.getElementById('matchInputVal').value.trim();
+            if (valStr === '') return;
+            const num = parseInt(valStr, 10);
+            if (isNaN(num) || num < 0) {
+                showToast("請輸入有效的正整數數字！");
+                return;
+            }
+
+            const usage = getUpcomingUsageValue();
+            closeMatchInputModal();
+
+            if (currentInputMode === 'base' && usage.base > 0) releaseMatchPools(usage.base, (usage.baseDeductions && usage.baseDeductions.length > 0) ? usage.baseDeductions : usage.basePoolId);
+            else if (currentInputMode === 'bonus' && usage.bonus > 0) releaseMatchPools(usage.bonus, (usage.bonusDeductions && usage.bonusDeductions.length > 0) ? usage.bonusDeductions : usage.bonusPoolId);
+
+            if (num === 0) {
+                if (currentInputMode === 'base') {
+                    updateTargetRoundMatchUsage(0, usage.bonus, "", usage.bonusPoolId, [], usage.bonusDeductions);
+                } else {
+                    updateTargetRoundMatchUsage(usage.base, 0, usage.basePoolId, "", usage.baseDeductions, []);
+                }
+                set(matchPoolsRef, matchPoolsData);
+                showToast("已清除該場次設定並將剩餘額度釋放回卡池！");
+            } else {
+                const promptTitle = currentInputMode === 'base' 
+                    ? `請選擇【本次場次】要扣除的場次池 (需 ${num} 場)：` 
+                    : `請選擇【主委加碼】要扣除的場次池 (需 ${num} 場)：`;
+                
+                openPoolSelectionForAction((chosenPoolId) => {
+                    deductMatchPoolsInteractive(num, chosenPoolId, (res) => {
+                        if (!res || !res.success) {
+                            if (currentInputMode === 'base' && usage.base > 0) {
+                                let red = deductFromPoolsDirectly(usage.base, usage.basePoolId);
+                                updateTargetRoundMatchUsage(usage.base, usage.bonus, usage.basePoolId, usage.bonusPoolId, red.accumulated, usage.bonusDeductions);
+                            } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
+                                let red = deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
+                                updateTargetRoundMatchUsage(usage.base, usage.bonus, usage.basePoolId, usage.bonusPoolId, usage.baseDeductions, red.accumulated);
+                            }
+                            set(matchPoolsRef, matchPoolsData);
+                            return;
+                        }
+                        
+                        if (currentInputMode === 'base') {
+                            updateTargetRoundMatchUsage(num, usage.bonus, chosenPoolId, usage.bonusPoolId, res.accumulated, usage.bonusDeductions);
+                        } else {
+                            updateTargetRoundMatchUsage(usage.base, num, usage.basePoolId, chosenPoolId, res.accumulated, res.accumulated);
+                        }
+                        set(matchPoolsRef, matchPoolsData);
+                        showToast("對戰場次已成功設定並自場次池扣除！");
+                    });
+                }, promptTitle, () => {
+                    if (currentInputMode === 'base' && usage.base > 0) {
+                        let red = deductFromPoolsDirectly(usage.base, usage.basePoolId);
+                        updateTargetRoundMatchUsage(usage.base, usage.bonus, usage.basePoolId, usage.bonusPoolId, red.accumulated, usage.bonusDeductions);
+                    } else if (currentInputMode === 'bonus' && usage.bonus > 0) {
+                        let red = deductFromPoolsDirectly(usage.bonus, usage.bonusPoolId);
+                        updateTargetRoundMatchUsage(usage.base, usage.bonus, usage.basePoolId, usage.bonusPoolId, usage.baseDeductions, red.accumulated);
+                    }
+                    set(matchPoolsRef, matchPoolsData);
+                });
+            }
+        };
+
+        window.confirmMatchInput = function() { submitMatchInput(); };
+
+        window.clearUpcomingUsageAndBonus = function() {
+            const usage = getUpcomingUsageValue();
+            if (usage.base > 0) releaseMatchPools(usage.base, (usage.baseDeductions && usage.baseDeductions.length > 0) ? usage.baseDeductions : usage.basePoolId);
+            if (usage.bonus > 0) releaseMatchPools(usage.bonus, (usage.bonusDeductions && usage.bonusDeductions.length > 0) ? usage.bonusDeductions : usage.bonusPoolId);
+
+            updateTargetRoundMatchUsage(0, 0, "", "", [], []);
+            set(matchPoolsRef, matchPoolsData);
+            closeUpcomingModal();
+            showToast("已成功清空所有本次場次與加碼設定，並釋放點數回卡池！");
+        };
+
+        let onPoolSelectCallback = null;
+        let onPoolCancelCallback = null;
+
+        function openPoolSelectionForAction(callback, titleText = "請選擇場次池：", cancelCallback = null) {
+            onPoolSelectCallback = callback;
+            onPoolCancelCallback = cancelCallback;
+            document.getElementById('selectPoolModalSubtext').innerText = titleText;
+            const container = document.getElementById('selectPoolModalList');
+            const pools = matchPoolsData ? matchPoolsData.pools : [];
+            const availablePools = pools.filter(p => (Number(p.count) || 0) > 0);
+
+            let html = '';
+            if (availablePools.length === 0) {
+                html += `<div class="empty-text" style="color:var(--poke-red); font-weight:900;">⚠️ 目前無任何剩餘場次池！</div>`;
+            } else {
+                availablePools.forEach(pool => {
+                    html += `<button class="size-option-btn" onclick="confirmPoolSelect('${pool.id}')">🎯 ${pool.name} (剩餘 ${pool.count} 場)</button>`;
+                });
+            }
+            container.innerHTML = html;
+            document.getElementById('selectPoolModal').style.display = 'flex';
+        }
+
+        function deductMatchPoolsInteractive(neededCount, currentPoolId, onComplete, accumulated = []) {
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+            let totalAvail = matchPoolsData.pools.reduce((sum, p) => sum + (Number(p.count) || 0), 0);
+            
+            if (totalAvail <= 0 || totalAvail < neededCount) {
+                showToast("請支援收銀!!!");
+                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
+                return;
+            }
+
+            if (!currentPoolId) {
+                promptNextPoolDeduction(neededCount, `請選擇要扣除的場次池 (尚需 ${neededCount} 場)：`, onComplete, accumulated);
+                return;
+            }
+
+            let targetPool = matchPoolsData.pools.find(p => p.id === currentPoolId);
+            let poolCount = targetPool ? (Number(targetPool.count) || 0) : 0;
+
+            if (!targetPool || poolCount <= 0) {
+                promptNextPoolDeduction(neededCount, `【${targetPool ? targetPool.name : '選擇的場次池'}】剩餘額度不足！請選擇其他場次池：`, onComplete, accumulated);
+                return;
+            }
+
+            if (poolCount >= neededCount) {
+                targetPool.count = poolCount - neededCount;
+                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: neededCount });
+                let usedNameStr = formatAccumulatedPoolNames(accumulated);
+                if (onComplete) onComplete({ success: true, usedPoolName: usedNameStr, accumulated: accumulated });
+            } else {
+                let deducted = poolCount;
+                let remainingNeeded = neededCount - deducted;
+                targetPool.count = 0;
+                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: deducted });
+                promptNextPoolDeduction(remainingNeeded, `「${targetPool.name}」已扣完 (${deducted} 場)，尚需扣除 ${remainingNeeded} 場，請選擇下一個場次池：`, onComplete, accumulated);
+            }
+        }
+
+        function formatAccumulatedPoolNames(accumulated) {
+            return accumulated.length === 1 ? accumulated[0].poolName : accumulated.map(a => `${a.poolName}(-${a.count})`).join(' + ');
+        }
+
+        function promptNextPoolDeduction(remainingNeeded, subtext, onComplete, accumulated = []) {
+            let availablePools = matchPoolsData.pools.filter(p => (Number(p.count) || 0) > 0);
+            if (availablePools.length === 0) {
+                showToast("請支援收銀!!!");
+                if (onComplete) onComplete({ success: false, reason: "EXHAUSTED" });
+                return;
+            }
+
+            openPoolSelectionForAction((chosenPoolId) => {
+                deductMatchPoolsInteractive(remainingNeeded, chosenPoolId, onComplete, accumulated);
+            }, subtext, () => {
+                if (onComplete) onComplete({ success: false, reason: "CANCELLED" });
+            });
+        }
+
+        function deductFromPoolsDirectly(count, preferredPoolId) {
+            if (count <= 0) return { success: false, usedPoolName: "", accumulated: [] };
+            let accumulated = [];
+            let targetPool = matchPoolsData.pools.find(p => p.id === preferredPoolId);
+            if (targetPool && (Number(targetPool.count) || 0) >= count) {
+                targetPool.count = Math.max(0, (Number(targetPool.count) || 0) - count);
+                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: count });
+                return { success: true, usedPoolName: targetPool.name, accumulated: accumulated };
+            }
+            let remaining = count;
+            let usedPoolNames = [];
+            if (targetPool && (Number(targetPool.count) || 0) > 0) {
+                let cnt = Number(targetPool.count);
+                remaining -= cnt;
+                usedPoolNames.push(`${targetPool.name}(-${cnt})`);
+                accumulated.push({ poolId: targetPool.id, poolName: targetPool.name, count: cnt });
+                targetPool.count = 0;
+            }
+            for (let pool of matchPoolsData.pools) {
+                if (remaining <= 0) break;
+                let current = Number(pool.count) || 0;
+                if (current > 0) {
+                    let deduct = Math.min(current, remaining);
+                    pool.count = Math.max(0, current - deduct);
+                    remaining -= deduct;
+                    usedPoolNames.push(`${pool.name}(-${deduct})`);
+                    accumulated.push({ poolId: pool.id, poolName: pool.name, count: deduct });
+                }
+            }
+            return { success: remaining === 0, usedPoolName: usedPoolNames.join(' + '), accumulated: accumulated };
+        }
+
+        window.confirmPoolSelect = function(poolId) {
+            const cb = onPoolSelectCallback;
+            onPoolSelectCallback = null;
+            onPoolCancelCallback = null;
+            document.getElementById('selectPoolModal').style.display = 'none';
+            if (cb) cb(poolId);
+        };
+
+        window.closeSelectPoolModal = function() {
+            const cancelCb = onPoolCancelCallback;
+            onPoolSelectCallback = null;
+            onPoolCancelCallback = null;
+            document.getElementById('selectPoolModal').style.display = 'none';
+            if (cancelCb) cancelCb();
+        };
+
+        window.openPoolManagementModal = function() {
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "進入對戰場次管理專區，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        renderPoolListModal();
+                        document.getElementById('poolModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法進入對戰場次管理！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closePoolManagementModal = function() { document.getElementById('poolModal').style.display = 'none'; };
+
+        function renderPoolListModal() {
+            const container = document.getElementById('poolListContainer');
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+            
+            const incInp = document.getElementById('dailyIncrementInput');
+            if (incInp) {
+                incInp.value = matchPoolsData.dailyIncrement !== undefined ? matchPoolsData.dailyIncrement : 3;
+            }
+
+            let html = '';
+            matchPoolsData.pools.forEach((pool, idx) => {
+                html += `<div class="pool-item-row" id="poolRow_${pool.id}">
+                    <input type="text" id="poolName_${idx}" value="${pool.name}" placeholder="場次池名稱">
+                    <input type="number" id="poolCount_${idx}" value="${pool.count}" min="0" placeholder="數量">
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deletePool('${pool.id}')">🗑️</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+            updatePoolsUI();
+        }
+
+        window.addNewPool = function() {
+            const nextIdx = matchPoolsData.pools.length + 1;
+            matchPoolsData.pools.push({ id: 'pool_' + Date.now(), name: `場次池 ${nextIdx}`, count: 10 });
+            renderPoolListModal();
+        };
+
+        window.deletePool = function(poolId) {
+            if (matchPoolsData.pools.length <= 1) return showToast("至少需保留一個對戰場次池！");
+            showConfirm("確定要刪除此場次池嗎？", () => {
+                matchPoolsData.pools = matchPoolsData.pools.filter(p => p.id !== poolId);
+                renderPoolListModal();
+            });
+        };
+
+        window.savePoolsFromModal = function() {
+            if (!matchPoolsData || !matchPoolsData.pools) return;
+
+            const incInp = document.getElementById('dailyIncrementInput');
+            if (incInp) {
+                const val = parseInt(incInp.value, 10);
+                matchPoolsData.dailyIncrement = isNaN(val) || val < 0 ? 0 : val;
+            }
+
+            matchPoolsData.pools.forEach((pool, idx) => {
+                const nameInp = document.getElementById(`poolName_${idx}`);
+                const countInp = document.getElementById(`poolCount_${idx}`);
+                if (nameInp) pool.name = nameInp.value.trim() || `場次池 ${idx + 1}`;
+                if (countInp) pool.count = Math.max(0, parseInt(countInp.value) || 0);
+            });
+
+            matchPoolsData.lastUpdatedDate = getTodayDateString();
+            set(matchPoolsRef, matchPoolsData);
+            closePoolManagementModal();
+            showToast("對戰場次池與每日增加數量設定已成功儲存！");
+        };
+
+        window.onDateInputChange = function() {
+            const dateVal = document.getElementById('eventDate').value;
+            if (!dateVal) return;
+            const day = new Date(dateVal + 'T00:00:00').getDay();
+            const timeInput = document.getElementById('eventTime');
+            if (day === 3) timeInput.value = "14:00";
+            else if (day === 6) timeInput.value = "13:00";
+        };
+
+        window.onModalDateInputChange = function() {
+            const dateVal = document.getElementById('editModalDate').value;
+            if (!dateVal) return;
+            const day = new Date(dateVal + 'T00:00:00').getDay();
+            const timeInput = document.getElementById('editModalTime');
+            if (day === 3) timeInput.value = "14:00";
+            else if (day === 6) timeInput.value = "13:00";
+        };
+
+        window.openTeamSizeModal = function() { document.getElementById('teamSizeModal').style.display = 'flex'; };
+        window.closeTeamSizeModal = function() { document.getElementById('teamSizeModal').style.display = 'none'; };
+        window.selectTeamSize = function(size) {
+            selectedTeamSize = size;
+            document.getElementById('selectedTeamSizeText').innerText = `${size} 人一組`;
+            closeTeamSizeModal();
+        };
+
+        function updateMainRestaurantUI(val) {
+            selectedRestaurantRaw = val;
+            const parsed = parseRestaurantInput(val);
+            const displaySpan = document.getElementById('selectedRestaurantText');
+            if (parsed.name && parsed.name !== "Google 地圖連結") displaySpan.innerText = `📍 ${parsed.name}`;
+            else if (val) displaySpan.innerText = `📍 已貼上連結/餐廳`;
+            else displaySpan.innerText = `尚未設定餐廳`;
+        }
+
+        window.pasteClipboardMain = async function() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) updateMainRestaurantUI(text.trim());
+                } else showToast("請授權剪貼簿讀取權限，或點擊欄位手動輸入！");
+            } catch (err) { showToast("請授權剪貼簿讀取權限，或點擊欄位手動輸入！"); }
+        };
+
+        window.openRestaurantModal = function() {
+            document.getElementById('restaurantModalInput').value = selectedRestaurantRaw;
+            document.getElementById('restaurantModalMealTime').value = document.getElementById('mealTime').value || '';
+            renderModalRestaurantList();
+            document.getElementById('restaurantModal').style.display = 'flex';
+        };
+
+        window.closeRestaurantModal = function() { 
+            document.getElementById('restaurantModal').style.display = 'none'; 
+            editingRestaurantIndex = null;
+        };
+
+        window.confirmRestaurantModal = function() {
+            const val = document.getElementById('restaurantModalInput').value.trim();
+            const modalMealTime = document.getElementById('restaurantModalMealTime').value;
+
+            if (editingRestaurantIndex !== null) {
+                const restaurantData = parseRestaurantInput(val);
+                let updatedRounds = [...historyRounds];
+                if (updatedRounds[editingRestaurantIndex]) {
+                    updatedRounds[editingRestaurantIndex] = {
+                        ...updatedRounds[editingRestaurantIndex],
+                        restaurantName: restaurantData.name,
+                        mapUrl: restaurantData.url,
+                        mealTime: modalMealTime
+                    };
+                    if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                        customRestaurants.push(restaurantData.name);
+                        set(customRestaurantsRef, customRestaurants);
+                    }
+                    saveHistoryWithLimit(updatedRounds);
+                    showToast("餐廳與用餐時間資訊已成功修改！");
+                }
+                editingRestaurantIndex = null;
+            } else {
+                updateMainRestaurantUI(val);
+                document.getElementById('mealTime').value = modalMealTime;
+            }
+            closeRestaurantModal();
+        };
+
+        window.pasteClipboardModal = async function() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.readText) {
+                    const text = await navigator.clipboard.readText();
+                    if (text) {
+                        document.getElementById('restaurantModalInput').value = text;
+                        renderModalRestaurantList(text.trim().toLowerCase());
+                    }
+                } else showToast("請手動長按輸入框貼上！");
+            } catch (err) { showToast("請授權剪貼簿讀取權限，或手動貼上！"); }
+        };
+
+        window.filterModalRestaurants = function() {
+            const val = document.getElementById('restaurantModalInput').value.trim().toLowerCase();
+            renderModalRestaurantList(val);
+        };
+
+        function renderModalRestaurantList(filterVal = '') {
+            const container = document.getElementById('modalRestaurantList');
+            if (!container) return;
+            const list = getAllRestaurants().filter(r => r.toLowerCase().includes(filterVal));
+            if (list.length === 0) {
+                container.innerHTML = '<div class="empty-text">無歷史餐廳紀錄</div>';
+                return;
+            }
+            let html = '';
+            list.forEach(name => {
+                const escapedName = name.replace(/'/g, "\\'");
+                const reviews = restaurantReviewsData[name] || {};
+                const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
+                const reviewCount = reviewsArr.length;
+                let ratingBadge = '';
+                if (reviewCount > 0) {
+                    let total = 0;
+                    reviewsArr.forEach(r => total += (Number(r.rating) || 0));
+                    const avg = (total / reviewCount).toFixed(1);
+                    ratingBadge = `<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★${avg} (${reviewCount})</span>`;
+                }
+
+                html += `<div class="modal-rest-item" onclick="selectModalRestaurant('${escapedName}')">
+                    <span class="rest-name">📍 ${name} ${ratingBadge}</span>
+                    <div style="display:flex; gap:4px;">
+                        <button class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('${escapedName}')" title="查看與發表評價">⭐ 評價</button>
+                        <button class="btn-del-rest" onclick="deleteRestaurant(event, '${escapedName}')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        window.selectModalRestaurant = function(name) {
+            document.getElementById('restaurantModalInput').value = name;
+        };
+
+        function initNameTags() {
             const container = document.getElementById('tagContainer');
             if (!container) return;
             container.innerHTML = '';
@@ -2133,7 +2711,7 @@
                 container.appendChild(tag);
             });
             syncTagsWithTextarea();
-        };
+        }
 
         function toggleName(name, element) {
             const textarea = document.getElementById('nameInput');
@@ -2166,32 +2744,1456 @@
             });
         }
 
-        function checkAndApplyDailyAutoIncrement(data) {
-            if (!data || !data.pools) return data;
-            if (data.dailyIncrement === undefined) {
-                data.dailyIncrement = 3;
+        window.openTrainerManagerModal = function() {
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯登場訓練家為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        renderTrainerManagerList();
+                        document.getElementById('trainerModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯訓練家！");
+                        return false;
+                    }
+                }
+            );
+        };
+        window.closeTrainerManagerModal = function() { document.getElementById('trainerModal').style.display = 'none'; };
+        
+        window.addNewTrainerPreset = function() {
+            const input = document.getElementById('newTrainerInput');
+            const val = input.value.trim();
+            if (!val) return;
+            if (defaultPresetNames.includes(val)) return showToast("該訓練家已存在於清單中！");
+            
+            defaultPresetNames.push(val);
+            set(trainerPresetsRef, defaultPresetNames);
+            input.value = '';
+            initNameTags();
+            renderTrainerManagerList();
+        };
+
+        window.deleteTrainerPreset = function(name) {
+            showConfirm(`確定要將「${name}」從登場訓練家選項中移除嗎？`, () => {
+                defaultPresetNames = defaultPresetNames.filter(n => n !== name);
+                set(trainerPresetsRef, defaultPresetNames);
+                initNameTags();
+                renderTrainerManagerList();
+            });
+        };
+
+        function renderTrainerManagerList() {
+            const container = document.getElementById('trainerManagerList');
+            if (defaultPresetNames.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無預設訓練家</div>';
+                return;
             }
+            let html = '';
+            defaultPresetNames.forEach(name => {
+                const escapedName = name.replace(/'/g, "\\'");
+                html += `<div class="trainer-list-item">
+                    <span>⚡ ${name}</span>
+                    <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapedName}')">🗑️ 刪除</button>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        window.clearAll = function() {
+            document.getElementById('nameInput').value = '';
+            document.getElementById('mealTime').value = '18:00';
+            updateMainRestaurantUI("");
+            activePresetId = null;
+            updatePoolsUI();
+            syncTagsWithTextarea();
+        };
+
+        function saveHistoryWithLimit(updatedHistory) {
             const todayStr = getTodayDateString();
-            if (!data.lastUpdatedDate) {
-                data.lastUpdatedDate = todayStr;
-                return data;
+            let pastRounds = updatedHistory.filter(r => (r.eventDate || '').split('T')[0] < todayStr);
+            let upcomingRounds = updatedHistory.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+
+            pastRounds.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+
+            if (pastRounds.length > 100) {
+                pastRounds = pastRounds.slice(pastRounds.length - 100);
             }
 
-            if (data.lastUpdatedDate < todayStr) {
-                const d1 = new Date(data.lastUpdatedDate);
-                const d2 = new Date(todayStr);
-                const diffTime = Math.abs(d2 - d1);
-                const diffDays = Math.max(1, Math.floor(diffTime / (1000 * 60 * 60 * 24)));
-                
-                const incVal = Number(data.dailyIncrement) !== undefined ? Number(data.dailyIncrement) : 3;
-                data.pools.forEach(pool => {
-                    pool.count = (Number(pool.count) || 0) + (diffDays * incVal);
-                });
-                data.lastUpdatedDate = todayStr;
-                set(matchPoolsRef, data);
-            }
-            return data;
+            const finalHistory = [...pastRounds, ...upcomingRounds];
+            set(historyRef, finalHistory);
         }
+
+        window.generateTeams = function() {
+            const rawText = document.getElementById('nameInput').value;
+            let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const dateInputVal = document.getElementById('eventDate').value;
+            const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            const mealTimeVal = document.getElementById('mealTime').value || '';
+            
+            if (!dateInputVal) return showToast("請選擇活動日期！");
+            const eventDateVal = `${dateInputVal}T${timeInputVal}`;
+
+            if (players.length < selectedTeamSize) return showToast(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
+
+            const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
+            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                customRestaurants.push(restaurantData.name);
+                set(customRestaurantsRef, customRestaurants);
+            }
+
+            function shuffle(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function isPlayerInBye(byeData, player) {
+                if (!byeData) return false;
+                if (Array.isArray(byeData)) return byeData.includes(player);
+                if (typeof byeData === 'string') return byeData.split(',').map(s => s.trim()).includes(player);
+                return false;
+            }
+
+            function getSurroundingRounds(targetDateVal, count = 3) {
+                if (!historyRounds || historyRounds.length === 0) return { before: [], after: [] };
+                const sorted = getChronologicalHistory(historyRounds);
+                const before = sorted.filter(r => r.eventDate < targetDateVal).slice(-count);
+                const after = sorted.filter(r => r.eventDate > targetDateVal).slice(0, count);
+                return { before, after };
+            }
+
+            function isPairInSurroundingRounds(p1, p2, targetDateVal) {
+                const { before, after } = getSurroundingRounds(targetDateVal, 3);
+                const surrounding = [...before, ...after];
+                return surrounding.some(round =>
+                    round.teams && round.teams.some(team => team.includes(p1) && team.includes(p2))
+                );
+            }
+
+            function getSurroundingByeCount(player, targetDateVal, rangeCount = 10) {
+                const sorted = getChronologicalHistory(historyRounds);
+                const roundsWithBye = sorted.filter(r => {
+                    if (!r.bye) return false;
+                    if (Array.isArray(r.bye)) return r.bye.length > 0;
+                    return String(r.bye).trim().length > 0;
+                });
+                const before = roundsWithBye.filter(r => r.eventDate < targetDateVal).slice(-rangeCount);
+                const after = roundsWithBye.filter(r => r.eventDate > targetDateVal).slice(0, rangeCount);
+                const surrounding = [...before, ...after];
+                let count = 0;
+                surrounding.forEach(round => {
+                    if (isPlayerInBye(round.bye, player)) count++;
+                });
+                return count;
+            }
+
+            function getTotalByeCount(player) {
+                if (!historyRounds || historyRounds.length === 0) return 0;
+                let count = 0;
+                historyRounds.forEach(round => {
+                    if (isPlayerInBye(round.bye, player)) count++;
+                });
+                return count;
+            }
+
+            let validMatchFound = false;
+            let bestTeams = [], bestBye = [];
+            const constraintLevels = [
+                { usePairCheck: true, useByeCheck: true },
+                { usePairCheck: true, useByeCheck: false },
+                { usePairCheck: false, useByeCheck: false }
+            ];
+
+            const hasYuanYuan = players.includes("圓圓");
+            const hasYuanZai = players.includes("圓仔");
+            const bothYuanYuanAndZai = hasYuanYuan && hasYuanZai;
+
+            const rookieForcedSubgroups = [];
+            const rookieAssignedPlayers = new Set();
+
+            (rookieProtectionGroups || []).forEach(grp => {
+                if (grp.players && grp.players.length >= 2) {
+                    const presentMembers = grp.players.filter(p => players.includes(p));
+                    if (presentMembers.length >= 2) {
+                        presentMembers.forEach(p => rookieAssignedPlayers.add(p));
+                        for (let i = 0; i < presentMembers.length; i += selectedTeamSize) {
+                            rookieForcedSubgroups.push(presentMembers.slice(i, i + selectedTeamSize));
+                        }
+                    }
+                }
+            });
+
+            for (let level of constraintLevels) {
+                for (let attempt = 0; attempt < 1000; attempt++) {
+                    let poolForRandom = players.filter(p => !rookieAssignedPlayers.has(p));
+                    let currentPlayers = shuffle([...poolForRandom]);
+                    let currentBye = [];
+
+                    const totalPlayersCount = players.length;
+                    const remainder = totalPlayersCount % selectedTeamSize;
+
+                    if (remainder !== 0) {
+                        const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
+                        for (let r = 0; r < remainder; r++) {
+                            if (currentPlayers.length === 0) break;
+                            let candidates = currentPlayers.map((p, idx) => {
+                                const surrBye = getSurroundingByeCount(p, eventDateVal, 10);
+                                const totBye = getTotalByeCount(p);
+                                return {
+                                    name: p,
+                                    idx: idx,
+                                    surroundingByeCount: surrBye,
+                                    totalByeCount: totBye,
+                                    byeScore: (surrBye * 4) + totBye
+                                };
+                            });
+                            
+                            let minScore = Math.min(...candidates.map(c => c.byeScore));
+                            let bestCandidates = candidates.filter(c => c.byeScore === minScore);
+                            
+                            if (bestCandidates.length < 2 && candidates.length > 2) {
+                                let nextMinScores = candidates.filter(c => c.byeScore > minScore).map(c => c.byeScore);
+                                if (nextMinScores.length > 0) {
+                                    let nextMin = Math.min(...nextMinScores);
+                                    bestCandidates = candidates.filter(c => c.byeScore <= nextMin);
+                                }
+                            }
+
+                            let totalWeight = bestCandidates.reduce((sum, c) => {
+                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                const baseW = isReduced ? 0.5 : 1.0;
+                                const scorePenalty = 1 / (1 + (c.byeScore - minScore));
+                                return sum + (baseW * scorePenalty);
+                            }, 0);
+
+                            let rand = Math.random() * totalWeight;
+                            let chosenIndex = bestCandidates[0].idx;
+                            for (let c of bestCandidates) {
+                                const isReduced = lowProbByeNames.some(name => name.toLowerCase() === c.name.toLowerCase());
+                                const baseW = isReduced ? 0.5 : 1.0;
+                                const scorePenalty = 1 / (1 + (c.byeScore - minScore));
+                                const w = baseW * scorePenalty;
+                                if (rand < w) { chosenIndex = c.idx; break; }
+                                rand -= w;
+                            }
+                            currentBye.push(currentPlayers.splice(chosenIndex, 1)[0]);
+                        }
+                    }
+
+                    let tempTeams = [];
+                    let isValid = true;
+                    let isYuanYuanAndZaiPaired = false;
+
+                    rookieForcedSubgroups.forEach(subgroup => {
+                        let group = [...subgroup];
+                        while (group.length < selectedTeamSize && currentPlayers.length > 0) {
+                            group.push(currentPlayers.shift());
+                        }
+                        tempTeams.push(group);
+                    });
+
+                    while (currentPlayers.length > 0) {
+                        let group = currentPlayers.splice(0, selectedTeamSize);
+                        tempTeams.push(group);
+                    }
+
+                    for (let group of tempTeams) {
+                        if (group.includes("團團") && group.includes("圓圓")) {
+                            if (Math.random() < 0.5) { isValid = false; break; }
+                        }
+                        if (group.includes("圓圓") && group.includes("圓仔")) isYuanYuanAndZaiPaired = true;
+
+                        if (level.usePairCheck) {
+                            for (let a = 0; a < group.length; a++) {
+                                for (let b = a + 1; b < group.length; b++) {
+                                    const pA = group[a];
+                                    const pB = group[b];
+                                    
+                                    const isForcedRookiePair = (rookieProtectionGroups || []).some(grp => 
+                                        grp.players && grp.players.includes(pA) && grp.players.includes(pB)
+                                    );
+
+                                    if (!isForcedRookiePair && isPairInSurroundingRounds(pA, pB, eventDateVal)) {
+                                        isValid = false; break;
+                                    }
+                                }
+                                if (!isValid) break;
+                            }
+                        }
+                        if (!isValid) break;
+                    }
+
+                    if (isValid && bothYuanYuanAndZai && !isYuanYuanAndZaiPaired) {
+                        if (Math.random() < 0.5) isValid = false;
+                    }
+
+                    if (isValid) {
+                        bestTeams = tempTeams; bestBye = currentBye; validMatchFound = true; break;
+                    }
+                }
+                if (validMatchFound) break;
+            }
+
+            const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
+            const newRound = {
+                eventDate: eventDateVal,
+                restaurantName: restaurantData.name,
+                mapUrl: restaurantData.url,
+                mealTime: mealTimeVal,
+                teams: bestTeams,
+                bye: byeString,
+                usedMatchesCount: 0,
+                matchUsageText: '0 場',
+                baseCount: 0,
+                bonusCount: 0,
+                baseDeductions: [],
+                bonusDeductions: []
+            };
+
+            currentSessionResult = newRound;
+            renderCurrentResult(newRound);
+
+            let updatedHistory = [...historyRounds, newRound];
+            saveHistoryWithLimit(updatedHistory);
+
+            if (activePresetId) {
+                let updatedPresets = presetTeams.filter(p => p.id !== activePresetId);
+                set(presetsRef, updatedPresets);
+                activePresetId = null;
+            }
+        };
+
+        function clearCurrentResultUI() {
+            currentSessionResult = null;
+            document.getElementById('currentResult').innerHTML = '<div class="empty-text">⚡ 點擊上方按鈕開始隨機隊伍配對</div>';
+            document.getElementById('copyCurrentBtn').style.display = 'none';
+            document.getElementById('lineCurrentBtn').style.display = 'none';
+        }
+
+        window.addEventListener('beforeunload', clearCurrentResultUI);
+        window.addEventListener('pagehide', clearCurrentResultUI);
+
+        async function formatRoundText(round) {
+            let lines = [`📅 活動日期：${formatDateWithDay(round.eventDate, round.eventTime)}`];
+
+            const url = round.mapUrl || (round.restaurant && round.restaurant.startsWith('http') ? round.restaurant : '');
+            let name = round.restaurantName || round.restaurant || '';
+            if (name.startsWith('http://') || name.startsWith('https://')) name = extractPlaceNameFromUrl(name);
+
+            if (url) {
+                if (name && name !== "Google 地圖連結") {
+                    lines.push(`🍽️ 用餐餐廳：${name}`); lines.push(`📍 地圖連結：${url}`);
+                } else lines.push(`📍 地圖連結：${url}`);
+            } else if (name) {
+                const mapSearchUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name + ' 台灣')}`;
+                lines.push(`🍽️ 用餐餐廳：${name}`); lines.push(`📍 地圖連結：${mapSearchUrl}`);
+            }
+
+            if (round.mealTime) {
+                lines.push(`⏰ 用餐時間：${round.mealTime}`);
+            }
+
+            round.teams.forEach((team, index) => { lines.push(`第 ${index + 1} 組：${team.join(' & ')}`); });
+            if (round.bye) lines.push(`此次爽打：${round.bye}`);
+
+            return lines.join('\n');
+        }
+
+        window.copyCurrentResult = async function() {
+            if (!currentSessionResult) return;
+            const text = await formatRoundText(currentSessionResult);
+            copyToClipboard(text);
+        };
+
+        window.shareLineCurrentResult = async function() {
+            if (!currentSessionResult) return;
+            const text = await formatRoundText(currentSessionResult);
+            shareToLine(text);
+        };
+
+        window.shareLineByIndex = async function(index) {
+            if (historyRounds[index]) {
+                const text = await formatRoundText(historyRounds[index]);
+                shareToLine(text);
+            }
+        };
+
+        window.copyRoundByIndex = async function(index) {
+            if (historyRounds[index]) {
+                const text = await formatRoundText(historyRounds[index]);
+                copyToClipboard(text);
+            }
+        };
+
+        function renderCurrentResult(round) {
+            const calUrl = generateGoogleCalendarUrl(round);
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
+            let html = `<div class="pop-in">`;
+            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(round.eventDate)}</div>${calBtn}</div>`;
+
+            html += formatRestaurantHTML(round);
+            round.teams.forEach((team, index) => {
+                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
+            });
+            if (round.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${round.bye}</span></div>`;
+            html += `</div>`;
+
+            document.getElementById('currentResult').innerHTML = html;
+            document.getElementById('copyCurrentBtn').style.display = 'inline-flex';
+            document.getElementById('lineCurrentBtn').style.display = 'inline-flex';
+        }
+
+        window.openPresetModal = function() {
+            resetPresetClearBtn();
+            renderPresetModalList();
+            document.getElementById('presetModal').style.display = 'flex';
+        };
+
+        window.closePresetModal = function() {
+            resetPresetClearBtn();
+            document.getElementById('presetModal').style.display = 'none';
+        };
+
+        window.saveToPresets = function() {
+            const dateInputVal = document.getElementById('eventDate').value;
+            const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            const mealTimeVal = document.getElementById('mealTime').value || '';
+            const rawText = document.getElementById('nameInput').value;
+            const players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+
+            if (!dateInputVal) return showToast("請選擇預組隊伍的日期！");
+            if (players.length < 2) return showToast("請至少選擇 2 位登場訓練家再進行預估組隊！");
+
+            const id = 'preset_' + Date.now();
+            const newPreset = {
+                id: id, eventDate: `${dateInputVal}T${timeInputVal}`,
+                teamSize: selectedTeamSize, restaurantRaw: selectedRestaurantRaw, mealTime: mealTimeVal, players: players
+            };
+
+            let updatedPresets = [...presetTeams, newPreset];
+            set(presetsRef, updatedPresets);
+            showToast("已成功將隊伍儲存至「預組隊伍庫」！");
+        };
+
+        window.loadPresetToMain = function(presetId) {
+            const target = presetTeams.find(p => p.id === presetId);
+            if (!target) return;
+
+            activePresetId = target.id;
+            if (target.eventDate.includes('T')) {
+                const parts = target.eventDate.split('T');
+                document.getElementById('eventDate').value = parts[0];
+                document.getElementById('eventTime').value = parts[1].slice(0, 5);
+            } else document.getElementById('eventDate').value = target.eventDate;
+
+            selectTeamSize(target.teamSize || 2);
+            updateMainRestaurantUI(target.restaurantRaw || '');
+            document.getElementById('mealTime').value = target.mealTime || '18:00';
+
+            const textarea = document.getElementById('nameInput');
+            textarea.value = (target.players || []).join('\n');
+            syncTagsWithTextarea();
+
+            closePresetModal();
+            showToast("已成功帶入該筆預組隊伍資料！");
+        };
+
+        window.openEditPresetModal = function(presetId, event) {
+            if (event) event.stopPropagation();
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "編輯預組隊伍為管理功能，請輸入密碼：",
+                (pwd) => {
+                    if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
+                        const target = presetTeams.find(p => p.id === presetId);
+                        if (!target) return false;
+
+                        editingPresetId = presetId;
+                        if (target.eventDate && target.eventDate.includes('T')) {
+                            const parts = target.eventDate.split('T');
+                            document.getElementById('editPresetDate').value = parts[0];
+                            document.getElementById('editPresetTime').value = parts[1].slice(0, 5);
+                        } else {
+                            document.getElementById('editPresetDate').value = target.eventDate || '';
+                            document.getElementById('editPresetTime').value = '14:00';
+                        }
+
+                        document.getElementById('editPresetTeamSize').value = target.teamSize || 2;
+                        document.getElementById('editPresetRestaurant').value = target.restaurantRaw || '';
+                        document.getElementById('editPresetMealTime').value = target.mealTime || '';
+                        document.getElementById('editPresetPlayers').value = (target.players || []).join('\n');
+
+                        window.initPresetNameTags();
+                        document.getElementById('editPresetModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯預組隊伍！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.initPresetNameTags = function() {
+            const container = document.getElementById('editPresetTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => window.togglePresetName(name, tag);
+                container.appendChild(tag);
+            });
+            window.syncPresetTagsWithTextarea();
+        };
+
+        window.togglePresetName = function(name, element) {
+            const textarea = document.getElementById('editPresetPlayers');
+            if (!textarea) return;
+            let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const index = currentList.indexOf(name);
+            if (index === -1) {
+                currentList.push(name); element.classList.add('active'); element.innerText = '★ ' + name;
+            } else {
+                currentList.splice(index, 1); element.classList.remove('active'); element.innerText = '⚡ ' + name;
+            }
+            textarea.value = currentList.join('\n');
+        };
+
+        window.syncPresetTagsWithTextarea = function() {
+            const textarea = document.getElementById('editPresetPlayers');
+            if (!textarea) return;
+            let currentList = textarea.value.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const tags = document.querySelectorAll('#editPresetTagContainer .name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentList.includes(name)) {
+                    tag.classList.add('active'); tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active'); tag.innerText = '⚡ ' + name;
+                }
+            });
+        };
+
+        window.closeEditPresetModal = function() {
+            document.getElementById('editPresetModal').style.display = 'none';
+            editingPresetId = null;
+        };
+
+        window.onPresetModalDateInputChange = function() {
+            const dateVal = document.getElementById('editPresetDate').value;
+            if (!dateVal) return;
+            const day = new Date(dateVal + 'T00:00:00').getDay();
+            const timeInput = document.getElementById('editPresetTime');
+            if (day === 3) timeInput.value = "14:00";
+            else if (day === 6) timeInput.value = "13:00";
+        };
+
+        window.savePresetEdit = function() {
+            if (!editingPresetId) return;
+            const dateVal = document.getElementById('editPresetDate').value;
+            const timeVal = document.getElementById('editPresetTime').value || '14:00';
+            if (!dateVal) return showToast("請選擇活動日期！");
+
+            const teamSize = parseInt(document.getElementById('editPresetTeamSize').value, 10) || 2;
+            const restaurantRaw = document.getElementById('editPresetRestaurant').value.trim();
+            const mealTimeVal = document.getElementById('editPresetMealTime').value || '';
+            const rawPlayers = document.getElementById('editPresetPlayers').value;
+            const players = rawPlayers.split('\n').map(p => p.trim()).filter(p => p.length > 0);
+
+            if (players.length < 2) return showToast("請至少輸入 2 位登場訓練家！");
+
+            let updatedPresets = presetTeams.map(p => {
+                if (p.id === editingPresetId) {
+                    return { ...p, eventDate: `${dateVal}T${timeVal}`, teamSize: teamSize, restaurantRaw: restaurantRaw, mealTime: mealTimeVal, players: players };
+                }
+                return p;
+            });
+
+            set(presetsRef, updatedPresets);
+            window.closeEditPresetModal();
+            showToast("已成功儲存該筆預組隊伍修改！");
+        };
+
+        window.generateFromPreset = function(presetId, isDisabled, event) {
+            if (event) event.stopPropagation();
+            if (isDisabled) return showToast("狂刀三浪還在浪！請先依序將較早日期的預組隊伍進行擲球配對！");
+
+            const target = presetTeams.find(p => p.id === presetId);
+            if (!target) return;
+
+            if (target.eventDate.includes('T')) {
+                const parts = target.eventDate.split('T');
+                document.getElementById('eventDate').value = parts[0];
+                document.getElementById('eventTime').value = parts[1].slice(0, 5);
+            } else document.getElementById('eventDate').value = target.eventDate;
+
+            selectTeamSize(target.teamSize || 2);
+            updateMainRestaurantUI(target.restaurantRaw || '');
+            document.getElementById('mealTime').value = target.mealTime || '18:00';
+
+            const textarea = document.getElementById('nameInput');
+            textarea.value = (target.players || []).join('\n');
+            syncTagsWithTextarea();
+
+            activePresetId = target.id;
+            generateTeams();
+
+            let updatedPresets = presetTeams.filter(p => p.id !== presetId);
+            set(presetsRef, updatedPresets);
+            activePresetId = null;
+        };
+
+        window.generateAllPresetsInLoop = function() {
+            if (presetTeams.length === 0) return showToast("目前沒有任何預組隊伍！");
+
+            let sortedPresets = [...presetTeams].sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+            const count = sortedPresets.length;
+            
+            showConfirm(`確定要將全部 ${count} 組預組隊伍依序進行隨機配對並匯入對戰圖鑑嗎？`, () => {
+                sortedPresets.forEach(target => {
+                    if (target.eventDate.includes('T')) {
+                        const parts = target.eventDate.split('T');
+                        document.getElementById('eventDate').value = parts[0];
+                        document.getElementById('eventTime').value = parts[1].slice(0, 5);
+                    } else document.getElementById('eventDate').value = target.eventDate;
+
+                    selectTeamSize(target.teamSize || 2);
+                    updateMainRestaurantUI(target.restaurantRaw || '');
+                    document.getElementById('mealTime').value = target.mealTime || '18:00';
+
+                    const textarea = document.getElementById('nameInput');
+                    textarea.value = (target.players || []).join('\n');
+
+                    activePresetId = target.id;
+                    generateTeams();
+                });
+
+                remove(presetsRef);
+                activePresetId = null;
+                closePresetModal();
+
+                document.getElementById('currentResultSection').scrollIntoView({ behavior: 'smooth' });
+                showToast(`🎉 已成功完成全數 ${count} 組預組隊伍的渡劫配對！`);
+            });
+        };
+
+        window.clearAllPresetsWithConfirm = function() {
+            const btn = document.getElementById('btnClearPresets');
+            if (presetTeams.length === 0) return showToast("目前沒有預組隊伍！");
+
+            if (presetClearStep === 0) {
+                presetClearStep = 1;
+                let countdown = 5;
+                btn.disabled = true;
+                btn.innerText = `⏳ 等待 ${countdown}s`;
+                presetClearTimer = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) btn.innerText = `⏳ 等待 ${countdown}s`;
+                    else {
+                        clearInterval(presetClearTimer);
+                        presetClearStep = 2;
+                        btn.disabled = false;
+                        btn.innerText = "⚠ 確定要清空嗎？";
+                    }
+                }, 1000);
+            } else if (presetClearStep === 2) {
+                remove(presetsRef);
+                showToast("已成功清空所有預組隊伍！");
+                resetPresetClearBtn();
+            }
+        };
+
+        function resetPresetClearBtn() {
+            if (presetClearTimer) clearInterval(presetClearTimer);
+            presetClearStep = 0;
+            const btn = document.getElementById('btnClearPresets');
+            if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空預組"; }
+        }
+
+        window.deletePreset = function(presetId, event) {
+            if (event) event.stopPropagation();
+            showConfirm("確定要刪除此筆預組隊伍資料嗎？", () => {
+                let updatedPresets = presetTeams.filter(p => p.id !== presetId);
+                set(presetsRef, updatedPresets);
+                if (activePresetId === presetId) activePresetId = null;
+            });
+        };
+
+        function renderPresetModalList() {
+            const container = document.getElementById('presetListContainer');
+            const loopBtn = document.getElementById('btnPairAllPresets');
+
+            if (presetTeams.length === 0) {
+                container.innerHTML = '<div class="empty-text">無預選隊伍紀錄</div>';
+                if (loopBtn) loopBtn.style.display = 'none';
+                return;
+            }
+
+            if (loopBtn) loopBtn.style.display = 'inline-flex';
+            let sortedPresets = [...presetTeams].sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+
+            let html = '';
+            sortedPresets.forEach((p, idx) => {
+                const pDateText = formatDateWithDay(p.eventDate);
+                const restData = parseRestaurantInput(p.restaurantRaw);
+                const restName = restData.name ? `📍 ${restData.name}` : '未指定餐廳';
+                const mealInfo = p.mealTime ? ` (⏰ ${p.mealTime})` : '';
+                const pListStr = (p.players || []).join('、');
+
+                const isDisabled = idx > 0;
+                const cardClass = isDisabled ? 'preset-card disabled-preset pop-in' : 'preset-card pop-in';
+                const btnStyle = isDisabled 
+                    ? 'padding: 6px 12px; font-size: 0.8rem; min-height:38px; background:#CBD5E1; color:#64748B; border-color:#94A3B8; cursor:not-allowed;' 
+                    : 'padding: 6px 12px; font-size: 0.8rem; min-height:38px;';
+                const btnText = isDisabled ? '⚔️ 狂刀三浪還在浪' : '⚡ 直接擲球配對';
+
+                html += `<div class="${cardClass}">
+                    <div class="preset-date" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                        <span>📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒' : ''}</span>
+                        <button class="btn-edit" style="padding:3px 8px; font-size:0.78rem; min-height:30px; font-weight:800;" onclick="openEditPresetModal('${p.id}', event)">✏️ 編輯</button>
+                    </div>
+                    <div class="preset-details" style="margin-top:4px;">
+                        <div>🍽️ ${restName}${mealInfo}</div>
+                        <div>👥 訓練家 (${p.players ? p.players.length : 0}人): ${pListStr}</div>
+                    </div>
+                    <div class="preset-actions">
+                        <button class="action-btn btn-primary" style="${btnStyle}" onclick="generateFromPreset('${p.id}', ${isDisabled}, event)">${btnText}</button>
+                        <button class="btn-copy" style="min-height:38px;" onclick="loadPresetToMain('${p.id}')">帶入資料</button>
+                        <button class="btn-danger" style="min-height:38px;" onclick="deletePreset('${p.id}', event)">刪除</button>
+                    </div>
+                </div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function renderUpcomingHistory() {
+            const container = document.getElementById('upcomingHistoryContent');
+            const target = getUpcomingTargetRound();
+            const badgeEl = document.getElementById('upcomingVehicleBadge');
+
+            if (!target) {
+                container.innerHTML = '<div class="empty-text">尚無預訂對戰紀錄</div>';
+                if (badgeEl) badgeEl.innerText = '車輛: 0';
+                updateUpcomingUsageUI();
+                return;
+            }
+
+            const vehicleCount = calculateVehicleCount(target);
+            if (badgeEl) badgeEl.innerText = `車輛: ${vehicleCount}`;
+
+            const calUrl = generateGoogleCalendarUrl(target);
+            let calBtn = calUrl ? `<a href="${calUrl}" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a>` : '';
+
+            let html = `<div class="pop-in">`;
+            html += `<div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：${formatDateWithDay(target.eventDate)}</div>${calBtn}</div>`;
+
+            html += formatRestaurantHTML(target);
+            target.teams.forEach((team, index) => {
+                const teamBadges = team.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                html += `<div class="result-item">第 ${index + 1} 組：${teamBadges}</div>`;
+            });
+            if (target.bye) html += `<div class="result-item">此次爽打：<span class="bye-badge">${target.bye}</span></div>`;
+            html += `</div>`;
+
+            container.innerHTML = html;
+            updateUpcomingUsageUI();
+        }
+
+        function updateBattleLogBadges() {
+            const todayStr = getTodayDateString();
+            const upcomingCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] >= todayStr).length;
+            const historyCount = historyRounds.filter(r => (r.eventDate || '').split('T')[0] < todayStr).length;
+
+            const upBadge = document.getElementById('upcomingBattlesBadgeCount');
+            if (upBadge) upBadge.innerText = `${upcomingCount} 筆`;
+
+            const histBadge = document.getElementById('historyBattlesBadgeCount');
+            if (histBadge) histBadge.innerText = `${historyCount} 筆`;
+        }
+
+        window.openUpcomingBattlesModal = function() {
+            renderUpcomingBattlesModal();
+            document.getElementById('upcomingBattlesModal').style.display = 'flex';
+        };
+
+        window.closeUpcomingBattlesModal = function() { document.getElementById('upcomingBattlesModal').style.display = 'none'; };
+
+        function renderUpcomingBattlesModal() {
+            const container = document.getElementById('upcomingBattlesListContainer');
+            if (!container) return;
+            const todayStr = getTodayDateString();
+            const sorted = getChronologicalHistory(historyRounds);
+            const upcomingList = sorted.filter(r => (r.eventDate || '').split('T')[0] >= todayStr);
+
+            if (upcomingList.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無預訂的未來對戰紀錄</div>';
+                return;
+            }
+
+            let html = '';
+            upcomingList.forEach(round => {
+                const originalIndex = round.originalIndex;
+                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
+                let vCount = calculateVehicleCount(round);
+                let teamsHtml = round.teams.map((t, idx) => {
+                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
+                }).join('');
+                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+                
+                const totalMatches = round.baseCount !== undefined ? (round.baseCount + (round.bonusCount || 0)) : (round.usedMatchesCount || 0);
+                const bonusMatches = round.bonusCount || 0;
+                let matchBadgeText = `🎯 場次: ${totalMatches}`;
+                if (bonusMatches > 0) matchBadgeText += ` (含加碼${bonusMatches})`;
+
+                let matchBadgeHtml = totalMatches > 0 
+                    ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>`
+                    : '';
+
+                html += `<div class="history-card pop-in">
+                    <div class="history-header">
+                        <div class="history-date-title">
+                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
+                            ${matchBadgeHtml}
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
+                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
+                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
+                        </div>
+                    </div>
+                    <div class="history-teams">
+                        ${restaurantHtml}
+                        <div class="full-width">🚗 車輛: ${vCount}</div>
+                        ${teamsHtml}
+                        ${byeHtml}
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.openHistoryBattlesModal = function() {
+            renderHistoryBattlesModal();
+            document.getElementById('historyBattlesModal').style.display = 'flex';
+        };
+
+        window.closeHistoryBattlesModal = function() { document.getElementById('historyBattlesModal').style.display = 'none'; };
+
+        function getFilteredPastHistory() {
+            const startVal = document.getElementById('startDate').value;
+            const endVal = document.getElementById('endDate').value;
+            const todayStr = getTodayDateString();
+
+            return historyRounds.filter(round => {
+                if (!round.eventDate) return false;
+                const datePart = round.eventDate.split('T')[0];
+                if (datePart >= todayStr) return false;
+                if (startVal && datePart < startVal) return false;
+                if (endVal && datePart > endVal) return false;
+                return true;
+            });
+        }
+
+        window.applyDateFilter = function() { renderHistoryBattlesModal(); };
+        window.resetDateFilter = function() {
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            renderHistoryBattlesModal();
+        };
+
+        window.copyRangeHistory = async function() {
+            const filtered = getFilteredPastHistory();
+            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
+            let textList = [];
+            for (let r of filtered) textList.push(await formatRoundText(r));
+            copyToClipboard(textList.join('\n\n-------------------\n\n'));
+        };
+
+        window.shareRangeHistoryToLine = async function() {
+            const filtered = getFilteredPastHistory();
+            if (filtered.length === 0) return showToast("無選定區間的戰報紀錄！");
+            let textList = [];
+            for (let r of filtered) textList.push(await formatRoundText(r));
+            shareToLine(textList.join('\n\n-------------------\n\n'));
+        };
+
+        function renderHistoryBattlesModal() {
+            const container = document.getElementById('historyBattlesListContainer');
+            if (!container) return;
+            const filteredPast = getFilteredPastHistory();
+
+            if (filteredPast.length === 0) {
+                container.innerHTML = '<div class="empty-text">尚無符合條件的歷史對戰紀錄</div>';
+                return;
+            }
+
+            const sortedPast = getChronologicalHistory(filteredPast);
+            let html = '';
+            sortedPast.forEach(round => {
+                const originalIndex = round.originalIndex;
+                let restaurantHtml = formatRestaurantHTML(round, originalIndex);
+                let vCount = calculateVehicleCount(round);
+                let teamsHtml = round.teams.map((t, idx) => {
+                    const badges = t.map(p => `<span class="team-badge">${p}</span>`).join(' & ');
+                    return `<div>第 ${idx + 1} 組：${badges}</div>`;
+                }).join('');
+                let byeHtml = round.bye ? `<div class="full-width">此次爽打：<span class="bye-badge">${round.bye}</span></div>` : '';
+                
+                const totalMatches = round.baseCount !== undefined ? (round.baseCount + (round.bonusCount || 0)) : (round.usedMatchesCount || 0);
+                const bonusMatches = round.bonusCount || 0;
+                let matchBadgeText = `🎯 場次: ${totalMatches}`;
+                if (bonusMatches > 0) matchBadgeText += ` (含加碼${bonusMatches})`;
+
+                let matchBadgeHtml = totalMatches > 0 
+                    ? `<span class="btn-usage-badge has-value" style="cursor:pointer;" onclick="requestEditHistoryMatch(${originalIndex})" title="點擊修改場次">${matchBadgeText}</span>` 
+                    : '';
+
+                html += `<div class="history-card pop-in">
+                    <div class="history-header">
+                        <div class="history-date-title">
+                            <span>📅 ${formatDateWithDay(round.eventDate)}</span>
+                            ${matchBadgeHtml}
+                            <a href="${generateGoogleCalendarUrl(round)}" target="_blank" style="font-size:0.75rem; background:var(--poke-blue-light); color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">🗓️ 行事曆</a>
+                        </div>
+                        <div class="action-group">
+                            <button class="btn-edit" onclick="openEditModal(${originalIndex})">✏️ 編輯</button>
+                            <button class="btn-danger" style="padding: 4px 8px; min-height: 34px;" onclick="deleteSingleRoundByIndex(${originalIndex})">🗑️ 刪除</button>
+                            <button class="btn-copy" onclick="copyRoundByIndex(${originalIndex})">📋 複製</button>
+                            <button class="btn-line" onclick="shareLineByIndex(${originalIndex})">💬 LINE</button>
+                        </div>
+                    </div>
+                    <div class="history-teams">
+                        ${restaurantHtml}
+                        <div class="full-width">🚗 車輛: ${vCount}</div>
+                        ${teamsHtml}
+                        ${byeHtml}
+                    </div>
+                </div>`;
+            });
+
+            container.innerHTML = html;
+        }
+
+        window.requestEditHistoryMatch = function(index) {
+            openPasswordModal(
+                "🔐 請輸入密碼",
+                "請輸入密碼以修改歷史場次：",
+                (pwd) => {
+                    if (pwd.trim() === UPCOMING_USAGE_PASSWORD) {
+                        openEditHistoryMatchModal(index);
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法修改歷史場次！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        function openEditHistoryMatchModal(index) {
+            editingHistoryMatchIndex = index;
+            const round = historyRounds[index];
+            const currentTotal = round.baseCount !== undefined ? round.baseCount : (round.usedMatchesCount || 0);
+            
+            document.getElementById('editHistoryMatchVal').value = currentTotal;
+            document.getElementById('editHistoryMatchModal').style.display = 'flex';
+            setTimeout(() => {
+                const inp = document.getElementById('editHistoryMatchVal');
+                inp.focus(); inp.select();
+            }, 100);
+        }
+
+        window.closeEditHistoryMatchModal = function() {
+            document.getElementById('editHistoryMatchModal').style.display = 'none';
+            editingHistoryMatchIndex = null;
+        };
+
+        window.saveHistoryMatchEdit = function() {
+            if (editingHistoryMatchIndex === null) return;
+            const valInp = document.getElementById('editHistoryMatchVal').value.trim();
+            const newTotal = parseInt(valInp, 10);
+            if (isNaN(newTotal) || newTotal < 0) return showToast("請輸入有效的正整數場次數量！");
+
+            let updatedRounds = [...historyRounds];
+            let round = updatedRounds[editingHistoryMatchIndex];
+            
+            round.baseCount = newTotal;
+            round.bonusCount = 0;
+            round.usedMatchesCount = newTotal;
+            round.matchUsageText = `${newTotal} 場`;
+
+            saveHistoryWithLimit(updatedRounds);
+            closeEditHistoryMatchModal();
+            showToast("歷史場次數值已成功修改！");
+        };
+
+        function getAllEditModalPlayers() {
+            let list = [];
+            if (editingModalData.teams) {
+                editingModalData.teams.forEach(t => {
+                    if (Array.isArray(t)) t.forEach(p => { if (p) list.push(p.trim()); });
+                });
+            }
+            if (editingModalData.bye) {
+                let byeArr = typeof editingModalData.bye === 'string' ? editingModalData.bye.split(',') : editingModalData.bye;
+                if (Array.isArray(byeArr)) byeArr.forEach(p => { if (p) list.push(p.trim()); });
+            }
+            return list;
+        }
+
+        window.initEditModalNameTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            container.innerHTML = '';
+            defaultPresetNames.forEach(name => {
+                const tag = document.createElement('div');
+                tag.className = 'name-tag';
+                tag.innerText = '⚡ ' + name;
+                tag.onclick = () => window.toggleEditModalPlayer(name);
+                container.appendChild(tag);
+            });
+            window.syncEditModalTags();
+        };
+
+        window.toggleEditModalPlayer = function(name) {
+            let currentPlayers = getAllEditModalPlayers();
+            if (currentPlayers.includes(name)) {
+                if (editingModalData.teams) {
+                    editingModalData.teams.forEach(team => {
+                        for (let i = team.length - 1; i >= 0; i--) {
+                            if (team[i] === name) team.splice(i, 1);
+                        }
+                    });
+                }
+                if (editingModalData.bye) {
+                    let byeArr = editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean);
+                    byeArr = byeArr.filter(p => p !== name);
+                    editingModalData.bye = byeArr.join(', ');
+                }
+            } else {
+                if (!editingModalData.teams || editingModalData.teams.length === 0) {
+                    editingModalData.teams = [[]];
+                }
+                editingModalData.teams[editingModalData.teams.length - 1].push(name);
+            }
+            renderModalTeams();
+        };
+
+        window.syncEditModalTags = function() {
+            const container = document.getElementById('editModalTagContainer');
+            if (!container) return;
+            const currentList = getAllEditModalPlayers();
+            const tags = container.querySelectorAll('.name-tag');
+            tags.forEach((tag) => {
+                const name = tag.innerText.replace(/^[⚡★]\s*/, '');
+                if (currentList.includes(name)) {
+                    tag.classList.add('active'); tag.innerText = '★ ' + name;
+                } else {
+                    tag.classList.remove('active'); tag.innerText = '⚡ ' + name;
+                }
+            });
+        };
+
+        window.openEditModal = function(index) {
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯對戰紀錄為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingIndex = index;
+                        const round = historyRounds[index];
+                        if (!round) return false;
+
+                        editingModalData = {
+                            eventDate: round.eventDate || '',
+                            teams: (round.teams || []).map(t => [...t]),
+                            bye: round.bye || '',
+                            mealTime: round.mealTime || ''
+                        };
+
+                        if (editingModalData.eventDate.includes('T')) {
+                            const parts = editingModalData.eventDate.split('T');
+                            document.getElementById('editModalDate').value = parts[0];
+                            document.getElementById('editModalTime').value = parts[1].slice(0, 5);
+                        } else {
+                            document.getElementById('editModalDate').value = editingModalData.eventDate;
+                            document.getElementById('editModalTime').value = '14:00';
+                        }
+
+                        document.getElementById('editModalMealTime').value = editingModalData.mealTime || '';
+
+                        renderModalTeams();
+                        window.initEditModalNameTags();
+                        document.getElementById('editModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯對戰！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.closeEditModal = function() {
+            document.getElementById('editModal').style.display = 'none';
+            editingIndex = null;
+        };
+
+        window.addModalTeamGroup = function() {
+            editingModalData.teams.push([]);
+            renderModalTeams();
+        };
+
+        window.addPlayerToModal = function() {
+            const input = document.getElementById('editModalNewPlayerName');
+            const name = input.value.trim();
+            if (!name) return;
+
+            if (editingModalData.teams.length === 0) editingModalData.teams.push([]);
+            editingModalData.teams[editingModalData.teams.length - 1].push(name);
+            input.value = '';
+            renderModalTeams();
+        };
+
+        window.removePlayerFromModal = function(teamIndex, playerIndex) {
+            if (teamIndex === 'bye') {
+                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()) : [];
+                byeArr.splice(playerIndex, 1);
+                editingModalData.bye = byeArr.join(', ');
+            } else {
+                editingModalData.teams[teamIndex].splice(playerIndex, 1);
+            }
+            renderModalTeams();
+        };
+
+        function renderModalTeams() {
+            const teamsContainer = document.getElementById('editModalTeamsContainer');
+            teamsContainer.innerHTML = '';
+            editingModalData.teams.forEach((team, tIdx) => {
+                const groupDiv = document.createElement('div');
+                groupDiv.style.marginBottom = '8px';
+                groupDiv.innerHTML = `<div style="font-size:0.85rem; font-weight:800; color:#475569;">第 ${tIdx + 1} 組</div>`;
+                const dropZone = document.createElement('div');
+                dropZone.className = 'drop-zone';
+                dropZone.dataset.teamIndex = tIdx;
+
+                team.forEach((player, pIdx) => {
+                    dropZone.appendChild(createDraggableTag(player, tIdx, pIdx));
+                });
+
+                setupDropZone(dropZone);
+                groupDiv.appendChild(dropZone);
+                teamsContainer.appendChild(groupDiv);
+            });
+
+            const byeZone = document.getElementById('editModalByeZone');
+            byeZone.innerHTML = '';
+            let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
+            byeArr.forEach((player, pIdx) => {
+                byeZone.appendChild(createDraggableTag(player, 'bye', pIdx));
+            });
+            setupDropZone(byeZone);
+
+            window.syncEditModalTags();
+        }
+
+        function createDraggableTag(name, teamIdx, pIdx) {
+            const tag = document.createElement('div');
+            tag.className = 'draggable-player';
+            tag.draggable = true;
+            tag.innerText = name;
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'btn-del-p';
+            delBtn.innerText = '×';
+            delBtn.onclick = (e) => {
+                e.stopPropagation();
+                removePlayerFromModal(teamIdx, pIdx);
+            };
+
+            tag.appendChild(delBtn);
+            tag.addEventListener('dragstart', (e) => {
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    fromTeam: teamIdx,
+                    fromIndex: pIdx,
+                    name: name
+                }));
+            });
+            return tag;
+        }
+
+        function setupDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+            dropZone.addEventListener('dragleave', () => { dropZone.classList.remove('drag-over'); });
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+                const rawData = e.dataTransfer.getData('text/plain');
+                if (!rawData) return;
+                const data = JSON.parse(rawData);
+                const toTeam = dropZone.dataset.teamIndex;
+
+                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+                if (data.fromTeam === 'bye') {
+                    byeArr.splice(data.fromIndex, 1);
+                    editingModalData.bye = byeArr.join(', ');
+                } else {
+                    editingModalData.teams[data.fromTeam].splice(data.fromIndex, 1);
+                }
+
+                if (toTeam === 'bye') {
+                    byeArr.push(data.name);
+                    editingModalData.bye = byeArr.join(', ');
+                } else {
+                    const targetTeamIdx = parseInt(toTeam);
+                    editingModalData.teams[targetTeamIdx].push(data.name);
+                }
+
+                renderModalTeams();
+            });
+        }
+
+        window.saveEditModal = function() {
+            if (editingIndex === null) return;
+            const newDateVal = document.getElementById('editModalDate').value;
+            const newTimeVal = document.getElementById('editModalTime').value || '14:00';
+            const newMealTimeVal = document.getElementById('editModalMealTime').value || '';
+            if (!newDateVal) return showToast("活動日期不能為空！");
+
+            const newDate = `${newDateVal}T${newTimeVal}`;
+            const cleanedTeams = editingModalData.teams.filter(t => t.length > 0);
+
+            let updatedRounds = [...historyRounds];
+            updatedRounds[editingIndex] = {
+                ...updatedRounds[editingIndex],
+                eventDate: newDate,
+                mealTime: newMealTimeVal,
+                teams: cleanedTeams,
+                bye: editingModalData.bye
+            };
+
+            saveHistoryWithLimit(updatedRounds);
+            closeEditModal();
+            showToast("對戰紀錄變更成功！");
+        };
+
+        function extractPlaceNameFromUrl(url) {
+            try {
+                const decodedUrl = decodeURIComponent(url);
+                const placeMatch = decodedUrl.match(/\/place\/([^\/@\?]+)/);
+                if (placeMatch && placeMatch[1]) return placeMatch[1].replace(/\+/g, ' ');
+                const queryMatch = decodedUrl.match(/[?&]query=([^&]+)/);
+                if (queryMatch && queryMatch[1]) return queryMatch[1].replace(/\+/g, ' ').replace(/ 台灣$/, '');
+            } catch (e) { console.error("解析網址失敗:", e); }
+            return "Google 地圖連結";
+        }
+
+        function parseRestaurantInput(inputVal) {
+            if (!inputVal) return { name: '', url: '' };
+            const isUrl = inputVal.startsWith('http://') || inputVal.startsWith('https://');
+            if (isUrl) {
+                const extractedName = extractPlaceNameFromUrl(inputVal);
+                return { name: extractedName, url: inputVal };
+            }
+            return {
+                name: inputVal,
+                url: `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(inputVal + ' 台灣')}`
+            };
+        }
+
+        function getAllRestaurants() {
+            let set = new Set();
+            historyRounds.forEach(r => {
+                const name = r.restaurantName || r.restaurant;
+                if (name && name !== "Google 地圖連結") set.add(name);
+            });
+            customRestaurants.forEach(name => {
+                if (name && name !== "Google 地圖連結") set.add(name);
+            });
+            return Array.from(set);
+        }
+
+        window.deleteRestaurant = function(e, name) {
+            e.stopPropagation();
+            let updatedRounds = historyRounds.map(round => {
+                if ((round.restaurantName === name) || (round.restaurant === name)) {
+                    return { ...round, restaurantName: '', restaurant: '' };
+                }
+                return round;
+            });
+            let updatedCustom = customRestaurants.filter(r => r !== name);
+            saveHistoryWithLimit(updatedRounds);
+            set(customRestaurantsRef, updatedCustom);
+            renderModalRestaurantList();
+        };
+
+        window.editRestaurantByIndex = function(index) {
+            const currentRound = historyRounds[index];
+            if (!currentRound) return;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                "編輯對戰餐廳為管理功能，請輸入管理密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        editingRestaurantIndex = index;
+                        const currentName = currentRound.restaurantName || currentRound.restaurant || '';
+                        document.getElementById('restaurantModalInput').value = currentName === "Google 地圖連結" ? "" : currentName;
+                        document.getElementById('restaurantModalMealTime').value = currentRound.mealTime || '';
+                        renderModalRestaurantList();
+                        document.getElementById('restaurantModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯餐廳！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.deleteSingleRoundByIndex = function(index) {
+            const round = historyRounds[index];
+            if (!round) return;
+            openPasswordModal(
+                "🔐 請輸入管理員密碼",
+                `確定要刪除 ${formatDateWithDay(round.eventDate)} 的對戰紀錄嗎？\n請輸入管理密碼：`,
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        let updatedRounds = [...historyRounds];
+                        updatedRounds.splice(index, 1);
+                        saveHistoryWithLimit(updatedRounds);
+                        showToast("已成功刪除該筆戰報紀錄！");
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法刪除！");
+                        return false;
+                    }
+                }
+            );
+        };
+
+        window.clearCloudHistory = function() {
+            const btn = document.getElementById('btnClearCloud');
+            if (historyRounds.length === 0) return;
+            if (clearStep === 0) {
+                clearStep = 1;
+                let countdown = 5;
+                btn.disabled = true;
+                btn.innerText = `⏳ 等待 ${countdown}s`;
+                clearConfirmTimer = setInterval(() => {
+                    countdown--;
+                    if (countdown > 0) btn.innerText = `⏳ 等待 ${countdown}s`;
+                    else {
+                        clearInterval(clearConfirmTimer);
+                        clearStep = 2;
+                        btn.disabled = false;
+                        btn.innerText = "⚠️ 確定要清空嗎？";
+                    }
+                }, 1000);
+            } else if (clearStep === 2) {
+                openPasswordModal(
+                    "🔐 請輸入管理員密碼",
+                    "清空所有歷史紀錄為高風險操作，請輸入管理密碼：",
+                    (pwd) => {
+                        if (pwd.trim() === AUTH_PASSWORD) {
+                            remove(historyRef);
+                            remove(customRestaurantsRef);
+                            clearCurrentResultUI();
+                            showToast("已清空所有歷史紀錄！");
+                            resetClearBtn();
+                            return true;
+                        } else {
+                            showToast("密碼錯誤，無法清空！");
+                            resetClearBtn();
+                            return false;
+                        }
+                    }
+                );
+            }
+        };
+
+        function resetClearBtn() {
+            if (clearConfirmTimer) clearInterval(clearConfirmTimer);
+            clearStep = 0;
+            const btn = document.getElementById('btnClearCloud');
+            if (btn) { btn.disabled = false; btn.innerText = "🗑️ 清空紀錄"; }
+        }
+
+        onValue(historyRef, (snapshot) => {
+            const data = snapshot.val();
+            historyRounds = data ? Object.values(data) : [];
+            renderUpcomingHistory();
+            updateBattleLogBadges();
+            renderUpcomingBattlesModal();
+            renderHistoryBattlesModal();
+            renderPresetModalList();
+            
+            if (currentSessionResult) renderCurrentResult(currentSessionResult);
+            else clearCurrentResultUI();
+        });
+
+        onValue(customRestaurantsRef, (snapshot) => {
+            const data = snapshot.val();
+            customRestaurants = data ? Object.values(data) : [];
+        });
+
+        onValue(presetsRef, (snapshot) => {
+            const data = snapshot.val();
+            presetTeams = data ? Object.values(data) : [];
+            presetTeams.sort((a, b) => (a.eventDate || '').localeCompare(b.eventDate || ''));
+            document.getElementById('presetBadgeCount').innerText = `(${presetTeams.length})`;
+            renderPresetModalList();
+        });
+
+        onValue(trainerPresetsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && Array.isArray(data)) defaultPresetNames = data;
+            initNameTags();
+            if (window.initPresetNameTags) window.initPresetNameTags();
+            if (window.initEditModalNameTags) window.initEditModalNameTags();
+        });
+
+        onValue(matchPoolsRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data && data.pools && Array.isArray(data.pools)) {
+                if (data.dailyIncrement === undefined) data.dailyIncrement = 3;
+                matchPoolsData = checkAndApplyDailyAutoIncrement(data);
+            } else if (!data) {
+                matchPoolsData.dailyIncrement = 3;
+                matchPoolsData.lastUpdatedDate = getTodayDateString();
+                set(matchPoolsRef, matchPoolsData);
+            }
+            updatePoolsUI();
+        });
+
+        onValue(vehicleConfigRef, (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                vehicleConfig = data;
+                renderUpcomingHistory();
+                renderUpcomingBattlesModal();
+                renderHistoryBattlesModal();
+            } else {
+                set(vehicleConfigRef, vehicleConfig);
+            }
+        });
+
+        onValue(rookieProtectionRef, (snapshot) => {
+            const data = snapshot.val();
+            rookieProtectionGroups = data ? Object.values(data) : [];
+            updateRookieBadge();
+        });
 
         function getNextTargetDay() {
             const today = new Date();
@@ -2209,8 +4211,9 @@
         const pad = (num) => String(num).padStart(2, '0');
         const dateStr = `${nextDate.getFullYear()}-${pad(nextDate.getMonth()+1)}-${pad(nextDate.getDate())}`;
         document.getElementById('eventDate').value = dateStr;
+        window.onDateInputChange();
 
-        window.initNameTags();
+        initNameTags();
     </script>
 </body>
 </html>
