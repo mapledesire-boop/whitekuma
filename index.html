@@ -298,9 +298,11 @@
             padding: 16px 12px; overflow-y: auto; backdrop-filter: blur(6px);
             -webkit-backdrop-filter: blur(6px);
         }
-        #passwordModal { z-index: 2500; }
-        #customConfirmModal, #customPromptModal { z-index: 3000; }
-        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal, #editReviewContentModal { z-index: 2100; }
+        #passwordModal { z-index: 3500; }
+        #customConfirmModal, #customPromptModal { z-index: 4000; }
+        #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal { z-index: 2100; }
+        #restaurantReviewModal { z-index: 3200; }
+        #editReviewContentModal { z-index: 3300; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 18px 18px 24px 18px;
@@ -1201,7 +1203,8 @@
             });
         }
 
-        window.openRestaurantReviewModal = function(targetRestName = "") {
+        window.openRestaurantReviewModal = function(targetRestName = "", event = null) {
+            if (event) event.stopPropagation();
             populateReviewRestaurantSelect();
             initReviewAuthorTags();
             const selectEl = document.getElementById('reviewRestaurantSelect');
@@ -1485,7 +1488,7 @@
                     scoreText = `★ ${(total / count).toFixed(1)} (${count})`;
                 }
                 const escapedName = name.replace(/'/g, "\\'");
-                ratingBtn = `<button class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}')">${scoreText}</button>`;
+                ratingBtn = `<button class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}', event)">${scoreText}</button>`;
             }
 
             let editBtnHtml = originalIndex !== null ? `<button class="btn-edit" style="margin-left:6px; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="editRestaurantByIndex(${originalIndex})">✏️ 編輯餐廳</button>` : '';
