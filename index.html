@@ -302,7 +302,7 @@
         #customConfirmModal, #customPromptModal { z-index: 4000; }
         #editPresetModal, #matchInputModal, #selectPoolModal, #editHistoryMatchModal, #vehicleModal, #rookieModal { z-index: 2100; }
         #restaurantReviewModal { z-index: 3200; }
-        #editReviewContentModal { z-index: 3300; }
+        #editReviewContentModal, #editRestaurantDetailsModal { z-index: 3300; }
         .modal-content {
             background: #FFFFFF; border-radius: var(--radius-lg);
             width: 100%; max-width: 480px; max-height: 85vh; overflow-y: auto; padding: 18px 18px 24px 18px;
@@ -566,7 +566,16 @@
                 </div>
             </div>
 
-            <div class="input-group">
+            <!-- 新增餐廳區塊 (修改 1) -->
+            <div style="background: #FFFBEB; border: 1.5px dashed #F59E0B; border-radius: var(--radius-sm); padding: 10px; margin-bottom: 12px;">
+                <label style="color: #B45309; font-size: 0.88rem; margin-bottom: 6px;">➕ 新增餐廳至選單：</label>
+                <div class="input-with-btn">
+                    <input type="text" id="addNewRestaurantInput" placeholder="輸入名稱或貼上 Google Map 連結..." style="font-size: 0.88rem; min-height: 40px; padding: 6px 10px;">
+                    <button class="btn-paste" style="background:#F59E0B; color:#FFFFFF; border-color:#D97706; min-height: 40px;" onclick="addNewRestaurantFromReviewModal()">新增</button>
+                </div>
+            </div>
+
+            <div class="input-group" style="margin-bottom: 10px;">
                 <label for="reviewRestaurantSelect">📍 選擇餐廳：</label>
                 <select id="reviewRestaurantSelect" onchange="onReviewRestaurantSelectChange()" style="font-size:0.95rem;">
                     <option value="">-- 請選擇餐廳 --</option>
@@ -577,6 +586,8 @@
                 <div>
                     <span id="summaryRestName" style="font-size: 1rem; font-weight: 900; color: #1E293B; display: block;"></span>
                     <span id="summaryRestCount" style="font-size: 0.8rem; color: #64748B; font-weight: 800;">尚無評價</span>
+                    <!-- 編輯餐廳按鈕 (修改 2) -->
+                    <button class="btn-edit" style="margin-top: 6px; padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="openEditRestaurantDetailsModal()">✏️ 編輯餐廳名稱 / 連結</button>
                 </div>
                 <div style="text-align: right;">
                     <span id="summaryRestRatingText" style="font-size: 1.5rem; font-weight: 900; color: #D97706;">0.0</span>
@@ -620,6 +631,28 @@
             </div>
             <div id="reviewListContainer" style="margin-top: 4px; max-height: 280px; overflow-y: auto;">
                 <div class="empty-text">請先選擇餐廳以查看評價與評論</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Restaurant Details Modal (編輯餐廳名稱/連結彈窗) -->
+    <div id="editRestaurantDetailsModal" class="modal-backdrop" style="display: none;">
+        <div class="modal-content" style="max-width: 420px;">
+            <div class="modal-header">
+                <h3>✏️ 編輯餐廳資訊</h3>
+                <button class="modal-close" onclick="closeEditRestaurantDetailsModal()">✖</button>
+            </div>
+            <div class="input-group" style="margin-bottom: 10px;">
+                <label>📍 餐廳名稱：</label>
+                <input type="text" id="editRestNameInput" placeholder="輸入餐廳名稱...">
+            </div>
+            <div class="input-group" style="margin-bottom: 14px;">
+                <label>🔗 Google Map 網址連結：</label>
+                <input type="text" id="editRestUrlInput" placeholder="https://maps.app.goo.gl/...">
+            </div>
+            <div class="btn-action">
+                <button class="action-btn btn-secondary" onclick="closeEditRestaurantDetailsModal()">取消</button>
+                <button class="action-btn btn-primary" onclick="saveEditedRestaurantDetails()">💾 儲存變更</button>
             </div>
         </div>
     </div>
@@ -1222,6 +1255,92 @@
 
         window.closeRestaurantReviewModal = function() {
             document.getElementById('restaurantReviewModal').style.display = 'none';
+        };
+
+        // 新增餐廳至選單 logic (修改 1)
+        window.addNewRestaurantFromReviewModal = function() {
+            const inputEl = document.getElementById('addNewRestaurantInput');
+            const val = inputEl.value.trim();
+            if (!val) return showToast("請輸入餐廳名稱或 Google Map 連結！");
+
+            const parsed = parseRestaurantInput(val);
+            const restName = parsed.name || val;
+
+            if (restName && restName !== "Google 地圖連結") {
+                if (!customRestaurants.includes(restName)) {
+                    customRestaurants.push(restName);
+                    set(customRestaurantsRef, customRestaurants);
+                }
+                populateReviewRestaurantSelect();
+                document.getElementById('reviewRestaurantSelect').value = restName;
+                onReviewRestaurantSelectChange();
+                inputEl.value = '';
+                showToast(`✅ 已成功新增餐廳「${restName}」！`);
+            } else {
+                showToast("無法解析有效的餐廳名稱！");
+            }
+        };
+
+        // 編輯餐廳名稱與連結 logic (修改 2)
+        window.openEditRestaurantDetailsModal = function() {
+            if (!selectedReviewRestaurant) return showToast("請先選擇要編輯的餐廳！");
+            
+            // 搜尋既有連結
+            let currentUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedReviewRestaurant + ' 台灣')}`;
+            for (let r of historyRounds) {
+                if ((r.restaurantName === selectedReviewRestaurant || r.restaurant === selectedReviewRestaurant) && r.mapUrl) {
+                    currentUrl = r.mapUrl;
+                    break;
+                }
+            }
+
+            document.getElementById('editRestNameInput').value = selectedReviewRestaurant;
+            document.getElementById('editRestUrlInput').value = currentUrl;
+            document.getElementById('editRestaurantDetailsModal').style.display = 'flex';
+        };
+
+        window.closeEditRestaurantDetailsModal = function() {
+            document.getElementById('editRestaurantDetailsModal').style.display = 'none';
+        };
+
+        window.saveEditedRestaurantDetails = function() {
+            const oldName = selectedReviewRestaurant;
+            const newName = document.getElementById('editRestNameInput').value.trim();
+            const newUrl = document.getElementById('editRestUrlInput').value.trim();
+
+            if (!newName) return showToast("餐廳名稱不能為空！");
+
+            // 1. 更新 customRestaurants
+            let updatedCustom = customRestaurants.map(r => r === oldName ? newName : r);
+            if (!updatedCustom.includes(newName)) updatedCustom.push(newName);
+            set(customRestaurantsRef, updatedCustom);
+
+            // 2. 更新 historyRounds 中的對應名稱與連結
+            let updatedRounds = historyRounds.map(round => {
+                if (round.restaurantName === oldName || round.restaurant === oldName) {
+                    return {
+                        ...round,
+                        restaurantName: newName,
+                        restaurant: newName,
+                        mapUrl: newUrl || round.mapUrl
+                    };
+                }
+                return round;
+            });
+            saveHistoryWithLimit(updatedRounds);
+
+            // 3. 更新 restaurantReviews 中的對應 key
+            if (restaurantReviewsData[oldName] && oldName !== newName) {
+                const reviewsObj = restaurantReviewsData[oldName];
+                set(ref(db, `restaurantReviews/${newName}`), reviewsObj);
+                remove(ref(db, `restaurantReviews/${oldName}`));
+            }
+
+            closeEditRestaurantDetailsModal();
+            populateReviewRestaurantSelect();
+            document.getElementById('reviewRestaurantSelect').value = newName;
+            onReviewRestaurantSelectChange();
+            showToast("✏️ 餐廳資訊已成功修改更新！");
         };
 
         window.toggleReviewAdminMode = function() {
@@ -2852,7 +2971,7 @@
             }
             let html = '';
             defaultPresetNames.forEach(name => {
-                const escapedName = name.replace(/'/g, "\\'");
+                const escapedName = name.replace(/'/g, "\\ me");
                 html += `<div class="trainer-list-item">
                     <span>⚡ ${name}</span>
                     <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapedName}')">🗑️ 刪除</button>
@@ -4206,6 +4325,7 @@
         onValue(customRestaurantsRef, (snapshot) => {
             const data = snapshot.val();
             customRestaurants = data ? Object.values(data) : [];
+            populateReviewRestaurantSelect();
         });
 
         onValue(presetsRef, (snapshot) => {
