@@ -566,7 +566,7 @@
                 </div>
             </div>
 
-            <!-- 新增餐廳區塊 (修改 1) -->
+            <!-- 新增餐廳區塊 -->
             <div style="background: #FFFBEB; border: 1.5px dashed #F59E0B; border-radius: var(--radius-sm); padding: 10px; margin-bottom: 12px;">
                 <label style="color: #B45309; font-size: 0.88rem; margin-bottom: 6px;">➕ 新增餐廳至選單：</label>
                 <div class="input-with-btn">
@@ -586,7 +586,7 @@
                 <div>
                     <span id="summaryRestName" style="font-size: 1rem; font-weight: 900; color: #1E293B; display: block;"></span>
                     <span id="summaryRestCount" style="font-size: 0.8rem; color: #64748B; font-weight: 800;">尚無評價</span>
-                    <!-- 編輯餐廳按鈕 (修改 2) -->
+                    <!-- 編輯餐廳按鈕 -->
                     <button class="btn-edit" style="margin-top: 6px; padding: 2px 8px; font-size: 0.75rem; min-height: 28px;" onclick="openEditRestaurantDetailsModal()">✏️ 編輯餐廳名稱 / 連結</button>
                 </div>
                 <div style="text-align: right;">
@@ -657,7 +657,7 @@
         </div>
     </div>
 
-    <!-- Edit Review Content Modal (無阻擋獨立彈窗) -->
+    <!-- Edit Review Content Modal -->
     <div id="editReviewContentModal" class="modal-backdrop" style="display: none;">
         <div class="modal-content" style="max-width: 420px;">
             <div class="modal-header">
@@ -1135,8 +1135,8 @@
         const rookieProtectionRef = ref(db, 'rookieProtectionGroups');
         const restaurantReviewsRef = ref(db, 'restaurantReviews');
 
-        // Passwords
-        const AUTH_PASSWORD = "765" + "765" + "765";
+        // Passwords (已統一設為 765765765)
+        const AUTH_PASSWORD = "765765765";
         const UPCOMING_USAGE_PASSWORD = "330";
 
         // Global State Variables
@@ -1257,7 +1257,7 @@
             document.getElementById('restaurantReviewModal').style.display = 'none';
         };
 
-        // 新增餐廳至選單 logic (修改 1)
+        // 新增餐廳至選單
         window.addNewRestaurantFromReviewModal = function() {
             const inputEl = document.getElementById('addNewRestaurantInput');
             const val = inputEl.value.trim();
@@ -1281,22 +1281,33 @@
             }
         };
 
-        // 編輯餐廳名稱與連結 logic (修改 2)
+        // 編輯餐廳名稱與連結 (需要密碼驗證 765765765)
         window.openEditRestaurantDetailsModal = function() {
             if (!selectedReviewRestaurant) return showToast("請先選擇要編輯的餐廳！");
             
-            // 搜尋既有連結
-            let currentUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedReviewRestaurant + ' 台灣')}`;
-            for (let r of historyRounds) {
-                if ((r.restaurantName === selectedReviewRestaurant || r.restaurant === selectedReviewRestaurant) && r.mapUrl) {
-                    currentUrl = r.mapUrl;
-                    break;
-                }
-            }
+            openPasswordModal(
+                "🔐 請輸入驗證密碼",
+                "編輯餐廳名稱與連結需要驗證密碼：",
+                (pwd) => {
+                    if (pwd.trim() === AUTH_PASSWORD) {
+                        let currentUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedReviewRestaurant + ' 台灣')}`;
+                        for (let r of historyRounds) {
+                            if ((r.restaurantName === selectedReviewRestaurant || r.restaurant === selectedReviewRestaurant) && r.mapUrl) {
+                                currentUrl = r.mapUrl;
+                                break;
+                            }
+                        }
 
-            document.getElementById('editRestNameInput').value = selectedReviewRestaurant;
-            document.getElementById('editRestUrlInput').value = currentUrl;
-            document.getElementById('editRestaurantDetailsModal').style.display = 'flex';
+                        document.getElementById('editRestNameInput').value = selectedReviewRestaurant;
+                        document.getElementById('editRestUrlInput').value = currentUrl;
+                        document.getElementById('editRestaurantDetailsModal').style.display = 'flex';
+                        return true;
+                    } else {
+                        showToast("密碼錯誤，無法編輯餐廳！");
+                        return false;
+                    }
+                }
+            );
         };
 
         window.closeEditRestaurantDetailsModal = function() {
@@ -4218,6 +4229,7 @@
             renderModalRestaurantList();
         };
 
+        // 編輯餐廳 (需要密碼驗證 765765765)
         window.editRestaurantByIndex = function(index) {
             const currentRound = historyRounds[index];
             if (!currentRound) return;
