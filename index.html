@@ -1077,6 +1077,12 @@
                 <input type="time" id="editModalMealTime">
             </div>
 
+            <div style="margin-bottom: 12px;">
+                <button class="btn-preset-save" style="width:100%; border-radius:12px; min-height:44px; font-weight:900; font-size:0.92rem; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer;" onclick="reshuffleEditModalTeams()">
+                    🎲 重新抽選對戰組合
+                </button>
+            </div>
+
             <div class="input-group">
                 <label>👥 對戰組合（拖曳人員以變更分組）</label>
                 <div id="editModalTeamsContainer"></div>
@@ -3015,24 +3021,8 @@
             set(historyRef, finalHistory);
         }
 
-        window.generateTeams = function() {
-            const rawText = document.getElementById('nameInput').value;
-            let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
-            const dateInputVal = document.getElementById('eventDate').value;
-            const timeInputVal = document.getElementById('eventTime').value || '14:00';
-            const mealTimeVal = document.getElementById('mealTime').value || '';
-            
-            if (!dateInputVal) return showToast("請選擇活動日期！");
-            const eventDateVal = `${dateInputVal}T${timeInputVal}`;
-
-            if (players.length < selectedTeamSize) return showToast(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
-
-            const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
-            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
-                customRestaurants.push(restaurantData.name);
-                set(customRestaurantsRef, customRestaurants);
-            }
-
+        // 抽取團隊組合核心計算函式（可指定忽略特定 Index，用於重新抽選）
+        function drawPairingAlgorithm(players, teamSizeVal, targetEventDateVal, excludeRoundIndex = null) {
             function shuffle(array) {
                 for (let i = array.length - 1; i > 0; i--) {
                     const j = Math.floor(Math.random() * (i + 1));
@@ -3048,16 +3038,17 @@
                 return false;
             }
 
-            function getSurroundingRounds(targetDateVal, count = 3) {
+            function getSurroundingRounds(targetDateVal, count = 5) {
                 if (!historyRounds || historyRounds.length === 0) return { before: [], after: [] };
-                const sorted = getChronologicalHistory(historyRounds);
+                const sorted = getChronologicalHistory(historyRounds)
+                    .filter(r => excludeRoundIndex === null || r.originalIndex !== excludeRoundIndex);
                 const before = sorted.filter(r => r.eventDate < targetDateVal).slice(-count);
                 const after = sorted.filter(r => r.eventDate > targetDateVal).slice(0, count);
                 return { before, after };
             }
 
             function isPairInSurroundingRounds(p1, p2, targetDateVal) {
-                const { before, after } = getSurroundingRounds(targetDateVal, 3);
+                const { before, after } = getSurroundingRounds(targetDateVal, 5);
                 const surrounding = [...before, ...after];
                 return surrounding.some(round =>
                     round.teams && round.teams.some(team => team.includes(p1) && team.includes(p2))
@@ -3065,7 +3056,8 @@
             }
 
             function getSurroundingByeCount(player, targetDateVal, rangeCount = 10) {
-                const sorted = getChronologicalHistory(historyRounds);
+                const sorted = getChronologicalHistory(historyRounds)
+                    .filter(r => excludeRoundIndex === null || r.originalIndex !== excludeRoundIndex);
                 const roundsWithBye = sorted.filter(r => {
                     if (!r.bye) return false;
                     if (Array.isArray(r.bye)) return r.bye.length > 0;
@@ -3084,7 +3076,8 @@
             function getTotalByeCount(player) {
                 if (!historyRounds || historyRounds.length === 0) return 0;
                 let count = 0;
-                historyRounds.forEach(round => {
+                historyRounds.forEach((round, idx) => {
+                    if (excludeRoundIndex !== null && idx === excludeRoundIndex) return;
                     if (isPlayerInBye(round.bye, player)) count++;
                 });
                 return count;
@@ -3110,8 +3103,8 @@
                     const presentMembers = grp.players.filter(p => players.includes(p));
                     if (presentMembers.length >= 2) {
                         presentMembers.forEach(p => rookieAssignedPlayers.add(p));
-                        for (let i = 0; i < presentMembers.length; i += selectedTeamSize) {
-                            rookieForcedSubgroups.push(presentMembers.slice(i, i + selectedTeamSize));
+                        for (let i = 0; i < presentMembers.length; i += teamSizeVal) {
+                            rookieForcedSubgroups.push(presentMembers.slice(i, i + teamSizeVal));
                         }
                     }
                 }
@@ -3124,14 +3117,14 @@
                     let currentBye = [];
 
                     const totalPlayersCount = players.length;
-                    const remainder = totalPlayersCount % selectedTeamSize;
+                    const remainder = totalPlayersCount % teamSizeVal;
 
                     if (remainder !== 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
                         for (let r = 0; r < remainder; r++) {
                             if (currentPlayers.length === 0) break;
                             let candidates = currentPlayers.map((p, idx) => {
-                                const surrBye = getSurroundingByeCount(p, eventDateVal, 10);
+                                const surrBye = getSurroundingByeCount(p, targetEventDateVal, 10);
                                 const totBye = getTotalByeCount(p);
                                 return {
                                     name: p,
@@ -3180,14 +3173,14 @@
 
                     rookieForcedSubgroups.forEach(subgroup => {
                         let group = [...subgroup];
-                        while (group.length < selectedTeamSize && currentPlayers.length > 0) {
+                        while (group.length < teamSizeVal && currentPlayers.length > 0) {
                             group.push(currentPlayers.shift());
                         }
                         tempTeams.push(group);
                     });
 
                     while (currentPlayers.length > 0) {
-                        let group = currentPlayers.splice(0, selectedTeamSize);
+                        let group = currentPlayers.splice(0, teamSizeVal);
                         tempTeams.push(group);
                     }
 
@@ -3207,7 +3200,7 @@
                                         grp.players && grp.players.includes(pA) && grp.players.includes(pB)
                                     );
 
-                                    if (!isForcedRookiePair && isPairInSurroundingRounds(pA, pB, eventDateVal)) {
+                                    if (!isForcedRookiePair && isPairInSurroundingRounds(pA, pB, targetEventDateVal)) {
                                         isValid = false; break;
                                     }
                                 }
@@ -3228,14 +3221,39 @@
                 if (validMatchFound) break;
             }
 
-            const byeString = Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '');
+            return {
+                teams: bestTeams,
+                bye: Array.isArray(bestBye) ? bestBye.join(', ') : (bestBye || '')
+            };
+        }
+
+        window.generateTeams = function() {
+            const rawText = document.getElementById('nameInput').value;
+            let players = rawText.split('\n').map(n => n.trim()).filter(n => n.length > 0);
+            const dateInputVal = document.getElementById('eventDate').value;
+            const timeInputVal = document.getElementById('eventTime').value || '14:00';
+            const mealTimeVal = document.getElementById('mealTime').value || '';
+            
+            if (!dateInputVal) return showToast("請選擇活動日期！");
+            const eventDateVal = `${dateInputVal}T${timeInputVal}`;
+
+            if (players.length < selectedTeamSize) return showToast(`請至少選擇 ${selectedTeamSize} 位訓練家！`);
+
+            const restaurantData = parseRestaurantInput(selectedRestaurantRaw.trim());
+            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !customRestaurants.includes(restaurantData.name)) {
+                customRestaurants.push(restaurantData.name);
+                set(customRestaurantsRef, customRestaurants);
+            }
+
+            const pairingRes = drawPairingAlgorithm(players, selectedTeamSize, eventDateVal);
+
             const newRound = {
                 eventDate: eventDateVal,
                 restaurantName: restaurantData.name,
                 mapUrl: restaurantData.url,
                 mealTime: mealTimeVal,
-                teams: bestTeams,
-                bye: byeString,
+                teams: pairingRes.teams,
+                bye: pairingRes.bye,
                 usedMatchesCount: 0,
                 matchUsageText: '0 場',
                 baseCount: 0,
@@ -3645,7 +3663,7 @@
                 const btnText = isDisabled ? '⚔️ 狂刀三浪還在浪' : '⚡ 直接擲球配對';
 
                 html += `<div class="${cardClass}">
-                    <div class="preset-date" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:6px;">
+                    <div class="preset-date" style="display:flex; justify-content:space-between; align-align:center; flex-wrap:wrap; gap:6px;">
                         <span>📅 ${pDateText} (${p.teamSize || 2}人一組) ${isDisabled ? '🔒' : ''}</span>
                         <button class="btn-edit" style="padding:3px 8px; font-size:0.78rem; min-height:30px; font-weight:800;" onclick="openEditPresetModal('${p.id}', event)">✏️ 編輯</button>
                     </div>
@@ -3939,7 +3957,8 @@
                 let byeArr = typeof editingModalData.bye === 'string' ? editingModalData.bye.split(',') : editingModalData.bye;
                 if (Array.isArray(byeArr)) byeArr.forEach(p => { if (p) list.push(p.trim()); });
             }
-            return list;
+            // 排除重複的項目，確保乾淨陣列
+            return Array.from(new Set(list.filter(Boolean)));
         }
 
         window.initEditModalNameTags = function() {
@@ -3959,6 +3978,7 @@
         window.toggleEditModalPlayer = function(name) {
             let currentPlayers = getAllEditModalPlayers();
             if (currentPlayers.includes(name)) {
+                // 如果已經存在，則自隊伍與爽打區全面移除
                 if (editingModalData.teams) {
                     editingModalData.teams.forEach(team => {
                         for (let i = team.length - 1; i >= 0; i--) {
@@ -3972,6 +3992,7 @@
                     editingModalData.bye = byeArr.join(', ');
                 }
             } else {
+                // 不存在時預設加入最後一組隊伍
                 if (!editingModalData.teams || editingModalData.teams.length === 0) {
                     editingModalData.teams = [[]];
                 }
@@ -4040,6 +4061,34 @@
             editingIndex = null;
         };
 
+        // 重新抽選「編輯對戰紀錄」彈窗內的人員組合
+        window.reshuffleEditModalTeams = function() {
+            let currentPlayers = getAllEditModalPlayers();
+            if (currentPlayers.length < 2) {
+                return showToast("參賽人員數量過少，無法重新抽選組合！");
+            }
+
+            // 計算目前每組平均人數作為隊伍人數基準 (預設 2 人)
+            let activeTeamsCount = editingModalData.teams ? editingModalData.teams.length : 0;
+            let teamSizeVal = 2;
+            if (activeTeamsCount > 0) {
+                teamSizeVal = Math.max(2, Math.round((currentPlayers.length - (editingModalData.bye ? editingModalData.bye.split(',').length : 0)) / activeTeamsCount));
+            }
+
+            const newDateVal = document.getElementById('editModalDate').value;
+            const newTimeVal = document.getElementById('editModalTime').value || '14:00';
+            const targetEventDateVal = newDateVal ? `${newDateVal}T${newTimeVal}` : editingModalData.eventDate;
+
+            // 呼叫演算法重新抽取
+            const pairingRes = drawPairingAlgorithm(currentPlayers, teamSizeVal, targetEventDateVal, editingIndex);
+
+            editingModalData.teams = pairingRes.teams;
+            editingModalData.bye = pairingRes.bye;
+
+            renderModalTeams();
+            showToast("🎲 對戰組合已符合條件重新抽選完成！");
+        };
+
         window.addModalTeamGroup = function() {
             editingModalData.teams.push([]);
             renderModalTeams();
@@ -4050,6 +4099,13 @@
             const name = input.value.trim();
             if (!name) return;
 
+            let currentPlayers = getAllEditModalPlayers();
+            if (currentPlayers.includes(name)) {
+                showToast("人員已在名單中！");
+                input.value = '';
+                return;
+            }
+
             if (editingModalData.teams.length === 0) editingModalData.teams.push([]);
             editingModalData.teams[editingModalData.teams.length - 1].push(name);
             input.value = '';
@@ -4058,11 +4114,13 @@
 
         window.removePlayerFromModal = function(teamIndex, playerIndex) {
             if (teamIndex === 'bye') {
-                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()) : [];
+                let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
                 byeArr.splice(playerIndex, 1);
                 editingModalData.bye = byeArr.join(', ');
             } else {
-                editingModalData.teams[teamIndex].splice(playerIndex, 1);
+                if (editingModalData.teams[teamIndex]) {
+                    editingModalData.teams[teamIndex].splice(playerIndex, 1);
+                }
             }
             renderModalTeams();
         };
@@ -4136,21 +4194,30 @@
 
                 let byeArr = editingModalData.bye ? editingModalData.bye.split(',').map(s => s.trim()).filter(Boolean) : [];
 
+                // 1. 先從來源處全面移除，確保不會在多個組別中重複出現
                 if (data.fromTeam === 'bye') {
-                    byeArr.splice(data.fromIndex, 1);
-                    editingModalData.bye = byeArr.join(', ');
-                } else {
-                    editingModalData.teams[data.fromTeam].splice(data.fromIndex, 1);
+                    byeArr = byeArr.filter(p => p !== data.name);
+                } else if (editingModalData.teams[data.fromTeam]) {
+                    editingModalData.teams[data.fromTeam] = editingModalData.teams[data.fromTeam].filter(p => p !== data.name);
                 }
 
+                // 防呆：再次掃描全體隊伍徹底消除重複
+                editingModalData.teams.forEach((t, idx) => {
+                    editingModalData.teams[idx] = t.filter(p => p !== data.name);
+                });
+                byeArr = byeArr.filter(p => p !== data.name);
+
+                // 2. 加入至目的地
                 if (toTeam === 'bye') {
                     byeArr.push(data.name);
-                    editingModalData.bye = byeArr.join(', ');
                 } else {
-                    const targetTeamIdx = parseInt(toTeam);
-                    editingModalData.teams[targetTeamIdx].push(data.name);
+                    const targetTeamIdx = parseInt(toTeam, 10);
+                    if (editingModalData.teams[targetTeamIdx]) {
+                        editingModalData.teams[targetTeamIdx].push(data.name);
+                    }
                 }
 
+                editingModalData.bye = byeArr.join(', ');
                 renderModalTeams();
             });
         }
