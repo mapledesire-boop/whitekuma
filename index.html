@@ -1200,6 +1200,31 @@
         let editingReviewTarget = { restName: '', reviewId: '' };
         let editingReviewRating = 5;
 
+        // Firebase Path Safe Helper (轉義 Firebase 禁止的非法的 key 字元: . # $ [ ])
+        function encodeFirebaseKey(key) {
+            if (!key) return '';
+            return key.replace(/\./g, '_dot_')
+                      .replace(/#/g, '_hash_')
+                      .replace(/\$/g, '_dollar_')
+                      .replace(/\[/g, '_lbracket_')
+                      .replace(/\]/g, '_rbracket_');
+        }
+
+        function decodeFirebaseKey(key) {
+            if (!key) return '';
+            return key.replace(/_dot_/g, '.')
+                      .replace(/_hash_/g, '#')
+                      .replace(/_dollar_/g, '$')
+                      .replace(/_lbracket_/g, '[')
+                      .replace(/_rbracket_/g, ']');
+        }
+
+        // 新手保護期 Badge 更新函式 (提升至模組前段以避免 ReferenceError)
+        function updateRookieBadge() {
+            const badge = document.getElementById('rookieProtectionBadge');
+            if (badge) badge.innerText = (rookieProtectionGroups || []).length;
+        }
+
         function initReviewAuthorTags() {
             const container = document.getElementById('reviewAuthorTagContainer');
             if (!container) return;
@@ -1347,10 +1372,13 @@
             saveHistoryWithLimit(updatedRounds);
 
             // 3. 更新 restaurantReviews 中的對應 key
+            const oldEncodedKey = encodeFirebaseKey(oldName);
+            const newEncodedKey = encodeFirebaseKey(newName);
+
             if (restaurantReviewsData[oldName] && oldName !== newName) {
                 const reviewsObj = restaurantReviewsData[oldName];
-                set(ref(db, `restaurantReviews/${newName}`), reviewsObj);
-                remove(ref(db, `restaurantReviews/${oldName}`));
+                set(ref(db, `restaurantReviews/${newEncodedKey}`), reviewsObj);
+                remove(ref(db, `restaurantReviews/${oldEncodedKey}`));
             }
 
             closeEditRestaurantDetailsModal();
@@ -1529,7 +1557,8 @@
                 isModerated: false
             };
 
-            const reviewItemRef = ref(db, `restaurantReviews/${selectedReviewRestaurant}/${reviewId}`);
+            const encodedRestKey = encodeFirebaseKey(selectedReviewRestaurant);
+            const reviewItemRef = ref(db, `restaurantReviews/${encodedRestKey}/${reviewId}`);
             set(reviewItemRef, newReview);
 
             document.getElementById('reviewCommentInput').value = '';
@@ -1537,7 +1566,8 @@
         };
 
         window.toggleModerateReview = function(restName, reviewId, shouldModerate) {
-            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+            const encodedRestKey = encodeFirebaseKey(restName);
+            const targetRef = ref(db, `restaurantReviews/${encodedRestKey}/${reviewId}`);
             update(targetRef, { isModerated: shouldModerate });
             showToast(shouldModerate ? "🚫 已遮蔽該筆惡意評論！" : "🔓 已取消該筆評論的遮蔽狀態！");
         };
@@ -1576,7 +1606,8 @@
             const newAuthor = document.getElementById('editReviewAuthorInput').value.trim();
             const newComment = document.getElementById('editReviewCommentTextarea').value.trim();
 
-            const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+            const encodedRestKey = encodeFirebaseKey(restName);
+            const targetRef = ref(db, `restaurantReviews/${encodedRestKey}/${reviewId}`);
             update(targetRef, {
                 author: newAuthor || "匿名訓練家",
                 rating: editingReviewRating,
@@ -1593,7 +1624,8 @@
                 "刪除餐廳評論需要驗證密碼：",
                 (pwd) => {
                     if (pwd.trim() === AUTH_PASSWORD) {
-                        const targetRef = ref(db, `restaurantReviews/${restName}/${reviewId}`);
+                        const encodedRestKey = encodeFirebaseKey(restName);
+                        const targetRef = ref(db, `restaurantReviews/${encodedRestKey}/${reviewId}`);
                         remove(targetRef);
                         showToast("已刪除該筆評論！");
                         return true;
@@ -1648,8 +1680,14 @@
         }
 
         onValue(restaurantReviewsRef, (snapshot) => {
-            const data = snapshot.val();
-            restaurantReviewsData = data || {};
+            const data = snapshot.val() || {};
+            let decodedObj = {};
+            Object.keys(data).forEach(encodedKey => {
+                const decodedKey = decodeFirebaseKey(encodedKey);
+                decodedObj[decodedKey] = data[encodedKey];
+            });
+
+            restaurantReviewsData = decodedObj;
             populateReviewRestaurantSelect();
             if (selectedReviewRestaurant) {
                 renderRestaurantReviewsList(selectedReviewRestaurant);
@@ -1846,11 +1884,6 @@
             updateRookieBadge();
             showToast("🌱 新手保護期強行同隊設定已成功儲存！");
         };
-
-        function updateRookieBadge() {
-            const badge = document.getElementById('rookieProtectionBadge');
-            if (badge) badge.innerText = (rookieProtectionGroups || []).length;
-        }
 
         function calculateVehicleCount(round) {
             if (!round) return 0;
@@ -2988,7 +3021,7 @@
             }
             let html = '';
             defaultPresetNames.forEach(name => {
-                const escapedName = name.replace(/'/g, "\\ me");
+                const escapedName = name.replace(/'/g, "\\'");
                 html += `<div class="trainer-list-item">
                     <span>⚡ ${name}</span>
                     <button class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapedName}')">🗑️ 刪除</button>
