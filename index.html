@@ -2836,20 +2836,8 @@
                         // 尚未湊滿，繼續詢問下一個卡池
                         askNextPool();
                     } else {
-                        // 已湊齊所需場次，跳出最終確認視窗，確認後再一起扣點
-                        const summaryLines = plan.map((s, idx) => `${idx + 1}. ${s.poolName}：扣除 ${s.count} 場`).join('\n');
-                        const confirmMsg = `【${label}】共需 ${totalNeeded} 場，預計依序從以下卡池扣除：\n\n${summaryLines}\n\n確認後將一次性扣除上述點數，是否確定？`;
-                        
-                        showConfirm(
-                            confirmMsg,
-                            () => {
-                                if (onConfirmAll) onConfirmAll(plan);
-                            },
-                            () => {
-                                if (onCancelAll) onCancelAll();
-                            },
-                            "🎯 確認扣點卡池配置"
-                        );
+                        // 已湊齊所需場次，直接執行扣點（不跳出確認視窗）
+                        if (onConfirmAll) onConfirmAll(plan);
                     }
                 }, () => {
                     // 使用者點擊取消按鈕
