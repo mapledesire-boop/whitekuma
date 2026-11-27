@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
+<!-- saved from url=(0128)https://b8edf235-8e2b-4ad7-9e82-e39f05542603.fc.clawbro.ai/_debug/3002/bowling-fixed.html?token=d0c932e413330a12a74ad930625f3933 -->
+<html lang="zh-TW"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>白熊保齡球 🎳</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com/">
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="">
+    <link href="./白熊保齡球 🎳_files/css2" rel="stylesheet">
     
     <style>
         /* ==================== 設計變數與基礎設定 ==================== */
@@ -395,6 +395,14 @@
             display: flex; gap: 4px; align-items: center; margin-top: 6px; padding-top: 6px; border-top: 1px dashed #E2E8F0; justify-content: flex-end;
         }
 
+        .btn-del-rest {
+            background: #FEF2F2; border: 1.5px solid #FCA5A5; color: #DC2626;
+            border-radius: 10px; padding: 4px 10px; font-size: 0.8rem; font-weight: 800;
+            cursor: pointer; flex-shrink: 0; display: inline-flex; align-items: center;
+            justify-content: center; gap: 4px; transition: var(--transition); min-height: 36px;
+        }
+        .btn-del-rest:active { transform: scale(0.95); background: #FEE2E2; }
+
         .btn-pin-rest {
             padding: 4px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 800;
             cursor: pointer; transition: var(--transition); border: 1.5px solid #E2E8F0;
@@ -424,7 +432,7 @@
     <!-- 標題區塊 -->
     <div class="header-container">
         <div class="header-title-box">
-            <img src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/25.png" alt="Pikachu" class="header-img">
+            <img src="./白熊保齡球 🎳_files/25.png" alt="Pikachu" class="header-img">
             <h2 class="header-title">白熊保齡球 🎳</h2>
         </div>
         <div class="subtitle">
@@ -434,8 +442,8 @@
 
     <!-- 頂部場次總覽列 -->
     <div class="top-summary-bar" id="topMatchesSummaryBar">
-        <span class="top-summary-total" id="topTotalSummary">總場次: 0 場</span>
-        <div class="top-summary-pools" id="topPoolsSummaryList"></div>
+        <span class="top-summary-total" id="topTotalSummary">總場次: 386 場</span>
+        <div class="top-summary-pools" id="topPoolsSummaryList"><span class="top-summary-item">62卡: 122</span><span class="top-summary-item">63卡: 60</span><span class="top-summary-item">64卡: 151</span><span class="top-summary-item">65卡: 25</span><span class="top-summary-item">105卡: 28</span></div>
     </div>
 
     <!-- 預訂對戰圖鑑 -->
@@ -443,15 +451,17 @@
         <div class="section-header" style="align-items: flex-start;">
             <h3>⚡ 預訂對戰圖鑑</h3>
             <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
-                <span id="upcomingVehicleBadge" class="btn-usage-badge" style="background:#EEF6FF; border-color:#BFDBFE; color:var(--poke-blue); cursor:default;">車輛: 0</span>
-                <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">
-                    本次場次
-                </button>
+                <span id="upcomingVehicleBadge" class="btn-usage-badge" style="background:#EEF6FF; border-color:#BFDBFE; color:var(--poke-blue); cursor:default;">車輛: 4</span>
+                <button id="btnUpcomingMatchUsage" class="btn-usage-badge" onclick="handleUpcomingUsageClick()">本次場次</button>
             </div>
         </div>
-        <div id="upcomingHistoryContent">
-            <div class="empty-text">載入預訂對戰紀錄中...</div>
-        </div>
+        <div id="upcomingHistoryContent"><div class="pop-in"><div class="result-item" style="background:var(--poke-blue-light); color:var(--poke-blue); font-weight:900; display:flex; justify-content:space-between; align-items:center;"><div>📅 活動日期：2026-11-28 (六) 13:00</div><a href="https://calendar.google.com/calendar/render?action=TEMPLATE&amp;text=%E7%99%BD%E7%86%8A%E4%BF%9D%E9%BD%A1%E7%90%83&amp;dates=20261128T130000/20261128T150000&amp;details=%E3%80%90%E7%99%BD%E7%86%8A%E4%BF%9D%E9%BD%A1%E7%90%83%E6%88%B0%E5%A0%B1%E3%80%91%0A%E2%8F%B0%20%E7%94%A8%E9%A4%90%E6%99%82%E9%96%93%EF%BC%9A18%3A00%0A%E7%AC%AC%201%20%E7%B5%84%EF%BC%9A%E5%8F%8B%E4%BB%94%20%26%20%E5%9C%93%E5%9C%93%0A%E7%AC%AC%202%20%E7%B5%84%EF%BC%9A%E5%B0%8F%E5%90%B3%20%26%20%E5%9C%98%E5%9C%98%0A%E7%AC%AC%203%20%E7%B5%84%EF%BC%9A%E5%9C%93%E4%BB%94%20%26%20%E5%A4%A7%E5%90%B3%0A%E7%AC%AC%204%20%E7%B5%84%EF%BC%9A%E7%A0%B4%E9%B3%B3%20%26%20%E8%8A%B1%0A&amp;location=%E9%8A%98%E5%BF%83%E5%89%B2%E7%83%B9%E5%A3%BD%E5%8F%B8" target="_blank" style="margin-left:8px; font-size:0.75rem; background:#FFFFFF; color:var(--poke-blue); padding:2px 6px; border-radius:6px; text-decoration:none; border:1px solid #B3D0FF;">📅 行事曆</a></div><div class="result-item full-width restaurant-item-box">
+                <div>🍽️ <a href="https://www.google.com/maps/search/?api=1&amp;query=%E9%8A%98%E5%BF%83%E5%89%B2%E7%83%B9%E5%A3%BD%E5%8F%B8%20%E5%8F%B0%E7%81%A3" target="_blank" class="restaurant-link">📍 銘心割烹壽司</a></div>
+                <div class="restaurant-sub-row">
+                    <div><span class="meal-badge">⏰ 用餐時間：18:00</span></div>
+                    <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;"><button type="button" class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('銘心割烹壽司', event)">★ 評價</button></div>
+                </div>
+            </div><div class="result-item">第 1 組：<span class="team-badge">友仔</span> &amp; <span class="team-badge">圓圓</span></div><div class="result-item">第 2 組：<span class="team-badge">小吳</span> &amp; <span class="team-badge">團團</span></div><div class="result-item">第 3 組：<span class="team-badge">圓仔</span> &amp; <span class="team-badge">大吳</span></div><div class="result-item">第 4 組：<span class="team-badge">破鳳</span> &amp; <span class="team-badge">花</span></div></div></div>
     </div>
 
     <!-- 預組隊伍庫觸發按鈕 -->
@@ -494,7 +504,7 @@
             <label>👥 選擇登場訓練家</label>
             <button type="button" class="btn-sm-manage" onclick="openTrainerManagerModal()">⚙️ 編輯訓練家</button>
         </div>
-        <div class="tag-container" id="tagContainer"></div>
+        <div class="tag-container" id="tagContainer"><div class="name-tag">⚡ 團團</div><div class="name-tag">⚡ 圓圓</div><div class="name-tag">⚡ 圓仔</div><div class="name-tag">⚡ 花</div><div class="name-tag">⚡ 破鳳</div><div class="name-tag">⚡ 老朱</div><div class="name-tag">⚡ 大吳</div><div class="name-tag">⚡ 小吳</div><div class="name-tag">⚡ 友仔</div><div class="name-tag">⚡ Misha</div><div class="name-tag">⚡ Peter</div><div class="name-tag">⚡ 台長</div><div class="name-tag">⚡ 阿卡</div><div class="name-tag">⚡ 陳彤</div><div class="name-tag">⚡ 楷雲</div><div class="name-tag">⚡ Jadyn</div><div class="name-tag">⚡ 怡如</div><div class="name-tag">⚡ 予睫</div></div>
 
         <label for="nameInput">📝 參賽訓練家名單（每行一位）</label>
         <textarea id="nameInput" placeholder="點擊上方按鈕選取，或直接輸入..." oninput="syncTagsWithTextarea()"></textarea>
@@ -527,11 +537,11 @@
         <div style="display: flex; flex-direction: column; gap: 8px;">
             <button type="button" class="btn-category-trigger" style="border: 2px solid var(--poke-blue); color: var(--poke-blue);" onclick="openUpcomingBattlesModal()">
                 <span>⚡ 未來對戰圖鑑</span>
-                <span style="background: var(--poke-blue-light); padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="upcomingBattlesBadgeCount">0 筆</span>
+                <span style="background: var(--poke-blue-light); padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="upcomingBattlesBadgeCount">7 筆</span>
             </button>
             <button type="button" class="btn-category-trigger" style="border: 2px solid #64748B; color: #334155;" onclick="openHistoryBattlesModal()">
                 <span>📜 歷史對戰圖鑑</span>
-                <span style="background: #F1F5F9; padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="historyBattlesBadgeCount">0 筆</span>
+                <span style="background: #F1F5F9; padding: 2px 10px; border-radius: 12px; font-size: 0.85rem;" id="historyBattlesBadgeCount">20 筆</span>
             </button>
         </div>
     </div>
@@ -563,7 +573,7 @@
         </div>
         <button type="button" class="btn-pool-trigger" onclick="openPoolManagementModal()">
             <span>🔐 進入場次管理專區</span>
-            <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">0</strong> 場 ⚙</span>
+            <span>總場次: <strong id="mainTotalMatchesBadge" style="color:var(--poke-purple);">386</strong> 場 ⚙</span>
         </button>
     </div>
 
@@ -601,16 +611,15 @@
             <div class="input-group" style="margin-bottom: 10px;">
                 <label for="reviewRestaurantSelect">📍 選擇餐廳：</label>
                 <div style="display: flex; gap: 6px; align-items: center;">
-                    <select id="reviewRestaurantSelect" onchange="onReviewRestaurantSelectChange()" style="font-size:0.92rem; flex: 1;">
-                        <option value="">-- 請選擇餐廳 --</option>
-                    </select>
+                    <select id="reviewRestaurantSelect" onchange="onReviewRestaurantSelectChange()" style="font-size:0.92rem; flex: 1;"><option value="">-- 請選擇餐廳 --</option><option value="貢拋">📌 貢拋 (2026-09-22)</option><option value="皮諾可可">📌 皮諾可可 (2026-11-18)</option><option value="匠屋 朝馬館">📌 匠屋 朝馬館 (2026-11-30)</option><option value="四季彩日本料理">四季彩日本料理</option><option value="巧味爐歐法餐廳">巧味爐歐法餐廳</option><option value="東山驛站甕缸雞">東山驛站甕缸雞</option><option value="法森">法森</option><option value="近炭爐端燒">近炭爐端燒</option><option value="金華園">金華園</option><option value="阿根廷牛排餐酒館">阿根廷牛排餐酒館</option><option value="茹絲葵經典牛排館">茹絲葵經典牛排館</option><option value="盛集屋SEISHUYA">盛集屋SEISHUYA</option><option value="祥戎華·茶餐室">祥戎華·茶餐室</option><option value="莎莎島 Salsaland 拉丁南洋料理">莎莎島 Salsaland 拉丁南洋料理</option><option value="湯明茶樓-台中店">湯明茶樓-台中店</option><option value="鄉村鵝廚房">鄉村鵝廚房</option><option value="黑毛屋 台中漢神洲際店">黑毛屋 台中漢神洲際店</option><option value="演藝牛鍋">演藝牛鍋</option><option value="豐饌御鴨樓">豐饌御鴨樓</option><option value="V Di Ja">V Di Ja</option><option value="ととや和道屋-北屯旗艦店">ととや和道屋-北屯旗艦店</option><option value="Mooie花園餐廳">Mooie花園餐廳 (2026-09-14)</option><option value="赤鳶">赤鳶 (2026-09-16)</option><option value="三希樓">三希樓 (2026-09-30)</option><option value="泓品牛排">泓品牛排 (2026-10-03)</option><option value="船艙せんしつ天料理">船艙せんしつ天料理 (2026-10-07)</option><option value="肉料理·福">肉料理·福 (2026-10-09)</option><option value="侯老闆愛吃鍋">侯老闆愛吃鍋 (2026-10-10)</option><option value="C'est bon藍法">C'est bon藍法 (2026-10-14)</option><option value="炎香樓">炎香樓 (2026-10-21)</option><option value="秋田笠">秋田笠 (2026-10-26)</option><option value="躍.YueFire直火日式割烹小料理">躍.YueFire直火日式割烹小料理 (2026-10-29)</option><option value="香寓">香寓 (2026-11-07)</option><option value="ISAGI 日本無菜單料理">ISAGI 日本無菜單料理 (2026-11-11)</option><option value="FRIDAYS-崇德店">FRIDAYS-崇德店 (2026-11-21)</option><option value="謙旬 燒鳥 Yakitori">謙旬 燒鳥 Yakitori (2026-11-25)</option><option value="銘心割烹壽司">銘心割烹壽司 (2026-11-28)</option></select>
                     <button id="btnTogglePinRestaurant" type="button" class="btn-pin-rest" style="display: none;" onclick="togglePinSelectedRestaurant()">📌 釘選</button>
+                    <button id="btnDeleteSelectedRestaurant" type="button" class="btn-del-rest" style="display: none; min-height:34px;" onclick="deleteSelectedRestaurant()" title="從選單移除此餐廳">🗑️</button>
                 </div>
             </div>
 
             <div id="restaurantRatingSummary" style="background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: var(--radius-sm); padding: 12px; margin-bottom: 14px; display: none; align-items: center; justify-content: space-between; gap: 8px;">
                 <div style="flex: 1; min-width: 0;">
-                    <a id="summaryRestNameLink" href="#" target="_blank" rel="noopener noreferrer" class="restaurant-link" style="font-size: 1rem; font-weight: 900; display: inline-flex; align-items: center; gap: 4px; word-break: break-word;" title="開啟 Google 地圖查看">
+                    <a id="summaryRestNameLink" href="https://b8edf235-8e2b-4ad7-9e82-e39f05542603.fc.clawbro.ai/_debug/3002/bowling-fixed.html?token=d0c932e413330a12a74ad930625f3933#" target="_blank" rel="noopener noreferrer" class="restaurant-link" style="font-size: 1rem; font-weight: 900; display: inline-flex; align-items: center; gap: 4px; word-break: break-word;" title="開啟 Google 地圖查看">
                         📍 <span id="summaryRestNameText"></span> 🔗
                     </a>
                     <div id="summaryRestLastDate" style="font-size: 0.78rem; color: #047857; font-weight: 800; margin-top: 3px;"></div>
@@ -640,7 +649,7 @@
                 <div class="label-header" style="margin-top: 10px; margin-bottom: 4px;">
                     <label style="margin:0; font-size:0.85rem; color:#475569;">👤 訓練家姓名（點擊快速選取）：</label>
                 </div>
-                <div class="tag-container" id="reviewAuthorTagContainer" style="margin-top: 4px; margin-bottom: 8px;"></div>
+                <div class="tag-container" id="reviewAuthorTagContainer" style="margin-top: 4px; margin-bottom: 8px;"><div class="name-tag">⚡ 團團</div><div class="name-tag">⚡ 圓圓</div><div class="name-tag">⚡ 圓仔</div><div class="name-tag">⚡ 花</div><div class="name-tag">⚡ 破鳳</div><div class="name-tag">⚡ 老朱</div><div class="name-tag">⚡ 大吳</div><div class="name-tag">⚡ 小吳</div><div class="name-tag">⚡ 友仔</div><div class="name-tag">⚡ Misha</div><div class="name-tag">⚡ Peter</div><div class="name-tag">⚡ 台長</div><div class="name-tag">⚡ 阿卡</div><div class="name-tag">⚡ 陳彤</div><div class="name-tag">⚡ 楷雲</div><div class="name-tag">⚡ Jadyn</div><div class="name-tag">⚡ 怡如</div><div class="name-tag">⚡ 予睫</div></div>
 
                 <div class="input-group" style="margin-bottom: 8px;">
                     <input type="text" id="reviewAuthorInput" placeholder="訓練家姓名 (預設：匿名)" oninput="syncReviewAuthorTags()" style="font-size: 0.88rem; min-height: 40px; padding: 6px 10px;">
@@ -911,13 +920,13 @@
                 <div class="total-matches-title">
                     <span>🏆 總場次 (全部池加總)</span>
                 </div>
-                <div class="total-matches-count" id="modalTotalMatches">0</div>
+                <div class="total-matches-count" id="modalTotalMatches">386</div>
             </div>
 
             <div style="font-size: 0.88rem; color: #475569; font-weight: 800; margin-bottom: 14px; background: #F8FAFC; padding: 12px; border-radius: var(--radius-sm); border: 1.5px solid #E2E8F0;">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                     <label for="dailyIncrementInput" style="margin:0;">✨ 每日跨日全體場次池自動增加數：</label>
-                    <span id="lastAutoIncText" style="color:var(--poke-purple); font-size:0.8rem;">跨日檢查中...</span>
+                    <span id="lastAutoIncText" style="color:var(--poke-purple); font-size:0.8rem;">上次結算: 2026-11-27</span>
                 </div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span style="font-weight:900; color:var(--poke-purple); font-size:1.15rem;">+</span>
@@ -1043,7 +1052,229 @@
                     <button type="button" class="btn-paste" onclick="pasteClipboardEditPreset()">📋 貼上</button>
                 </div>
                 <label style="font-size: 0.82rem; color: #64748B; margin-top: 4px; margin-bottom: 4px;">歷史常用餐廳列表（點擊快速帶入）：</label>
-                <div id="editPresetRestaurantList" class="modal-rest-list" style="max-height: 150px; margin-bottom: 10px;"></div>
+                <div id="editPresetRestaurantList" class="modal-rest-list" style="max-height: 150px; margin-bottom: 10px;"><div class="modal-rest-item" onclick="selectEditPresetRestaurant('貢拋')">
+                    <span class="rest-name">📌 貢拋<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-22)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.7</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('貢拋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '貢拋')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('皮諾可可')">
+                    <span class="rest-name">📌 皮諾可可<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-18)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('皮諾可可')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '皮諾可可')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('匠屋 朝馬館')">
+                    <span class="rest-name">📌 匠屋 朝馬館<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-30)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.8</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('匠屋 朝馬館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '匠屋 朝馬館')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('四季彩日本料理')">
+                    <span class="rest-name">📍 四季彩日本料理</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('四季彩日本料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '四季彩日本料理')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('巧味爐歐法餐廳')">
+                    <span class="rest-name">📍 巧味爐歐法餐廳</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('巧味爐歐法餐廳')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '巧味爐歐法餐廳')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('東山驛站甕缸雞')">
+                    <span class="rest-name">📍 東山驛站甕缸雞</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('東山驛站甕缸雞')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '東山驛站甕缸雞')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('法森')">
+                    <span class="rest-name">📍 法森<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('法森')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '法森')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('近炭爐端燒')">
+                    <span class="rest-name">📍 近炭爐端燒</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('近炭爐端燒')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '近炭爐端燒')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('金華園')">
+                    <span class="rest-name">📍 金華園<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★5.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('金華園')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '金華園')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('阿根廷牛排餐酒館')">
+                    <span class="rest-name">📍 阿根廷牛排餐酒館</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('阿根廷牛排餐酒館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '阿根廷牛排餐酒館')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('茹絲葵經典牛排館')">
+                    <span class="rest-name">📍 茹絲葵經典牛排館<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('茹絲葵經典牛排館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '茹絲葵經典牛排館')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('盛集屋SEISHUYA')">
+                    <span class="rest-name">📍 盛集屋SEISHUYA<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('盛集屋SEISHUYA')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '盛集屋SEISHUYA')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('祥戎華·茶餐室')">
+                    <span class="rest-name">📍 祥戎華·茶餐室</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('祥戎華·茶餐室')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '祥戎華·茶餐室')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('莎莎島 Salsaland 拉丁南洋料理')">
+                    <span class="rest-name">📍 莎莎島 Salsaland 拉丁南洋料理</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('莎莎島 Salsaland 拉丁南洋料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '莎莎島 Salsaland 拉丁南洋料理')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('湯明茶樓-台中店')">
+                    <span class="rest-name">📍 湯明茶樓-台中店</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('湯明茶樓-台中店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '湯明茶樓-台中店')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('鄉村鵝廚房')">
+                    <span class="rest-name">📍 鄉村鵝廚房</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('鄉村鵝廚房')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '鄉村鵝廚房')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('黑毛屋 台中漢神洲際店')">
+                    <span class="rest-name">📍 黑毛屋 台中漢神洲際店</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('黑毛屋 台中漢神洲際店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '黑毛屋 台中漢神洲際店')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('演藝牛鍋')">
+                    <span class="rest-name">📍 演藝牛鍋<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('演藝牛鍋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '演藝牛鍋')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('豐饌御鴨樓')">
+                    <span class="rest-name">📍 豐饌御鴨樓</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('豐饌御鴨樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '豐饌御鴨樓')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('V Di Ja')">
+                    <span class="rest-name">📍 V Di Ja<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('V Di Ja')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'V Di Ja')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('ととや和道屋-北屯旗艦店')">
+                    <span class="rest-name">📍 ととや和道屋-北屯旗艦店</span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('ととや和道屋-北屯旗艦店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'ととや和道屋-北屯旗艦店')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('Mooie花園餐廳')">
+                    <span class="rest-name">📍 Mooie花園餐廳<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-14)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.3</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('Mooie花園餐廳')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'Mooie花園餐廳')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('赤鳶')">
+                    <span class="rest-name">📍 赤鳶<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-16)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('赤鳶')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '赤鳶')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('三希樓')">
+                    <span class="rest-name">📍 三希樓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-30)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('三希樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '三希樓')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('泓品牛排')">
+                    <span class="rest-name">📍 泓品牛排<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-03)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('泓品牛排')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '泓品牛排')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('船艙せんしつ天料理')">
+                    <span class="rest-name">📍 船艙せんしつ天料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-07)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★1.3</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('船艙せんしつ天料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '船艙せんしつ天料理')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('肉料理·福')">
+                    <span class="rest-name">📍 肉料理·福<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-09)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('肉料理·福')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '肉料理·福')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('侯老闆愛吃鍋')">
+                    <span class="rest-name">📍 侯老闆愛吃鍋<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-10)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('侯老闆愛吃鍋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '侯老闆愛吃鍋')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('C\'est bon藍法')">
+                    <span class="rest-name">📍 C'est bon藍法<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-14)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★2.3</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('C\'est bon藍法')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'C\'est bon藍法')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('炎香樓')">
+                    <span class="rest-name">📍 炎香樓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-21)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.8</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('炎香樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '炎香樓')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('秋田笠')">
+                    <span class="rest-name">📍 秋田笠<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-26)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('秋田笠')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '秋田笠')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('躍.YueFire直火日式割烹小料理')">
+                    <span class="rest-name">📍 躍.YueFire直火日式割烹小料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-29)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('躍.YueFire直火日式割烹小料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '躍.YueFire直火日式割烹小料理')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('香寓')">
+                    <span class="rest-name">📍 香寓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-07)</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('香寓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '香寓')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('ISAGI 日本無菜單料理')">
+                    <span class="rest-name">📍 ISAGI 日本無菜單料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-11)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★5.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('ISAGI 日本無菜單料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'ISAGI 日本無菜單料理')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('FRIDAYS-崇德店')">
+                    <span class="rest-name">📍 FRIDAYS-崇德店<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-21)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('FRIDAYS-崇德店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'FRIDAYS-崇德店')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('謙旬 燒鳥 Yakitori')">
+                    <span class="rest-name">📍 謙旬 燒鳥 Yakitori<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-25)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('謙旬 燒鳥 Yakitori')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '謙旬 燒鳥 Yakitori')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectEditPresetRestaurant('銘心割烹壽司')">
+                    <span class="rest-name">📍 銘心割烹壽司<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-28)</span></span>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('銘心割烹壽司')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '銘心割烹壽司')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
+                </div></div>
 
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <span style="font-size: 0.88rem; font-weight: 800; color: #475569; white-space: nowrap;">⏰ 用餐時間：</span>
@@ -1106,7 +1337,229 @@
             </div>
 
             <label style="margin-top: 14px;">歷史常用餐廳列表（點擊快速帶入）：</label>
-            <div id="modalRestaurantList" class="modal-rest-list"></div>
+            <div id="modalRestaurantList" class="modal-rest-list"><div class="modal-rest-item" onclick="selectModalRestaurant('貢拋')">
+                    <span class="rest-name">📌 貢拋<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-22)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.7 (3)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('貢拋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '貢拋')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('皮諾可可')">
+                    <span class="rest-name">📌 皮諾可可<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-18)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('皮諾可可')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '皮諾可可')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('匠屋 朝馬館')">
+                    <span class="rest-name">📌 匠屋 朝馬館<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-30)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.8 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('匠屋 朝馬館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '匠屋 朝馬館')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('四季彩日本料理')">
+                    <span class="rest-name">📍 四季彩日本料理</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('四季彩日本料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '四季彩日本料理')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('巧味爐歐法餐廳')">
+                    <span class="rest-name">📍 巧味爐歐法餐廳</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('巧味爐歐法餐廳')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '巧味爐歐法餐廳')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('東山驛站甕缸雞')">
+                    <span class="rest-name">📍 東山驛站甕缸雞</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('東山驛站甕缸雞')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '東山驛站甕缸雞')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('法森')">
+                    <span class="rest-name">📍 法森<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('法森')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '法森')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('近炭爐端燒')">
+                    <span class="rest-name">📍 近炭爐端燒</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('近炭爐端燒')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '近炭爐端燒')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('金華園')">
+                    <span class="rest-name">📍 金華園<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★5.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('金華園')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '金華園')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('阿根廷牛排餐酒館')">
+                    <span class="rest-name">📍 阿根廷牛排餐酒館</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('阿根廷牛排餐酒館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '阿根廷牛排餐酒館')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('茹絲葵經典牛排館')">
+                    <span class="rest-name">📍 茹絲葵經典牛排館<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (2)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('茹絲葵經典牛排館')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '茹絲葵經典牛排館')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('盛集屋SEISHUYA')">
+                    <span class="rest-name">📍 盛集屋SEISHUYA<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('盛集屋SEISHUYA')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '盛集屋SEISHUYA')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('祥戎華·茶餐室')">
+                    <span class="rest-name">📍 祥戎華·茶餐室</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('祥戎華·茶餐室')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '祥戎華·茶餐室')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('莎莎島 Salsaland 拉丁南洋料理')">
+                    <span class="rest-name">📍 莎莎島 Salsaland 拉丁南洋料理</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('莎莎島 Salsaland 拉丁南洋料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '莎莎島 Salsaland 拉丁南洋料理')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('湯明茶樓-台中店')">
+                    <span class="rest-name">📍 湯明茶樓-台中店</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('湯明茶樓-台中店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '湯明茶樓-台中店')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('鄉村鵝廚房')">
+                    <span class="rest-name">📍 鄉村鵝廚房</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('鄉村鵝廚房')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '鄉村鵝廚房')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('黑毛屋 台中漢神洲際店')">
+                    <span class="rest-name">📍 黑毛屋 台中漢神洲際店</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('黑毛屋 台中漢神洲際店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '黑毛屋 台中漢神洲際店')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('演藝牛鍋')">
+                    <span class="rest-name">📍 演藝牛鍋<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('演藝牛鍋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '演藝牛鍋')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('豐饌御鴨樓')">
+                    <span class="rest-name">📍 豐饌御鴨樓</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('豐饌御鴨樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '豐饌御鴨樓')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('V Di Ja')">
+                    <span class="rest-name">📍 V Di Ja<span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (2)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('V Di Ja')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'V Di Ja')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('ととや和道屋-北屯旗艦店')">
+                    <span class="rest-name">📍 ととや和道屋-北屯旗艦店</span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('ととや和道屋-北屯旗艦店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'ととや和道屋-北屯旗艦店')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('Mooie花園餐廳')">
+                    <span class="rest-name">📍 Mooie花園餐廳<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-14)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.3 (3)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('Mooie花園餐廳')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'Mooie花園餐廳')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('赤鳶')">
+                    <span class="rest-name">📍 赤鳶<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-16)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5 (2)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('赤鳶')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '赤鳶')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('三希樓')">
+                    <span class="rest-name">📍 三希樓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-09-30)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.5 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('三希樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '三希樓')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('泓品牛排')">
+                    <span class="rest-name">📍 泓品牛排<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-03)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('泓品牛排')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '泓品牛排')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('船艙せんしつ天料理')">
+                    <span class="rest-name">📍 船艙せんしつ天料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-07)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★1.3 (3)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('船艙せんしつ天料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '船艙せんしつ天料理')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('肉料理·福')">
+                    <span class="rest-name">📍 肉料理·福<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-09)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★4.0 (2)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('肉料理·福')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '肉料理·福')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('侯老闆愛吃鍋')">
+                    <span class="rest-name">📍 侯老闆愛吃鍋<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-10)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (3)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('侯老闆愛吃鍋')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '侯老闆愛吃鍋')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('C\'est bon藍法')">
+                    <span class="rest-name">📍 C'est bon藍法<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-14)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★2.3 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('C\'est bon藍法')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'C\'est bon藍法')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('炎香樓')">
+                    <span class="rest-name">📍 炎香樓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-21)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.8 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('炎香樓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '炎香樓')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('秋田笠')">
+                    <span class="rest-name">📍 秋田笠<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-26)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (4)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('秋田笠')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '秋田笠')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('躍.YueFire直火日式割烹小料理')">
+                    <span class="rest-name">📍 躍.YueFire直火日式割烹小料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-10-29)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('躍.YueFire直火日式割烹小料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '躍.YueFire直火日式割烹小料理')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('香寓')">
+                    <span class="rest-name">📍 香寓<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-07)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('香寓')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '香寓')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('ISAGI 日本無菜單料理')">
+                    <span class="rest-name">📍 ISAGI 日本無菜單料理<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-11)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★5.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('ISAGI 日本無菜單料理')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'ISAGI 日本無菜單料理')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('FRIDAYS-崇德店')">
+                    <span class="rest-name">📍 FRIDAYS-崇德店<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-21)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (1)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('FRIDAYS-崇德店')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, 'FRIDAYS-崇德店')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('謙旬 燒鳥 Yakitori')">
+                    <span class="rest-name">📍 謙旬 燒鳥 Yakitori<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-25)</span><span style="font-size:0.78rem; color:#D97706; font-weight:900; margin-left:4px;">★3.0 (2)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('謙旬 燒鳥 Yakitori')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '謙旬 燒鳥 Yakitori')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div><div class="modal-rest-item" onclick="selectModalRestaurant('銘心割烹壽司')">
+                    <span class="rest-name">📍 銘心割烹壽司<span style="font-size:0.75rem; color:#64748B; font-weight:700; margin-left:4px;">(2026-11-28)</span></span>
+                    <div style="display:flex; gap:4px;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('銘心割烹壽司')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '銘心割烹壽司')" title="刪除此紀錄">🗑️</button>
+                    </div>
+                </div></div>
 
             <div class="btn-action" style="margin-top: 18px;">
                 <button type="button" class="action-btn btn-primary" onclick="confirmRestaurantModal()">✅ 確認送出</button>
@@ -1200,7 +1653,8 @@
             matchPools: ref(db, 'matchPoolsData'),
             vehicleConfig: ref(db, 'vehicleConfig'),
             rookieProtection: ref(db, 'rookieProtectionGroups'),
-            restaurantReviews: ref(db, 'restaurantReviews')
+            restaurantReviews: ref(db, 'restaurantReviews'),
+            hiddenRestaurants: ref(db, 'hiddenRestaurants')
         };
 
         const PASSWORDS = {
@@ -1220,6 +1674,7 @@
             pinnedRestaurants: [],
             presetTeams: [],
             restaurantReviewsData: {},
+            hiddenRestaurants: [],
             isReviewAdminMode: false,
             rookieProtectionGroups: [],
             editingRookieData: [],
@@ -1275,6 +1730,17 @@
                 .replace(/>/g, '&gt;')
                 .replace(/"/g, '&quot;')
                 .replace(/'/g, '&#39;');
+        }
+
+        function escapeJsStr(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/\\/g, '\\\\')
+                .replace(/'/g, "\\'");
         }
 
         function encodeFirebaseKey(key) {
@@ -2462,7 +2928,7 @@
             container.innerHTML = state.defaultPresetNames.map(name => `
                 <div class="trainer-list-item">
                     <span>⚡ ${escapeHtml(name)}</span>
-                    <button type="button" class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapeHtml(name).replace(/'/g, "\\'")}')">🗑️ 刪除</button>
+                    <button type="button" class="btn-danger" style="padding:4px 8px; font-size:0.78rem; min-height:32px;" onclick="deleteTrainerPreset('${escapeJsStr(name)}')">🗑️ 刪除</button>
                 </div>
             `).join('');
         }
@@ -2564,15 +3030,38 @@
 
             for (let level of constraintLevels) {
                 for (let attempt = 0; attempt < 1000; attempt++) {
-                    let poolForRandom = players.filter(p => !rookieAssignedPlayers.has(p));
-                    let currentPlayers = shuffle([...poolForRandom]);
-                    let currentBye = [];
-                    const remainder = players.length % teamSizeVal;
+                    // === 步驟 1：先建「強行同隊組」，不滿一隊的餘數暫存 ===
+                    let currentPlayers = shuffle(players.filter(p => !rookieAssignedPlayers.has(p)));
+                    let tempTeams = [];
+                    let rookieLeftover = [];
 
-                    if (remainder !== 0) {
+                    rookieForcedSubgroups.forEach(subgroup => {
+                        let group = [...subgroup];
+                        while (group.length < teamSizeVal && currentPlayers.length > 0) group.push(currentPlayers.shift());
+                        if (group.length < teamSizeVal) rookieLeftover.push(...group);
+                        else tempTeams.push(group);
+                    });
+
+                    // === 步驟 2：剩餘人員（含保護組餘數）併回待分配池 ===
+                    let pool = [...rookieLeftover, ...currentPlayers];
+                    currentPlayers = pool;
+
+                    // === 步驟 3：決定爽打名單（保護組餘數優先當爽打）===
+                    let currentBye = [];
+                    const byeCount = currentPlayers.length % teamSizeVal;
+
+                    if (byeCount > 0) {
                         const lowProbByeNames = ["團團", "破鳳", "老朱", "PETER", "台長", "楷雲", "MISHA", "陳彤", "阿卡"];
-                        for (let r = 0; r < remainder; r++) {
-                            if (currentPlayers.length === 0) break;
+
+                        // 3-1 保護組餘數優先列入爽打
+                        while (currentBye.length < byeCount && rookieLeftover.length > 0) {
+                            const nm = rookieLeftover.shift();
+                            const i = currentPlayers.indexOf(nm);
+                            if (i >= 0) { currentPlayers.splice(i, 1); currentBye.push(nm); }
+                        }
+
+                        // 3-2 仍不足則用原本的加權機率挑選
+                        while (currentBye.length < byeCount && currentPlayers.length > 0) {
                             let candidates = currentPlayers.map((p, idx) => {
                                 const surrBye = getSurroundingByeCount(p, targetEventDateVal, 10);
                                 const totBye = getTotalByeCount(p);
@@ -2604,15 +3093,8 @@
                         }
                     }
 
-                    let tempTeams = [];
                     let isValid = true;
                     let isYuanYuanAndZaiPaired = false;
-
-                    rookieForcedSubgroups.forEach(subgroup => {
-                        let group = [...subgroup];
-                        while (group.length < teamSizeVal && currentPlayers.length > 0) group.push(currentPlayers.shift());
-                        tempTeams.push(group);
-                    });
 
                     while (currentPlayers.length > 0) {
                         tempTeams.push(currentPlayers.splice(0, teamSizeVal));
@@ -2657,9 +3139,12 @@
             if (players.length < state.selectedTeamSize) return showToast(`請至少選擇 ${state.selectedTeamSize} 位訓練家！`);
 
             const restaurantData = parseRestaurantInput(state.selectedRestaurantRaw.trim());
-            if (restaurantData.name && restaurantData.name !== "Google 地圖連結" && !state.customRestaurants.includes(restaurantData.name)) {
-                state.customRestaurants.push(restaurantData.name);
-                set(DB_REFS.customRestaurants, state.customRestaurants);
+            if (restaurantData.name && restaurantData.name !== "Google 地圖連結") {
+                unhideRestaurantName(restaurantData.name);
+                if (!state.customRestaurants.includes(restaurantData.name)) {
+                    state.customRestaurants.push(restaurantData.name);
+                    set(DB_REFS.customRestaurants, state.customRestaurants);
+                }
             }
 
             const pairingRes = drawPairingAlgorithm(players, state.selectedTeamSize, eventDateVal);
@@ -3079,7 +3564,7 @@
             }
             const lastUsedMap = getRestaurantLastUsedDatesMap();
             container.innerHTML = list.map(name => {
-                const escapedName = escapeHtml(name).replace(/'/g, "\\'");
+                const escapedName = escapeJsStr(name);
                 const encodedKey = encodeFirebaseKey(name);
                 const reviews = state.restaurantReviewsData[encodedKey] || state.restaurantReviewsData[name] || {};
                 const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
@@ -3095,7 +3580,10 @@
                 }
                 return `<div class="modal-rest-item" onclick="selectEditPresetRestaurant('${escapedName}')">
                     <span class="rest-name">${pinMark}${escapeHtml(name)}${lastDate}${ratingBadge}</span>
-                    <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('${escapedName}')" title="查看與發表評價">⭐ 評價</button>
+                    <div style="display:flex; gap:4px; flex-shrink:0;">
+                        <button type="button" class="btn-edit" style="padding:2px 6px; font-size:0.75rem; min-height:28px;" onclick="event.stopPropagation(); openRestaurantReviewModal('${escapedName}')" title="查看與發表評價">⭐ 評價</button>
+                        <button type="button" class="btn-del-rest" onclick="deleteRestaurant(event, '${escapedName}')" title="從選單移除此餐廳">🗑️</button>
+                    </div>
                 </div>`;
             }).join('');
         }
@@ -3745,16 +4233,13 @@
 
         function getAllRestaurants() {
             let set = new Set();
-            state.historyRounds.forEach(r => {
-                const name = r.restaurantName || r.restaurant;
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            state.customRestaurants.forEach(name => {
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
-            state.pinnedRestaurants.forEach(name => {
-                if (name && name !== "Google 地圖連結") set.add(name);
-            });
+            const hidden = state.hiddenRestaurants || [];
+            const pushName = (name) => {
+                if (name && name !== "Google 地圖連結" && !hidden.includes(name)) set.add(name);
+            };
+            state.historyRounds.forEach(r => pushName(r.restaurantName || r.restaurant));
+            state.customRestaurants.forEach(pushName);
+            state.pinnedRestaurants.forEach(pushName);
             const lastUsedMap = getRestaurantLastUsedDatesMap();
             return Array.from(set).sort((a, b) => {
                 const aPinned = state.pinnedRestaurants.includes(a);
@@ -3798,7 +4283,7 @@
                     const total = reviewsArr.reduce((sum, r) => sum + (Number(r.rating) || 0), 0);
                     scoreText = `★ ${(total / reviewsArr.length).toFixed(1)} (${reviewsArr.length})`;
                 }
-                const escapedName = escapeHtml(name).replace(/'/g, "\\'");
+                const escapedName = escapeJsStr(name);
                 ratingBtn = `<button type="button" class="btn-edit" style="background:#FFF7D6; border-color:#FDE68A; color:#B45309; padding:2px 8px; font-size:0.78rem; min-height:28px;" onclick="openRestaurantReviewModal('${escapedName}', event)">${scoreText}</button>`;
             }
 
@@ -3890,7 +4375,7 @@
             }
             const lastUsedMap = getRestaurantLastUsedDatesMap();
             container.innerHTML = list.map(name => {
-                const escapedName = escapeHtml(name).replace(/'/g, "\\'");
+                const escapedName = escapeJsStr(name);
                 const encodedKey = encodeFirebaseKey(name);
                 const reviews = state.restaurantReviewsData[encodedKey] || state.restaurantReviewsData[name] || {};
                 const reviewsArr = Object.values(reviews).filter(r => !r.isModerated);
@@ -3978,6 +4463,7 @@
             const parsed = parseRestaurantInput(val);
             const restName = parsed.name || val;
             if (restName && restName !== "Google 地圖連結") {
+                unhideRestaurantName(restName);
                 if (!state.customRestaurants.includes(restName)) {
                     state.customRestaurants.push(restName);
                     set(DB_REFS.customRestaurants, state.customRestaurants);
@@ -4012,12 +4498,15 @@
 
         function updatePinButtonState() {
             const btn = document.getElementById('btnTogglePinRestaurant');
+            const delBtn = document.getElementById('btnDeleteSelectedRestaurant');
             if (!btn) return;
             if (!state.selectedReviewRestaurant) {
                 btn.style.display = 'none';
+                if (delBtn) delBtn.style.display = 'none';
                 return;
             }
             btn.style.display = 'inline-flex';
+            if (delBtn) delBtn.style.display = 'inline-flex';
             const isPinned = state.pinnedRestaurants.includes(state.selectedReviewRestaurant);
             if (isPinned) {
                 btn.classList.add('pinned');
@@ -4109,7 +4598,8 @@
             }
 
             container.innerHTML = entries.map(([revId, rev]) => {
-                const stars = '★'.repeat(rev.rating || 5) + '☆'.repeat(5 - (rev.rating || 5));
+                const starCount = Math.min(5, Math.max(1, Math.round(Number(rev.rating) || 5)));
+                const stars = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
                 const dateStr = rev.timestamp ? new Date(rev.timestamp).toLocaleString('zh-TW', { hour12: false }) : '';
                 const isMod = !!rev.isModerated;
                 const displayComment = isMod && !state.isReviewAdminMode
@@ -4280,14 +4770,59 @@
             showToast("✅ 餐廳名稱與地圖連結已更新！");
         };
 
+        function hideRestaurantName(name) {
+            if (!name) return;
+            let hidden = [...(state.hiddenRestaurants || [])];
+            if (!hidden.includes(name)) hidden.push(name);
+            state.hiddenRestaurants = hidden;
+            set(DB_REFS.hiddenRestaurants, hidden);
+
+            const newCustom = state.customRestaurants.filter(r => r !== name);
+            if (newCustom.length !== state.customRestaurants.length) {
+                state.customRestaurants = newCustom;
+                set(DB_REFS.customRestaurants, newCustom);
+            }
+            if (state.pinnedRestaurants.includes(name)) {
+                const newPins = state.pinnedRestaurants.filter(p => p !== name);
+                state.pinnedRestaurants = newPins;
+                set(DB_REFS.pinnedRestaurants, newPins);
+            }
+            if (state.selectedReviewRestaurant === name) {
+                state.selectedReviewRestaurant = "";
+                const selEl = document.getElementById('reviewRestaurantSelect');
+                if (selEl) selEl.value = '';
+                onReviewRestaurantSelectChange();
+                updatePinButtonState();
+            }
+            refreshRestaurantPickers();
+        }
+
+        function unhideRestaurantName(name) {
+            if (!name) return;
+            if (!(state.hiddenRestaurants || []).includes(name)) return;
+            const hidden = state.hiddenRestaurants.filter(r => r !== name);
+            state.hiddenRestaurants = hidden;
+            set(DB_REFS.hiddenRestaurants, hidden);
+        }
+
+        function refreshRestaurantPickers() {
+            renderModalRestaurantList();
+            renderEditPresetRestaurantList();
+            populateReviewRestaurantSelect();
+        }
+
+        window.deleteSelectedRestaurant = function() {
+            const name = state.selectedReviewRestaurant || document.getElementById('reviewRestaurantSelect').value;
+            if (!name) return showToast("請先選擇要刪除的餐廳！");
+            deleteRestaurant(null, name);
+        };
+
         window.deleteRestaurant = function(event, name) {
             if (event) event.stopPropagation();
             openPasswordModal("🔐 請輸入管理員密碼", "從常用選單移除餐廳需要管理員權限，請輸入管理密碼：", (pwd) => {
                 if (pwd.trim() === PASSWORDS.ADMIN) {
-                    showConfirm(`確定要從常用餐廳選單中移除「${name}」嗎？`, () => {
-                        state.customRestaurants = state.customRestaurants.filter(r => r !== name);
-                        set(DB_REFS.customRestaurants, state.customRestaurants);
-                        renderModalRestaurantList();
+                    showConfirm(`確定要從餐廳選單中移除「${name}」嗎？\n（歷史對戰紀錄中的餐廳名稱不會被刪除）`, () => {
+                        hideRestaurantName(name);
                         showToast(`已移除餐廳「${name}」`);
                     });
                     return true;
@@ -4301,8 +4836,7 @@
         onValue(DB_REFS.restaurantReviews, (snapshot) => {
             state.restaurantReviewsData = snapshot.val() || {};
             if (state.selectedReviewRestaurant) onReviewRestaurantSelectChange();
-            renderModalRestaurantList();
-            renderEditPresetRestaurantList();
+            refreshRestaurantPickers();
         });
 
         onValue(DB_REFS.rookieProtection, (snapshot) => {
@@ -4319,22 +4853,26 @@
             updatePoolsUI();
             if (document.getElementById('upcomingBattlesModal').style.display === 'flex') renderUpcomingBattlesModal();
             if (document.getElementById('historyBattlesModal').style.display === 'flex') renderHistoryBattlesModal();
+            refreshRestaurantPickers();
         });
 
         onValue(DB_REFS.customRestaurants, (snapshot) => {
             const data = snapshot.val();
             state.customRestaurants = data ? (Array.isArray(data) ? data.filter(Boolean) : Object.values(data)) : [];
-            renderModalRestaurantList();
-            renderEditPresetRestaurantList();
+            refreshRestaurantPickers();
         });
 
         onValue(DB_REFS.pinnedRestaurants, (snapshot) => {
             const data = snapshot.val();
             state.pinnedRestaurants = data ? (Array.isArray(data) ? data.filter(Boolean) : Object.values(data)) : [];
             updatePinButtonState();
-            populateReviewRestaurantSelect();
-            renderModalRestaurantList();
-            renderEditPresetRestaurantList();
+            refreshRestaurantPickers();
+        });
+
+        onValue(DB_REFS.hiddenRestaurants, (snapshot) => {
+            const data = snapshot.val();
+            state.hiddenRestaurants = data ? (Array.isArray(data) ? data.filter(Boolean) : Object.values(data)) : [];
+            refreshRestaurantPickers();
         });
 
         onValue(DB_REFS.presets, (snapshot) => {
@@ -4392,5 +4930,6 @@
         initNameTags();
         initReviewAuthorTags();
     </script>
-</body>
-</html>
+
+
+</body></html>
